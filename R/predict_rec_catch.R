@@ -25,7 +25,7 @@ predict_rec_catch <- function(state1,
 
   #avg_cv<-list()
   #for (x in 1:10){
-  #profile<-    profvis::profvis({
+  profile<-    profvis::profvis({
   #   # #
   #   state1 <- "NJ"
   #   calibration_data_table <- calibration_data_table_base[[5]]
@@ -120,8 +120,7 @@ predict_rec_catch <- function(state1,
 
   sf_catch_data <- sf_catch_data_all %>%
     dplyr::rename(tot_sf_catch = sf_catch,  tot_bsb_catch = bsb_catch, tot_scup_catch = scup_catch)  %>%
-    dplyr::select(-c(month1)) %>%
-    subset(decade==d)
+    dplyr::select(-c(month1))
 
   sf_catch_data <- sf_catch_data %>%
     dplyr::group_by(period2) %>%
@@ -321,7 +320,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "decade"))
+    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
 
 
 
@@ -1006,7 +1005,7 @@ predict_rec_catch <- function(state1,
   # seed_stats<-c(draw, state1, eff_seed)
   # seeds <- append(seed, seed_stats)
   #
-  #})
+  })
   return(trip_level_output)
 
   #end function

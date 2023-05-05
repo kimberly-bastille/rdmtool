@@ -2,7 +2,7 @@
 
 library(magrittr)
 ## This script creates objects used in multiple following locations
-options(future.globals.maxSize= 1000000000)
+options(future.globals.maxSize= 10000000000)
 
 n_drawz<-1000
 n_catch_draws<-30
@@ -61,50 +61,49 @@ directed_trips_table_base <- split(directed_trips_table, directed_trips_table$st
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_25_*")
 sf_catch_data_ma <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MA")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_44_*")
 sf_catch_data_ri <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="RI")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_9_*")
 sf_catch_data_ct <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="CT")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_36_*")
 sf_catch_data_ny <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NY")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_34_*")
 sf_catch_data_nj <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NJ")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_10_*")
 sf_catch_data_de <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="DE")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_24_*")
 sf_catch_data_md <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MD")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_51_*")
 sf_catch_data_va <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="VA")
 
 
 
 catch_files_all_cal = as.data.frame(rbind(sf_catch_data_ma, sf_catch_data_ri, sf_catch_data_ct,
                                           sf_catch_data_ny, sf_catch_data_nj, sf_catch_data_de,
-                                          sf_catch_data_md, sf_catch_data_va)) %>%
-  dplyr::filter(decade == 1)
+                                          sf_catch_data_md, sf_catch_data_va))
 
 catch_files_all_cal_base <- split(catch_files_all_cal, catch_files_all_cal$state)
 rm(catch_files_all_cal)
@@ -115,50 +114,49 @@ rm(sf_catch_data_ma, sf_catch_data_ri, sf_catch_data_ct, sf_catch_data_ny, sf_ca
 # Here input  catch-per-trip projections that are based on 2020
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_25_*")
 sf_catch_data_ma <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MA")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_44_*")
 sf_catch_data_ri <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="RI")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_9_*")
 sf_catch_data_ct <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="CT")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_36_*")
 sf_catch_data_ny <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NY")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_34_*")
 sf_catch_data_nj <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NJ")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_10_*")
 sf_catch_data_de <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="DE")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_24_*")
 sf_catch_data_md <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MD")
 
 catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_51_*")
 sf_catch_data_va <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
-  dplyr::select(-state) %>%
+  dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="VA")
 
 
 
 catch_files_all = as.data.frame(rbind(sf_catch_data_ma, sf_catch_data_ri, sf_catch_data_ct,
                                       sf_catch_data_ny, sf_catch_data_nj, sf_catch_data_de,
-                                      sf_catch_data_md, sf_catch_data_va)) %>%
-  dplyr::filter(decade == 1)
+                                      sf_catch_data_md, sf_catch_data_va))
 
 catch_files_all_base <- split(catch_files_all, catch_files_all$state)
 rm(catch_files_all)
