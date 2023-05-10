@@ -180,3 +180,4 @@ scup_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/scup_len
                          state!="NC",select=c(state, fitted_length, prob_star))
 scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
 
+rm(sf_size_data, bsb_size_data, scup_size_data, directed_trips_table)

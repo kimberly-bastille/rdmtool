@@ -5,11 +5,13 @@
 
 predictions = list()
 
+eff_seed<-32190
+set.seed(eff_seed)
 
 # Start the clock!
-ptm <- proc.time()
+#ptm <- proc.time()
 
-for (x in 1:100){
+for (x in 1:5){
   
   print(x)
   params <- list(state1 = c("NJ"),
@@ -21,27 +23,28 @@ for (x in 1:100){
                  sf_catch_data_all = c(list(catch_files_all_cal_base[[5]])))
   
   
-  source("R/calibrate_rec_catch.R")
+  # source("R/calibrate_rec_catch.R")
+  # 
+  # # parallelly::availableCores()
+  # # future::plan(future::multisession, workers=6)
+  # 
+  # safe_calibrate_rec_catch <- purrr::safely(calibrate_rec_catch, otherwise = NA_real_)
+  # 
+  # #xx_check_cal <-  pmap(params, safe_calibrate_rec_catch)
+  # #xx_check_cal <-  furrr::future_pmap(params, safe_calibrate_rec_catch, .options = furrr::furrr_options(seed = 32190))
+  # xx_check_cal <-  purrr::pmap(params, safe_calibrate_rec_catch)
+  # #
+  #  calibration_output_by_period<-list()
+  # #
+  #  print("made it out of xx_check_cal")
+
+  calibration_output_by_period<- readRDS(file = "pds_new_all.rds") %>% 
+    dplyr::filter(n_draw == x)
   
-  parallelly::availableCores()
-  future::plan(future::multisession, workers=6)
-  
-  safe_calibrate_rec_catch <- purrr::safely(calibrate_rec_catch, otherwise = NA_real_)
-  
-  #xx_check_cal <-  pmap(params, safe_calibrate_rec_catch)
-  xx_check_cal <-  furrr::future_pmap(params, safe_calibrate_rec_catch, .options = furrr::furrr_options(seed = 32190+x))
-  
-  calibration_output_by_period<-list()
-  
-  print("made it out of xx_check_cal")
-  #xx_check_cal
-  
-  
-  
-  
-  calibration_output_by_period<-rbind( xx_check_cal[[1]][["result"]][[1]])
-  
-  costs_new_all<-               rbind( xx_check_cal[[1]][["result"]][[2]])
+  costs_new_all<- readRDS(file = "costs_new_all.rds") %>% 
+    dplyr::filter(n_draw == x)
+  #calibration_output_by_period<-rbind( xx_check_cal[[1]][["result"]][[1]])
+  #costs_new_all2<-               rbind( xx_check_cal[[1]][["result"]][[2]])
   
   #saveRDS(calibration_output_by_period, file = "calibration_output_by_period_d8_sub5.rds")
   
@@ -69,14 +72,9 @@ for (x in 1:100){
   ##Run the catch function
   source("R/predict_rec_catch.R")
   
-  parallelly::availableCores()
-  future::plan(future::multisession, workers=6)
+  # parallelly::availableCores()
+  # future::plan(future::multisession, workers=6)
   
-  
-  
-  eff_seed<-32190+x
-  
-  set.seed(eff_seed)
   
   params <- list(state1 = c( "NJ"),
                  calibration_data_table = c(list(calibration_data_table_base[[1]])),
@@ -86,18 +84,21 @@ for (x in 1:100){
                  scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
                  costs_new_all = c(list(cost_files_all_base[[1]])),
                  sf_catch_data_all = c(list(catch_files_all_base[[5]])))
+  #print(head(params))
   
   
   safe_predict_rec_catch <- purrr::safely(predict_rec_catch, otherwise = NA_real_)
   
-  xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190+x))
-  
-  prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
+  #xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190))
+  xx_check <-  purrr::pmap(params, safe_predict_rec_catch)
+  #print(head(xx_check))
+  #prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
+  prediction_output_by_period1 <- purrr::map(xx_check, 1)
   print("made it through predict")
   
   
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
-    
+    print("prediction_output_by_period1 is not numeric")
     prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
     prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("period", "mode"), "_")
@@ -292,17 +293,19 @@ for (x in 1:100){
   
   
   else{
-    
+    print("prediction_output_by_period1 is numeric")
     
   }
-  
+  # rm(calibration_data_table_base, calibration_output_by_period, 
+  #    params, prediction_output_by_period1, xx_check,
+  #    costs_new_all)
 }
 predictions_all<-list()
 predictions_all<-rlist::list.rbind(predictions)
 
 
 # Stop the clock
-proc.time() - ptm
+#proc.time() - ptm
 
 predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_test.xlsx") #These results with the substitution parameter == -0.5, decade 8
@@ -310,8 +313,8 @@ predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_sub5_add_on.xlsx")
 #write_xlsx(predictions_all,"projections_decade8_sub5_4_17.xlsx")
 #write_xlsx(predictions_all,"projections_decade8_sub25_test.xlsx")
-write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
+#write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
 
-readr::write_csv("projections_NJ.csv")
+readr::write_csv(predictions_all, "projections_NJ_future_removed_seed_outside.csv")
 
 

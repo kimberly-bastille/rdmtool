@@ -13,15 +13,23 @@
 # p_star_sf <- p_star_sf_VA_variable
 # p_star_bsb<-p_star_bsb_VA_variable
 # p_star_scup<-p_star_scup_VA_variable
+# state1 <- "NJ"
+# state_no<-34
+# directed_trips_table <- directed_trips_table_base[[5]]
+# sf_catch_data_all <- catch_files_all_base[[5]]
+# p_star_sf <- p_star_sf_VA_variable
+# p_star_bsb<-p_star_bsb_VA_variable
+# p_star_scup<-p_star_scup_VA_variable
+# p_star_scup<-p_star_scup_VA_variable
 
-#
 calibrate_rec_catch <- function(state1,
                                 state_no,
                                 directed_trips_table,
                                 sf_catch_data_all,
                                 p_star_sf,
                                 p_star_bsb,
-                                p_star_scup){
+                                p_star_scup, 
+                                k){
   
   #
   
@@ -611,7 +619,8 @@ calibrate_rec_catch <- function(state1,
                   tot_rel_sf_base = tot_rel_sf,
                   tot_keep_bsb_base = tot_keep_bsb,
                   tot_rel_bsb_base = tot_rel_bsb,
-                  tot_cat_scup_base = tot_scup_catch)
+                  tot_cat_scup_base = tot_scup_catch) %>% 
+    dplyr::mutate(n_draw = k)
   
   
   
@@ -787,76 +796,28 @@ calibrate_rec_catch <- function(state1,
   
   names(aggregate_trip_data)[names(aggregate_trip_data) == "probA"] = "estimated_trips"
   pds_new_all<-aggregate_trip_data %>%
-    dplyr::mutate(state=state1)
+    dplyr::mutate(state=state1, 
+                  n_draw = k)
   
   output<-list(pds_new_all, costs_new_all)
-  
+  #
   return(output)
-  
-  
+
+  # return(pds_new_all)
+  # return(costs_new_all)
   
 }
 
+pds_new_all<- data.frame()
+costs_new_all<- data.frame()
+for(k in 1:5){
+  calibration<- calibrate_rec_catch("NJ", 34, directed_trips_table_base[[5]],
+                      catch_files_all_base[[5]], p_star_sf_NJ_variable,
+                      p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)
+  pds_new_all<- rbind(pds_new_all, as.data.frame(calibration[1]))
+  costs_new_all<- rbind(costs_new_all, as.data.frame(calibration[2]))
+}
 
+saveRDS(pds_new_all, file = "pds_new_all.rds")
+saveRDS(costs_new_all, file = "costs_new_all.rds")
 
-
-
-
-###Compare calibration model output with MRIP
-
-# MRIP_data <- subset(data.frame( read.csv("total AB1B2 2020 by state.csv")), state=="MA")
-#
-#
-#
-# ##SF
-# sum(pds_new_all_MA$tot_keep_sf)
-# sum(MRIP_data$sf_harvest)
-# sf_harvest_harv_diff<-((sum(MRIP_data$sf_harvest)-sum(pds_new_all_MA$tot_keep_sf))/sum(MRIP_data$sf_harvest))*100
-# sf_harvest_harv_diff
-#
-# sum(pds_new_all_MA$tot_rel_sf)
-# sum(MRIP_data$sf_releases)
-# sf_rel_diff<-((sum(MRIP_data$sf_releases)-sum(pds_new_all_MA$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
-# sf_rel_diff
-#
-# sum(pds_new_all_MA$tot_sf_catch)
-# sum(MRIP_data$sf_tot_cat)
-# sf_tot_cat_diff<-((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all_MA$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
-# sf_tot_cat_diff
-#
-#
-#
-#
-# ##BSB
-# sum(pds_new_all_MA$tot_keep_bsb)
-# sum(MRIP_data$bsb_harvest)
-# bsb_harvest_harv_diff<-((sum(MRIP_data$bsb_harvest)-sum(pds_new_all_MA$tot_keep_bsb))/sum(MRIP_data$bsb_harvest))*100
-# bsb_harvest_harv_diff
-#
-# sum(pds_new_all_MA$tot_rel_bsb)
-# sum(MRIP_data$bsb_releases)
-# ((sum(MRIP_data$bsb_releases)-sum(pds_new_all_MA$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
-#
-# sum(pds_new_all_MA$tot_bsb_catch)
-# sum(MRIP_data$bsb_tot_cat)
-# ((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all_MA$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
-#
-#
-#
-#
-#
-# ##scup
-# sum(pds_new_all_MA$tot_keep_scup)
-# sum(MRIP_data$scup_harvest)
-# scup_harvest_harv_diff<-((sum(MRIP_data$scup_harvest)-sum(pds_new_all_MA$tot_keep_scup))/sum(MRIP_data$scup_harvest))*100
-# scup_harvest_harv_diff
-#
-# sum(pds_new_all_MA$tot_rel_scup)
-# sum(MRIP_data$scup_releases)
-# ((sum(MRIP_data$scup_releases)-sum(pds_new_all_MA$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
-#
-# sum(pds_new_all_MA$tot_scup_catch)
-# sum(MRIP_data$scup_tot_cat)
-# ((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all_MA$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
-#
-#
