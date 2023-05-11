@@ -27,14 +27,14 @@ predict_rec_catch <- function(state1,
   #for (x in 1:10){
   #profile<-    profvis::profvis({
   #   # #
-    state1 <- "NJ"
-    calibration_data_table <- calibration_data_table_base[[1]]
-    directed_trips_table <- directed_trips_table_base[[5]]
-    sf_size_data_read <- sf_size_data_read_base[[5]]
-    bsb_size_data_read <- bsb_size_data_read_base[[5]]
-    scup_size_data_read <- scup_size_data_read_base[[5]]
-    costs_new_all <- cost_files_all_base[[1]]
-    sf_catch_data_all <- catch_files_all_base[[5]]
+    # state1 <- "NJ"
+    # calibration_data_table <- calibration_data_table_base[[1]]
+    # directed_trips_table <- directed_trips_table_base[[5]]
+    # sf_size_data_read <- sf_size_data_read_base[[5]]
+    # bsb_size_data_read <- bsb_size_data_read_base[[5]]
+    # scup_size_data_read <- scup_size_data_read_base[[5]]
+    # costs_new_all <- cost_files_all_base[[1]]
+    # sf_catch_data_all <- catch_files_all_base[[5]]
 
   # if(!exists(".Random.seed")) set.seed(NULL)
   #set.seed(24735)
@@ -628,7 +628,7 @@ predict_rec_catch <- function(state1,
   #names<- c(grep("*beta*", names(costs_new_all), value=TRUE, invert=TRUE))
   costs_new_all <- costs_new_all   %>% #tibble() %>%
     #dplyr::filter(catch_draw<=n_catch_draws) %>% #%>%select(all_of(names)) %>%
-    dplyr::filter(catch_draw<=n_draw) %>% 
+    dplyr::filter(catch_draw<=n_drawz) %>% 
     dplyr::select(-beta_cost) %>%
     dplyr::rename(beta_sqrt_sf_keep_base=beta_sqrt_sf_keep,
                   beta_sqrt_sf_release_base=beta_sqrt_sf_release,

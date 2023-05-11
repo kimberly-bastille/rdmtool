@@ -620,7 +620,7 @@ calibrate_rec_catch <- function(state1,
                   tot_keep_bsb_base = tot_keep_bsb,
                   tot_rel_bsb_base = tot_rel_bsb,
                   tot_cat_scup_base = tot_scup_catch) %>% 
-    dplyr::mutate(n_draw = k)
+    dplyr::mutate(n_cal_draw = k)
   
   
   
@@ -797,7 +797,7 @@ calibrate_rec_catch <- function(state1,
   names(aggregate_trip_data)[names(aggregate_trip_data) == "probA"] = "estimated_trips"
   pds_new_all<-aggregate_trip_data %>%
     dplyr::mutate(state=state1, 
-                  n_draw = k)
+                  n_cal_draw = k)
   
   output<-list(pds_new_all, costs_new_all)
   #

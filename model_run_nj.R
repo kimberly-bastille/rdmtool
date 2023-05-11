@@ -39,10 +39,10 @@ for (x in 1:5){
   #  print("made it out of xx_check_cal")
 
   calibration_output_by_period<- readRDS(file = "pds_new_all.rds") %>% 
-    dplyr::filter(n_draw == x)
+    dplyr::filter(n_cal_draw == x)
   
   costs_new_all<- readRDS(file = "costs_new_all.rds") %>% 
-    dplyr::filter(n_draw == x)
+    dplyr::filter(n_cal_draw == x)
   #calibration_output_by_period<-rbind( xx_check_cal[[1]][["result"]][[1]])
   #costs_new_all2<-               rbind( xx_check_cal[[1]][["result"]][[2]])
   
