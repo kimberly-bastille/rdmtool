@@ -11,7 +11,7 @@ set.seed(eff_seed)
 # Start the clock!
 #ptm <- proc.time()
 
-for (x in 1:5){
+for (x in 1:100){
   
   print(x)
   params <- list(state1 = c("NJ"),
@@ -38,11 +38,9 @@ for (x in 1:5){
   # #
   #  print("made it out of xx_check_cal")
 
-  calibration_output_by_period<- readRDS(file = "pds_new_all.rds") %>% 
-    dplyr::filter(n_cal_draw == x)
+  calibration_output_by_period<- readRDS(file = paste0("data-raw/calibration/pds_NJ_",x,".rds")) 
   
-  costs_new_all<- readRDS(file = "costs_new_all.rds") %>% 
-    dplyr::filter(n_cal_draw == x)
+  costs_new_all<- readRDS(file = paste0("data-raw/calibration/costs_NJ_",x,".rds")) 
   #calibration_output_by_period<-rbind( xx_check_cal[[1]][["result"]][[1]])
   #costs_new_all2<-               rbind( xx_check_cal[[1]][["result"]][[2]])
   
@@ -315,6 +313,6 @@ predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_sub25_test.xlsx")
 #write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
 
-readr::write_csv(predictions_all, "projections_NJ_future_removed_seed_outside.csv")
+readr::write_csv(predictions_all, "projections_NJ.csv")
 
 

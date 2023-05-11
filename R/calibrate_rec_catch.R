@@ -808,16 +808,5 @@ calibrate_rec_catch <- function(state1,
   
 }
 
-pds_new_all<- data.frame()
-costs_new_all<- data.frame()
-for(k in 1:5){
-  calibration<- calibrate_rec_catch("NJ", 34, directed_trips_table_base[[5]],
-                      catch_files_all_base[[5]], p_star_sf_NJ_variable,
-                      p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)
-  pds_new_all<- rbind(pds_new_all, as.data.frame(calibration[1]))
-  costs_new_all<- rbind(costs_new_all, as.data.frame(calibration[2]))
-}
 
-saveRDS(pds_new_all, file = "pds_new_all.rds")
-saveRDS(costs_new_all, file = "costs_new_all.rds")
 
