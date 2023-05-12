@@ -1,5 +1,5 @@
 ##############################
-### NJ Rec model run  ########
+### CT Rec model run  ########
 ##############################
 
 
@@ -14,18 +14,18 @@ set.seed(eff_seed)
 for (x in 1:100){
   
   print(x)
-  params <- list(state1 = c("NJ"),
-                 state_no=c(34),
-                 directed_trips_table = c(list(directed_trips_table_base[[5]])),
-                 p_star_sf = c(p_star_sf_NJ_variable),
-                 p_star_bsb = c(p_star_bsb_NJ_variable),
-                 p_star_scup = c(p_star_scup_NJ_variable),
-                 sf_catch_data_all = c(list(catch_files_all_cal_base[[5]])))
-
-
-  calibration_output_by_period<- readRDS(file = paste0("data-raw/calibration/pds_NJ_",x,".rds")) 
+  params <- list(state1 = c("CT"),
+                 state_no=c(9),
+                 directed_trips_table = c(list(directed_trips_table_base[[1]])),
+                 p_star_sf = c(p_star_sf_CT_variable),
+                 p_star_bsb = c(p_star_bsb_CT_variable),
+                 p_star_scup = c(p_star_scup_CT_variable),
+                 sf_catch_data_all = c(list(catch_files_all_cal_base[[1]])))
   
-  costs_new_all<- readRDS(file = paste0("data-raw/calibration/costs_NJ_",x,".rds")) 
+  
+  calibration_output_by_period<- readRDS(file = paste0("data-raw/calibration/pds_CT_",x,".rds")) 
+  
+  costs_new_all<- readRDS(file = paste0("data-raw/calibration/costs_CT_",x,".rds")) 
 
   calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   cost_files_all_base <- split(costs_new_all, costs_new_all$state)
@@ -54,14 +54,14 @@ for (x in 1:100){
   # future::plan(future::multisession, workers=6)
   
   
-  params <- list(state1 = c( "NJ"),
+  params <- list(state1 = c( "CT"),
                  calibration_data_table = c(list(calibration_data_table_base[[1]])),
-                 directed_trips_table = c(list(directed_trips_table_base[[5]])),
-                 sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
-                 bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
-                 scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
+                 directed_trips_table = c(list(directed_trips_table_base[[1]])),
+                 sf_size_data_read = c(list(sf_size_data_read_base[[1]])),
+                 bsb_size_data_read = c(list(bsb_size_data_read_base[[1]])),
+                 scup_size_data_read = c(list(scup_size_data_read_base[[1]])),
                  costs_new_all = c(list(cost_files_all_base[[1]])),
-                 sf_catch_data_all = c(list(catch_files_all_base[[5]])))
+                 sf_catch_data_all = c(list(catch_files_all_base[[1]])))
   #print(head(params))
   
   
@@ -221,41 +221,41 @@ for (x in 1:100){
       
       #Mean CV per choice occasion
       cv_i, 
-      cv_i_NJ, cv_i_boat_NJ, cv_i_shore_NJ,
+      cv_i_CT, cv_i_boat_CT, cv_i_shore_CT,
       
       #Sum CV
       cv_sum, cv_sum_shore, cv_sum_boat,
-      cv_sum_NJ, cv_sum_shore_NJ, cv_sum_boat_NJ, 
+      cv_sum_CT, cv_sum_shore_CT, cv_sum_boat_CT, 
       
       #Mean SF keep per choice occasion
       sf_keep_i, sf_keep_i_boat, sf_keep_i_shore,
-      sf_keep_i_NJ, sf_keep_i_boat_NJ, sf_keep_i_shore_NJ,
+      sf_keep_i_CT, sf_keep_i_boat_CT, sf_keep_i_shore_CT,
       
       #Sum SF keep
       sf_keep_sum, sf_keep_sum_boat, sf_keep_i_shore,
-      sf_keep_sum_NJ, sf_keep_sum_boat_NJ, sf_keep_sum_shore_NJ,
+      sf_keep_sum_CT, sf_keep_sum_boat_CT, sf_keep_sum_shore_CT,
       
       #Mean BSB keep per choice occasion
       bsb_keep_i, bsb_keep_i_boat, bsb_keep_i_shore,
-      bsb_keep_i_NJ, bsb_keep_i_boat_NJ, bsb_keep_i_shore_NJ, 
+      bsb_keep_i_CT, bsb_keep_i_boat_CT, bsb_keep_i_shore_CT, 
       
       #Sum BSB keep
       bsb_keep_sum, bsb_keep_sum_boat, bsb_keep_i_shore,
-      bsb_keep_sum_NJ, bsb_keep_sum_boat_NJ, bsb_keep_sum_shore_NJ, 
+      bsb_keep_sum_CT, bsb_keep_sum_boat_CT, bsb_keep_sum_shore_CT, 
       
       #Sum of number of trips
       ntrips_sum, ntrips_sum_boat, ntrips_sum_shore,
-      ntrips_sum_NJ, ntrips_sum_boat_NJ, ntrips_sum_shore_NJ,
+      ntrips_sum_CT, ntrips_sum_boat_CT, ntrips_sum_shore_CT,
       
       #seeds
-      seed_NJ, 
+      seed_CT, 
       
       #calibration year catch
-      calib_sf_keep_sum_NJ,  calib_sf_rel_sum_NJ, 
-      calib_bsb_keep_sum_NJ, calib_bsb_rel_sum_NJ, 
+      calib_sf_keep_sum_CT,  calib_sf_rel_sum_CT, 
+      calib_bsb_keep_sum_CT, calib_bsb_rel_sum_CT, 
       
       #number of choice occasions
-      n_choice_occasions_NJ, 
+      n_choice_occasions_CT, 
       n_choice_occasions_sum))
     
     predictions[[x]]$draw<-x
@@ -293,6 +293,6 @@ predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_sub25_test.xlsx")
 #write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
 
-readr::write_csv(predictions_all, "projections_NJ.csv")
+readr::write_csv(predictions_all, "projections_CT.csv")
 
 

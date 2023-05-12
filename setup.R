@@ -59,42 +59,42 @@ directed_trips_table_base <- split(directed_trips_table, directed_trips_table$st
 # sf_catch_data_va <- readr::read_csv(file.path(here::here("data-raw/", catch_files)))
 
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_25_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_25_*")
 sf_catch_data_ma <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MA")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_44_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_44_*")
 sf_catch_data_ri <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="RI")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_9_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_9_*")
 sf_catch_data_ct <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="CT")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_36_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_36_*")
 sf_catch_data_ny <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NY")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_34_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_34_*")
 sf_catch_data_nj <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NJ")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_10_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_10_*")
 sf_catch_data_de <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="DE")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_24_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_24_*")
 sf_catch_data_md <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MD")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_ind_catch1_51_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_ind_catch1_51_*")
 sf_catch_data_va <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="VA")
@@ -112,42 +112,42 @@ rm(sf_catch_data_ma, sf_catch_data_ri, sf_catch_data_ct, sf_catch_data_ny, sf_ca
 
 
 # Here input  catch-per-trip projections that are based on 2020
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_25_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_25_*")
 sf_catch_data_ma <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MA")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_44_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_44_*")
 sf_catch_data_ri <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="RI")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_9_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_9_*")
 sf_catch_data_ct <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="CT")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_36_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_36_*")
 sf_catch_data_ny <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NY")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_34_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_34_*")
 sf_catch_data_nj <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="NJ")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_10_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_10_*")
 sf_catch_data_de <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="DE")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_24_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_24_*")
 sf_catch_data_md <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="MD")
 
-catch_files <- dir(file.path(here::here("data-raw/")), pattern = "simulated_corr_catch1_51_*")
+catch_files <- dir(file.path(here::here("data-raw/simulated/")), pattern = "simulated_corr_catch1_51_*")
 sf_catch_data_va <- readr::read_csv(file.path(here::here("data-raw/", catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="VA")

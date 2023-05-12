@@ -96,7 +96,7 @@ for(k in 1:100){
 #### Virginia
 pds_new_all<- data.frame()
 costs_new_all<- data.frame()
-for(k in 1:100){
+for(k in 96:100){
   calibration<- calibrate_rec_catch("VA", 51, directed_trips_table_base[[8]],
                                     catch_files_all_base[[8]], p_star_sf_VA_variable,
                                     p_star_bsb_VA_variable, p_star_scup_VA_variable, k)
