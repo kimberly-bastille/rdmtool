@@ -20,7 +20,7 @@ for (x in 1:100){
                  p_star_sf = c(p_star_sf_CT_variable),
                  p_star_bsb = c(p_star_bsb_CT_variable),
                  p_star_scup = c(p_star_scup_CT_variable),
-                 sf_catch_data_all = c(list(catch_files_all_cal_base[[1]])))
+                 sf_catch_data_all = c(list(catch_files_CT[[2]])))
   
   
   calibration_output_by_period<- readRDS(file = paste0("data-raw/calibration/pds_CT_",x,".rds")) 

@@ -7,11 +7,13 @@ predictions = list()
 
 eff_seed<-32190
 set.seed(eff_seed)
+load(here::here(paste0("data/catch_files_NJ.rda")))
+sf_catch_data_all <- catch_files_NJ[[2]]
 
 # Start the clock!
 #ptm <- proc.time()
 
-for (x in 1:100){
+for (x in 1:1){
   
   print(x)
   params <- list(state1 = c("NJ"),
@@ -20,12 +22,12 @@ for (x in 1:100){
                  p_star_sf = c(p_star_sf_NJ_variable),
                  p_star_bsb = c(p_star_bsb_NJ_variable),
                  p_star_scup = c(p_star_scup_NJ_variable),
-                 sf_catch_data_all = c(list(catch_files_all_cal_base[[5]])))
+                 sf_catch_data_all = c(list(catch_files_NJ[[2]])))
 
 
-  calibration_output_by_period<- readRDS(file = paste0("data-raw/calibration/pds_NJ_",x,".rds")) 
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) 
   
-  costs_new_all<- readRDS(file = paste0("data-raw/calibration/costs_NJ_",x,".rds")) 
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,".rds"))) 
 
   calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   cost_files_all_base <- split(costs_new_all, costs_new_all$state)
@@ -48,7 +50,7 @@ for (x in 1:100){
   
   
   ##Run the catch function
-  source("R/predict_rec_catch.R")
+  source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6)
@@ -61,7 +63,7 @@ for (x in 1:100){
                  bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
                  scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
                  costs_new_all = c(list(cost_files_all_base[[1]])),
-                 sf_catch_data_all = c(list(catch_files_all_base[[5]])))
+                 sf_catch_data_all = c(list(catch_files_NJ[[2]])))
   #print(head(params))
   
   
@@ -161,33 +163,33 @@ for (x in 1:100){
                                                            prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       #Sum values per by state
-      assign(paste0("cv_sum_", s), sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("cv_sum_boat_", s), sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
-      assign(paste0("cv_sum_shore_", s), sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
+      assign(paste0("cv_sum_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s]))
+      assign(paste0("cv_sum_boat_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("cv_sum_shore_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
-      assign(paste0("sf_keep_sum_", s), sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("sf_keep_sum_boat_", s), sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
-      assign(paste0("sf_keep_sum_shore_", s), sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
+      assign(paste0("sf_keep_sum_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s]))
+      assign(paste0("sf_keep_sum_boat_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("sf_keep_sum_shore_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
-      assign(paste0("bsb_keep_sum_", s), sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("bsb_keep_sum_boat_", s), sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
-      assign(paste0("bsb_keep_sum_shore_", s), sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
+      assign(paste0("bsb_keep_sum_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s]))
+      assign(paste0("bsb_keep_sum_boat_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("bsb_keep_sum_shore_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
-      assign(paste0("ntrips_sum_", s), sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s]))
-      assign(paste0("ntrips_sum_boat_", s), sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
-      assign(paste0("ntrips_sum_shore_", s), sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
+      assign(paste0("ntrips_sum_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s]))
+      assign(paste0("ntrips_sum_boat_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("ntrips_sum_shore_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       
       
       #Retain calibration catch by state
-      assign(paste0("calib_sf_keep_sum_", s), sum(calibration_output_by_period$tot_keep_sf[calibration_output_by_period$state==s]))
-      assign(paste0("calib_sf_rel_sum_", s), sum(calibration_output_by_period$tot_rel_sf[calibration_output_by_period$state==s]))
+      assign(paste0("calib_sf_keep_sum_", s), base::sum(calibration_output_by_period$tot_keep_sf[calibration_output_by_period$state==s]))
+      assign(paste0("calib_sf_rel_sum_", s), base::sum(calibration_output_by_period$tot_rel_sf[calibration_output_by_period$state==s]))
       
-      assign(paste0("calib_bsb_keep_sum_", s), sum(calibration_output_by_period$tot_keep_bsb[calibration_output_by_period$state==s]))
-      assign(paste0("calib_bsb_rel_sum_", s), sum(calibration_output_by_period$tot_rel_bsb[calibration_output_by_period$state==s]))
+      assign(paste0("calib_bsb_keep_sum_", s), base::sum(calibration_output_by_period$tot_keep_bsb[calibration_output_by_period$state==s]))
+      assign(paste0("calib_bsb_rel_sum_", s), base::sum(calibration_output_by_period$tot_rel_bsb[calibration_output_by_period$state==s]))
       
       #Retain number of choice occasions by state
-      assign(paste0("n_choice_occasions_", s), sum(calibration_output_by_period$n_choice_occasions[calibration_output_by_period$state==s]))
+      assign(paste0("n_choice_occasions_", s), base::sum(calibration_output_by_period$n_choice_occasions[calibration_output_by_period$state==s]))
       
       
       
@@ -197,23 +199,23 @@ for (x in 1:100){
     }
     
     #Metrics a coast level
-    cv_sum<- sum(prediction_output_by_period1$cv_sum)
-    cv_sum_boat<- sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="bt"])
-    cv_sum_shore<- sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="sh"])
+    cv_sum<- base::sum(prediction_output_by_period1$cv_sum)
+    cv_sum_boat<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="bt"])
+    cv_sum_shore<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="sh"])
     
-    sf_keep_sum<- sum(prediction_output_by_period1$sf_keep_sum)
-    sf_keep_sum_boat<- sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="bt"])
-    sf_keep_sum_shore<- sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="sh"])
+    sf_keep_sum<- base::sum(prediction_output_by_period1$sf_keep_sum)
+    sf_keep_sum_boat<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="bt"])
+    sf_keep_sum_shore<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="sh"])
     
-    bsb_keep_sum<- sum(prediction_output_by_period1$bsb_keep_sum)
-    bsb_keep_sum_boat<- sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="bt"])
-    bsb_keep_sum_shore<- sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="sh"])
+    bsb_keep_sum<- base::sum(prediction_output_by_period1$bsb_keep_sum)
+    bsb_keep_sum_boat<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="bt"])
+    bsb_keep_sum_shore<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="sh"])
     
-    ntrips_sum<-sum(prediction_output_by_period1$ntrips_alt)
-    ntrips_sum_boat<-sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="bt"])
-    ntrips_sum_shore<-sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="sh"])
+    ntrips_sum<-base::sum(prediction_output_by_period1$ntrips_alt)
+    ntrips_sum_boat<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="bt"])
+    ntrips_sum_shore<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="sh"])
     
-    n_choice_occasions_sum<-sum(calibration_output_by_period$n_choice_occasions)
+    n_choice_occasions_sum<-base::sum(calibration_output_by_period$n_choice_occasions)
     
     
     
@@ -293,6 +295,6 @@ predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_sub25_test.xlsx")
 #write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
 
-readr::write_csv(predictions_all, "projections_NJ.csv")
+#readr::write_csv(predictions_all, "projections_NJ.csv")
 
-
+head(predictions_all)

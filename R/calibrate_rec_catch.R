@@ -1,11 +1,11 @@
-# state1 <- "MA"
-# state_no<-25
-# directed_trips_table <- directed_trips_table_base[[3]]
-# sf_catch_data_all <- catch_files_all_base[[3]]
-# p_star_sf <- p_star_sf_MA_variable
-# p_star_bsb<-p_star_bsb_MA_variable
-# p_star_scup<-p_star_scup_MA_variable
-
+# state1 <- "CT"
+# state_no<-9
+# directed_trips_table <- directed_trips_table_base[[1]]
+# sf_catch_data_all <- catch_files_CT[[2]]
+# p_star_sf <- p_star_sf_CT_variable
+# p_star_bsb<-p_star_bsb_CT_variable
+# p_star_scup<-p_star_scup_CT_variable
+# k <- 1
 # state1 <- "VA"
 # state_no<-51
 # directed_trips_table <- directed_trips_table_base[[8]]
@@ -28,8 +28,7 @@ calibrate_rec_catch <- function(state1,
                                 sf_catch_data_all,
                                 p_star_sf,
                                 p_star_bsb,
-                                p_star_scup, 
-                                k){
+                                p_star_scup, k){
   
   #
   
@@ -84,7 +83,7 @@ calibrate_rec_catch <- function(state1,
   
   sf_catch_data <- sf_catch_data_all %>%
     dplyr::rename(tot_sf_catch = sf_catch,  tot_bsb_catch = bsb_catch, tot_scup_catch = scup_catch)  %>%
-    dplyr::select(-c(month1))
+    dplyr::select(-c(month1, catch))
   
   sf_catch_data <- sf_catch_data %>%
     dplyr::group_by(period2) %>%
@@ -708,7 +707,7 @@ calibrate_rec_catch <- function(state1,
   
   
   
-  mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
+  mean_trip_data2<-mean_trip_data  %>% data.table::as.data.table() %>%
     .[,lapply(.SD, mean), by = c("period","tripid"), .SDcols = all_vars]
   
   

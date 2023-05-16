@@ -27,14 +27,14 @@ predict_rec_catch <- function(state1,
   #for (x in 1:10){
   #profile<-    profvis::profvis({
   #   # #
-    # state1 <- "NJ"
-    # calibration_data_table <- calibration_data_table_base[[1]]
-    # directed_trips_table <- directed_trips_table_base[[5]]
-    # sf_size_data_read <- sf_size_data_read_base[[5]]
-    # bsb_size_data_read <- bsb_size_data_read_base[[5]]
-    # scup_size_data_read <- scup_size_data_read_base[[5]]
-    # costs_new_all <- cost_files_all_base[[1]]
-    # sf_catch_data_all <- catch_files_all_base[[5]]
+    state1 <- "NJ"
+    calibration_data_table <- calibration_data_table_base[[1]]
+    directed_trips_table <- directed_trips_table_base[[5]]
+    sf_size_data_read <- sf_size_data_read_base[[5]]
+    bsb_size_data_read <- bsb_size_data_read_base[[5]]
+    scup_size_data_read <- scup_size_data_read_base[[5]]
+    costs_new_all <- cost_files_all_base[[1]]
+    sf_catch_data_all <- catch_files_NJ[[2]]
 
   # if(!exists(".Random.seed")) set.seed(NULL)
   #set.seed(24735)
@@ -120,7 +120,7 @@ predict_rec_catch <- function(state1,
 
   sf_catch_data <- sf_catch_data_all %>%
     dplyr::rename(tot_sf_catch = sf_catch,  tot_bsb_catch = bsb_catch, tot_scup_catch = scup_catch)  %>%
-    dplyr::select(-c(month1))
+    dplyr::select(-c(month1, catch))
 
   sf_catch_data <- sf_catch_data %>%
     dplyr::group_by(period2) %>%
@@ -194,9 +194,9 @@ predict_rec_catch <- function(state1,
   sf_zero_catch <- dplyr::filter(sf_catch_data, tot_sf_catch == 0)
 
   #Check to see if there is no catch for either species and if so, pipe code around keep/release determination
-  sf_catch_check<-sum(sf_catch_data$tot_sf_catch)
-  bsb_catch_check<-sum(sf_catch_data$tot_bsb_catch)
-  scup_catch_check<-sum(sf_catch_data$tot_scup_catch)
+  sf_catch_check<-base::sum(sf_catch_data$tot_sf_catch)
+  bsb_catch_check<-base::sum(sf_catch_data$tot_bsb_catch)
+  scup_catch_check<-base::sum(sf_catch_data$tot_scup_catch)
 
 
   #remove trips with zero summer flounder catch
@@ -276,7 +276,7 @@ predict_rec_catch <- function(state1,
   summed_catch_data <- catch_size_data %>%
     data.table::as.data.table() %>%
     .[,lapply(.SD, sum), by =c("period2", "catch_draw", "tripid",  "mode", "month"), .SDcols = c("keep", "release")]
-
+  #print(head(summed_catch_data))
   summed_catch_data <- summed_catch_data %>%
     dplyr::rename(tot_keep_sf = keep,
                   tot_rel_sf = release)
@@ -777,8 +777,8 @@ predict_rec_catch <- function(state1,
 
   mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
-    .[, vA_col_sum := sum(expon_vA), by=list(period, catch_draw, tripid)]  %>%
-    .[, v0_col_sum := sum(expon_v0), by=list(period, catch_draw, tripid)]
+    .[, vA_col_sum := base::sum(expon_vA), by=list(period, catch_draw, tripid)]  %>%
+    .[, v0_col_sum := base::sum(expon_v0), by=list(period, catch_draw, tripid)]
 
 
   #
@@ -808,7 +808,7 @@ predict_rec_catch <- function(state1,
 
   mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
     .[,lapply(.SD, mean), by = c("period","tripid"), .SDcols = all_vars]
-
+  print(head(mean_trip_data))
 
   #original code
   # Collapse data from the X catch draws so that each row contains mean values
@@ -1008,7 +1008,7 @@ predict_rec_catch <- function(state1,
   #
   #})
   return(trip_level_output)
-
+  print(head(trip_level_output))
   #end function
 }
 
