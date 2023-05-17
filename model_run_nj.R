@@ -7,8 +7,8 @@ predictions = list()
 
 eff_seed<-32190
 set.seed(eff_seed)
-load(here::here(paste0("data/catch_files_NJ.rda")))
-sf_catch_data_all <- catch_files_NJ[[2]]
+catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
+sf_catch_data_all <- catch_files_NJ[[1]]
 
 # Start the clock!
 #ptm <- proc.time()
@@ -22,7 +22,7 @@ for (x in 1:1){
                  p_star_sf = c(p_star_sf_NJ_variable),
                  p_star_bsb = c(p_star_bsb_NJ_variable),
                  p_star_scup = c(p_star_scup_NJ_variable),
-                 sf_catch_data_all = c(list(catch_files_NJ[[2]])))
+                 sf_catch_data_all = c(list(catch_files_NJ[[1]])))
 
 
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) 
@@ -63,7 +63,7 @@ for (x in 1:1){
                  bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
                  scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
                  costs_new_all = c(list(cost_files_all_base[[1]])),
-                 sf_catch_data_all = c(list(catch_files_NJ[[2]])))
+                 sf_catch_data_all = c(list(catch_files_NJ[[1]])))
   #print(head(params))
   
   

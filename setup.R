@@ -7,6 +7,7 @@ options(future.globals.maxSize= 10000000000)
 n_drawz<-1000
 n_catch_draws<-30
 
+
 # Run the calibration files
 
 # Below is a code that finds p* values which lead to projected harvest approximating actual harvest
@@ -49,7 +50,40 @@ p_star_scup_VA_variable<- 0.65
 
 
 
-directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2020.csv"))))
+directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2020.csv")))) %>% 
+  dplyr::mutate(fluke_bag1= dplyr::case_when(state1 == "NJ" ~ c(NJ_SFsm_baglimit)))#%>% 
+#   dplyr::mutate(#fluke_bag1 = dplyr::case_when(#state1 == "CT" ~ c(CT_SFsm_baglimit),
+#     # state1 == "DE" ~ c(DE_SFsm_baglimit),
+#     # state1 == "MA" ~ c(MA_SFsm_baglimit),
+#     # state1 == "MD" ~ c(MD_SFsm_baglimit),
+#     #state == "NJ" ~ c(test)),#,
+#     # state1 == "NY" ~ c(NY_SFsm_baglimit),
+#     # state1 == "RI" ~ c(RI_SFsm_baglimit), 
+#     # state1 == "VA" ~ c(VA_SFlg_baglimit)), 
+#     fluke_bag2 = dplyr::case_when(#state1 == "CT" ~ c(CT_SFlg_baglimit),
+#       #state1 == "DE" ~ c(DE_SFlg_baglimit),
+#       #state1 == "MA" ~ c(MA_SFlg_baglimit),
+#       #state1 == "MD" ~ c(MD_SFlg_baglimit),
+#       state == "NJ" ~ c(NJ_SFlg_baglimit)),
+#     #state1 == "NY" ~ c(NY_SFlg_baglimit),
+#     #state1 == "RI" ~ c(RI_SFlg_baglimit),
+#     #state1 == "VA" ~ c(VA_SFlg_baglimit)),
+#     bsb_bag = dplyr::case_when(  #state1 == "CT" ~ c(CT_BSB_baglimit),
+#       #state1 == "DE" ~ c(DE_BSB_baglimit),
+#       #state1 == "MA" ~ c(MA_BSB_baglimit),
+#       #state1 == "MD" ~ c(MD_BSB_baglimit),
+#       state == "NJ" ~ c(NJ_BSB_baglimit)),
+#     #state1 == "NY" ~ c(NY_BSB_baglimit),
+#     #state1 == "RI" ~ c(RI_BSB_baglimit),
+#     #state1 == "VA" ~ c(VA_BSB_baglimit)),
+#     scup_bag = dplyr::case_when( #state1 == "CT" ~ c(CT_SCUP_baglimit),
+#       #state1 == "DE" ~ c(DE_SCUP_baglimit),
+#       #state1 == "MA" ~ c(MA_SCUP_baglimit),
+#       #state1 == "MD" ~ c(MD_SCUP_baglimit),
+#       state == "NJ" ~ c(NJ_SCUP_baglimit))) #,
+# #state1 == "NY" ~ c(NY_SCUP_baglimit),
+# #state1 == "RI" ~ c(RI_SCUP_baglimit),
+# #state1 == "VA" ~ c(VA_SCUP_baglimit))))
 directed_trips_table<-subset(directed_trips_table, state!="NC")
 directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
 

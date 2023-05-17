@@ -27,15 +27,18 @@ predict_rec_catch <- function(state1,
   #for (x in 1:10){
   #profile<-    profvis::profvis({
   #   # #
-    state1 <- "NJ"
-    calibration_data_table <- calibration_data_table_base[[1]]
-    directed_trips_table <- directed_trips_table_base[[5]]
-    sf_size_data_read <- sf_size_data_read_base[[5]]
-    bsb_size_data_read <- bsb_size_data_read_base[[5]]
-    scup_size_data_read <- scup_size_data_read_base[[5]]
-    costs_new_all <- cost_files_all_base[[1]]
-    sf_catch_data_all <- catch_files_NJ[[2]]
-
+    # state1 <- "NJ"
+    # calibration_data_table <- calibration_data_table_base[[1]]
+    # directed_trips_table <- directed_trips_table_base[[5]]
+    # sf_size_data_read <- sf_size_data_read_base[[5]]
+    # bsb_size_data_read <- bsb_size_data_read_base[[5]]
+    # scup_size_data_read <- scup_size_data_read_base[[5]]
+    # costs_new_all <- cost_files_all_base[[1]]
+    # sf_catch_data_all <- catch_files_NJ[[2]]
+    # NJ_SFsm_baglimit<- 3 
+    # NJ_SFlg_baglimit<- 3
+    # NJ_BSB_baglimit<- 10
+    # NJ_SCUP_baglimit<- 50
   # if(!exists(".Random.seed")) set.seed(NULL)
   #set.seed(24735)
   # x<-.Random.seed
@@ -84,12 +87,10 @@ predict_rec_catch <- function(state1,
   calibration_data <- calibration_data_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
 
   # Input regul
-  directed_trips <- directed_trips_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
+  directed_trips <- directed_trips_table %>% tibble::tibble() %>% dplyr::filter(state == state1) 
   sf_size_data <- sf_size_data_read %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
   bsb_size_data <- bsb_size_data_read  %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
   scup_size_data <- scup_size_data_read  %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
-
-
 
   ######################################
   ##   Begin simulating trip outcomes ##
