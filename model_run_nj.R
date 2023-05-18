@@ -5,8 +5,6 @@
 
 predictions = list()
 
-eff_seed<-32190
-set.seed(eff_seed)
 catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
 sf_catch_data_all <- catch_files_NJ[[1]]
 
@@ -23,12 +21,12 @@ for (x in 1:1){
                  p_star_bsb = c(p_star_bsb_NJ_variable),
                  p_star_scup = c(p_star_scup_NJ_variable),
                  sf_catch_data_all = c(list(catch_files_NJ[[1]])))
-
-
+  
+  
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) 
   
   costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,".rds"))) 
-
+  
   calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   cost_files_all_base <- split(costs_new_all, costs_new_all$state)
   
@@ -71,7 +69,7 @@ for (x in 1:1){
   
   #xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190))
   xx_check <-  purrr::pmap(params, safe_predict_rec_catch)
-  #print(head(xx_check))
+  print(head(xx_check))
   #prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
   prediction_output_by_period1 <- purrr::map(xx_check, 1)
   print("made it through predict")

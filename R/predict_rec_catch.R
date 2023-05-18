@@ -8,7 +8,10 @@ predict_rec_catch <- function(state1,
                               bsb_size_data_read,
                               scup_size_data_read,
                               costs_new_all,
-                              sf_catch_data_all){
+                              sf_catch_data_all, 
+                              n_drawz = 1000, 
+                              n_catch_draws = 30, 
+                              eff_seed=32190){
 
   #test vals to run the function directly
   #  "CT", "DE", "MA", "MD", "NJ","NY", "RI", "VA"
@@ -82,7 +85,7 @@ predict_rec_catch <- function(state1,
 
   #profvis::profvis({
   #if (state1 %in% c("MA", "RI", "CT", "NY", "NJ", "VA")) {
-
+  set.seed(eff_seed)
   # Input the calibration output which contains the number of choice occasions needed to simulate
   calibration_data <- calibration_data_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
 
