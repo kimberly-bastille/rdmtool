@@ -10,16 +10,18 @@ sf_ind_catch_CT <- readr::read_csv(file.path(here::here("data-raw/simulated", in
   dplyr::mutate(state="CT", 
                 catch = "ind")
 
+
 corr_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_corr_catch1_9_*")
 sf_corr_catch_CT <- readr::read_csv(file.path(here::here("data-raw/simulated", corr_catch_files))) %>%
   dplyr::select(c(-state, -decade)) %>%
   dplyr::mutate(state="CT", 
                 catch = "corr")
 
+
 catch_files_all = as.data.frame(rbind(sf_ind_catch_CT, sf_corr_catch_CT))
 catch_files_CT <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_CT,file  = "data-raw/catch/catch_files_CT.rds")
+saveRDS(catch_files_CT,file  = "data-raw/catch/catch_files_CT.rds", compress = "gzip")
 
 ## Deleware
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_10_*")
@@ -37,7 +39,7 @@ sf_corr_catch_DE <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_DE, sf_corr_catch_DE))
 catch_files_DE <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_DE,file  = "data-raw/catch/catch_files_DE.rds")
+saveRDS(catch_files_DE,file  = "data-raw/catch/catch_files_DE.rds", compress = "gzip")
 
 ## Massachusetts
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_25_*")
@@ -55,7 +57,7 @@ sf_corr_catch_MA <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_MA, sf_corr_catch_MA))
 catch_files_MA <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_MA,file  = "data-raw/catch/catch_files_MA.rds")
+saveRDS(catch_files_MA,file  = "data-raw/catch/catch_files_MA.rds", compress = "gzip")
 
 ## Maryland
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_24_*")
@@ -73,7 +75,7 @@ sf_corr_catch_MD <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_MD, sf_corr_catch_MD))
 catch_files_MD <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_MD,file  = "data-raw/catch/catch_files_MD.rds")
+saveRDS(catch_files_MD,file  = "data-raw/catch/catch_files_MD.rds", compress = "gzip")
 
 ## New Jersey
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_34_*")
@@ -91,7 +93,7 @@ sf_corr_catch_NJ <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_NJ, sf_corr_catch_NJ))
 catch_files_NJ <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_NJ,file  = "data-raw/catch/catch_files_NJ.rds")
+saveRDS(catch_files_NJ,file  = "data-raw/catch/catch_files_NJ.rds", compress = "gzip")
 
 ## New York
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_36_*")
@@ -109,7 +111,7 @@ sf_corr_catch_NY <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_NY, sf_corr_catch_NY))
 catch_files_NY <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_NY,file  = "data-raw/catch/catch_files_NY.rds")
+saveRDS(catch_files_NY,file  = "data-raw/catch/catch_files_NY.rds", compress = "gzip")
 
 ## Rhode Island
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_44_*")
@@ -127,7 +129,7 @@ sf_corr_catch_RI <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_RI, sf_corr_catch_RI))
 catch_files_RI <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_RI,file  = "data-raw/catch/catch_files_RI.rds")
+saveRDS(catch_files_RI,file  = "data-raw/catch/catch_files_RI.rds", compress = "gzip")
 
 ## Virginia
 ind_catch_files <- dir(file.path(here::here("data-raw/simulated")), pattern = "simulated_ind_catch1_51_*")
@@ -145,5 +147,5 @@ sf_corr_catch_VA <- readr::read_csv(file.path(here::here("data-raw/simulated", c
 catch_files_all = as.data.frame(rbind(sf_ind_catch_VA, sf_corr_catch_VA))
 catch_files_VA <- split(catch_files_all, catch_files_all$catch)
 
-saveRDS(catch_files_VA,file  = "data-raw/catch/catch_files_VA.rds")
+saveRDS(catch_files_VA,file  = "data-raw/catch/catch_files_VA.rds", compress = "gzip")
 

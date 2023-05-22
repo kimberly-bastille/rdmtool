@@ -2,12 +2,14 @@
 ### NJ Rec model run  ########
 ##############################
 
+print("start model_NJ")
 
 predictions = list()
 
 catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
 sf_catch_data_all <- catch_files_NJ[[1]]
-
+## Print to track progress
+print(head(sf_catch_data_all))
 # Start the clock!
 #ptm <- proc.time()
 
