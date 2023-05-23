@@ -13,7 +13,7 @@ print(head(sf_catch_data_all))
 # Start the clock!
 #ptm <- proc.time()
 
-for (x in 1:1){
+for (x in 1:10){
   
   print(x)
   params <- list(state1 = c("NJ"),
