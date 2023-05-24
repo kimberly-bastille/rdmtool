@@ -6,23 +6,25 @@ print("start model_NJ")
 
 predictions = list()
 
-catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
-sf_catch_data_all <- catch_files_NJ[[1]]
+#catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_corr_files_NJ.rds")))
+# catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
+# sf_catch_data_all <- catch_files_NJ[[1]]
+
+catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_corr_files_NJ.rds")))
 ## Print to track progress
-print(head(sf_catch_data_all))
 # Start the clock!
 #ptm <- proc.time()
 
-for (x in 1:10){
+for (x in 1:1){
   
   print(x)
-  params <- list(state1 = c("NJ"),
-                 state_no=c(34),
-                 directed_trips_table = c(list(directed_trips_table_base[[5]])),
-                 p_star_sf = c(p_star_sf_NJ_variable),
-                 p_star_bsb = c(p_star_bsb_NJ_variable),
-                 p_star_scup = c(p_star_scup_NJ_variable),
-                 sf_catch_data_all = c(list(catch_files_NJ[[1]])))
+  # params <- list(state1 = c("NJ"),
+  #                state_no=c(34),
+  #                directed_trips_table = c(list(directed_trips_table_base[[5]])),
+  #                p_star_sf = c(p_star_sf_NJ_variable),
+  #                p_star_bsb = c(p_star_bsb_NJ_variable),
+  #                p_star_scup = c(p_star_scup_NJ_variable),
+  #                sf_catch_data_all = c(list(catch_files_NJ)))
   
   
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) 
@@ -63,7 +65,8 @@ for (x in 1:10){
                  bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
                  scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
                  costs_new_all = c(list(cost_files_all_base[[1]])),
-                 sf_catch_data_all = c(list(catch_files_NJ[[1]])))
+                 #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
+                 sf_catch_data_all = c(list(catch_files_NJ)))
   #print(head(params))
   
   
@@ -287,7 +290,7 @@ predictions_all<-rlist::list.rbind(predictions)
 # Stop the clock
 #proc.time() - ptm
 
-predictions_all<-as.data.frame(predictions_all)
+predictions_all<-as.data.frame(predictions_all) 
 #write_xlsx(predictions_all,"projections_decade8_test.xlsx") #These results with the substitution parameter == -0.5, decade 8
 #write_xlsx(predictions_all,"projections_decade8_sub5.xlsx")
 #write_xlsx(predictions_all,"projections_decade8_sub5_add_on.xlsx")
