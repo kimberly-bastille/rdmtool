@@ -53,7 +53,7 @@ for(k in 1:100){
 }
 
 #### New Jersey
-for(k in 1:1){
+for(k in 1:100){
   calibration<- calibrate_rec_catch("NJ", 34, directed_trips_table_base[[5]],
                                     catch_files_NJ, p_star_sf_NJ_variable,
                                     p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)

@@ -290,7 +290,10 @@ predictions_all<-rlist::list.rbind(predictions)
 # Stop the clock
 #proc.time() - ptm
 
-predictions_all<-as.data.frame(predictions_all) 
+predictions_all2<-as.data.frame(predictions_all) %>% 
+  #dplyr::select(unique(colnames())) %>% 
+  #dplyr::mutate(across(everything(), mean)) %>% 
+  tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value")
 #write_xlsx(predictions_all,"projections_decade8_test.xlsx") #These results with the substitution parameter == -0.5, decade 8
 #write_xlsx(predictions_all,"projections_decade8_sub5.xlsx")
 #write_xlsx(predictions_all,"projections_decade8_sub5_add_on.xlsx")
@@ -298,6 +301,22 @@ predictions_all<-as.data.frame(predictions_all)
 #write_xlsx(predictions_all,"projections_decade8_sub25_test.xlsx")
 #write_xlsx(predictions_all,"projections_decade1_sub_orig.xlsx")
 
-#readr::write_csv(predictions_all, "projections_NJ.csv")
+#readr::write_csv(predictions_all, "projections_NJ.csv
+# prediction_summary<- predictions_all %>% 
+#   dplyr::summarise(across(where(is.numeric), mean))
+# 
+# prediction_summary
 
-head(predictions_all)
+
+
+output<- read.csv(here::here("data-raw/Output2022Save2.csv")) %>% 
+  dplyr::select(colname, value22) %>% 
+  dplyr::left_join(predictions_all2, by = "colname") %>% 
+  dplyr::mutate(Compare = (value -value22)/value22 * 100) 
+
+outputtable<- t(output) %>% 
+  janitor::row_to_names(1)
+  
+
+outputtable
+#head(predictions_all)
