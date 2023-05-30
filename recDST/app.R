@@ -54,31 +54,34 @@ ui <- fluidPage(
                                 sliderInput(inputId = "SFnjSH_1_lglen", label ="Large Min Length",
                                             min = 5, max = 34, value = 18, step = .5))),
                        actionButton("SFaddSeason", "Add Season"), 
+                       # uiOutput("SF_add_season2")),
+                       
+                                                            
                        shinyjs::hidden(tags$div(id = "SF_add_season2",
                                                 sliderInput(inputId = "SFnjBT_seas2", label ="Boat Open Season 2",
                                                             min = 0, max = 24, value = c(0,0)),
                                                 fluidRow(
-                                                  column(5, 
+                                                  column(5,
                                                          numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
-                                                                      min = 0, max = 7, value = 0), 
+                                                                      min = 0, max = 7, value = 0),
                                                          sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
                                                                      min = 5, max = 34, value = 17, step = .5)),
                                                   column(5,
                                                          numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
-                                                                      min = 0, max = 7, value = 0), 
+                                                                      min = 0, max = 7, value = 0),
                                                          sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
-                                                                     min = 5, max = 34, value = 18, step = .5))), 
+                                                                     min = 5, max = 34, value = 18, step = .5))),
                                                 sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
                                                             min = 0, max = 24, value = c(0,0)),
                                                 fluidRow(
-                                                  column(5, 
+                                                  column(5,
                                                          numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
-                                                                      min = 0, max = 7, value = 0), 
+                                                                      min = 0, max = 7, value = 0),
                                                          sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
                                                                      min = 5, max = 34, value = 17, step = .5)),
                                                   column(5,
                                                          numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
-                                                                      min = 0, max = 7, value = 0), 
+                                                                      min = 0, max = 7, value = 0),
                                                          sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
                                                                      min = 5, max = 34, value = 18, step = .5)))))),
                 column(4, 
@@ -210,9 +213,36 @@ server <- function(input, output, session) {
   
   #shinyjs::hide("SF_add_season2")
   
-  observeEvent(input$SFaddSeason, {
-    shinyjs::hide("SF_add_season2", anim = FALSE)
-  })
+  # output$SF_add_season2 <- renderUI({
+  #   if(input$SFaddseason2){
+  #     switch(input$SF_add_season2 ,
+  #            sliderInput(inputId = "SFnjBT_seas2", label ="Boat Open Season 2",min = 0, max = 24, value = c(0,0)),
+  #            fluidRow(
+  #              column(5,
+  #                     numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
+  #                                  min = 0, max = 7, value = 0),
+  #                     sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
+  #                                 min = 5, max = 34, value = 17, step = .5)),
+  #              column(5,
+  #                     numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
+  #                                  min = 0, max = 7, value = 0),
+  #                     sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
+  #                                 min = 5, max = 34, value = 18, step = .5))),
+  #            sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
+  #                        min = 0, max = 24, value = c(0,0)),
+  #            fluidRow(
+  #              column(5,
+  #                     numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
+  #                                  min = 0, max = 7, value = 0),
+  #                     sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
+  #                                 min = 5, max = 34, value = 17, step = .5)),
+  #              column(5,
+  #                     numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
+  #                                  min = 0, max = 7, value = 0),
+  #                     sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
+  #                                 min = 5, max = 34, value = 18, step = .5))))
+  #                     
+  #   }})
   
   
   
@@ -264,10 +294,10 @@ server <- function(input, output, session) {
     directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2020.csv")))) %>% 
       dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas1[1] & period <= SFnjBT_seas1[2] ~ c(SFnjBT_1_smbag)), #NJ boat season 1
                     fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas1[1] & period <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
-                    fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
+                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(SFnjSH_2_smbag)), #NJ shore season 2
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period <= SFnjSH_seas1[1] & period >= SFnjSH_seas1[2] & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(0)), #NJ shore closed season
-                    fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
+                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
                     bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas1[1] & period <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
                     bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas2[1] & period <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
                     bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas3[1] & period <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
@@ -279,9 +309,9 @@ server <- function(input, output, session) {
     directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
     
     
-    
+    source(here::here(paste0("model_run_",state,".R")), local = TRUE)
     output$tableout<- renderTable({
-      source(here::here(paste0("model_run_",state,".R")), local = TRUE)
+      outputtable
     })
     
     output$regtableout <- renderTable({
@@ -301,19 +331,33 @@ server <- function(input, output, session) {
                                   Season = paste(SFnjSH_seas2[1], "-", SFnjSH_seas2[2]), 
                                   BagLimit = paste(SFnjSH_2_smbag,",", SFnjSH_2_lgbag), 
                                   Length = paste(SFnjSH_2_smlen,",", SFnjSH_2_lglen))
-      BSBnjseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("NA"),
+      BSBnjseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
                                   Season = paste(BSBnj_seas1[1], "-", BSBnj_seas1[2]), 
                                   BagLimit = paste(BSBnj_1_bag), 
                                   Length = paste(BSBnj_1_len)) 
-      BSBnjseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("NA"),
+      BSBnjseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
                                  Season = paste(BSBnj_seas2[1], "-", BSBnj_seas2[2]), 
                                  BagLimit = paste(BSBnj_2_bag), 
                                  Length = paste(BSBnj_2_len))
+      BSBnjseason3 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
+                                 Season = paste(BSBnj_seas3[1], "-", BSBnj_seas3[2]), 
+                                 BagLimit = paste(BSBnj_3_bag), 
+                                 Length = paste(BSBnj_3_len))
+      BSBnjseason4 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
+                                 Season = paste(BSBnj_seas4[1], "-", BSBnj_seas4[2]), 
+                                 BagLimit = paste(BSBnj_4_bag), 
+                                 Length = paste(BSBnj_4_len))
+      SCUPnjseason1 <- data.frame(State = c("NJ"), Species = c("SCUP"), Mode = c("All"),
+                                 Season = paste(SCUPnj_seas1[1], "-", SCUPnj_seas1[2]), 
+                                 BagLimit = paste(SCUPnj_1_bag), 
+                                 Length = paste(SCUPnj_1_len))
+
       
       
       
       regsout<- rbind(SFnjBTseason1, SFnjBTseason2, SFnjSHseason1, SFnjSHseason2, 
-                      BSBnjseason1, BSBnjseason2) %>% 
+                      BSBnjseason1, BSBnjseason2, BSBnjseason3, BSBnjseason4, 
+                      SCUPnjseason1) %>% 
         dplyr::filter(!BagLimit == "0", 
                       !BagLimit == "0 , 0")
       

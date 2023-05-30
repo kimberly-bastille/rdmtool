@@ -293,7 +293,8 @@ predictions_all<-rlist::list.rbind(predictions)
 predictions_all2<-as.data.frame(predictions_all) %>% 
   #dplyr::select(unique(colnames())) %>% 
   #dplyr::mutate(across(everything(), mean)) %>% 
-  tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value")
+  tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
+  janitor::clean_names()
 #write_xlsx(predictions_all,"projections_decade8_test.xlsx") #These results with the substitution parameter == -0.5, decade 8
 #write_xlsx(predictions_all,"projections_decade8_sub5.xlsx")
 #write_xlsx(predictions_all,"projections_decade8_sub5_add_on.xlsx")
@@ -311,8 +312,8 @@ predictions_all2<-as.data.frame(predictions_all) %>%
 
 output<- read.csv(here::here("data-raw/Output2022Save2.csv")) %>% 
   dplyr::select(colname, value22) %>% 
-  dplyr::left_join(predictions_all2, by = "colname") %>% 
-  dplyr::mutate(Compare = (value -value22)/value22 * 100) 
+  dplyr::left_join(predictions_all2, by = "colname") #%>% 
+  #dplyr::mutate(Compare = (value -value22)/value22 * 100) 
 
 outputtable<- t(output) %>% 
   janitor::row_to_names(1)
