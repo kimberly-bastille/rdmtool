@@ -27,63 +27,76 @@ ui <- fluidPage(
               fluidRow( 
                 column(4,
                        titlePanel("Summer Flounder"),
-                       sliderInput(inputId = "SFnjBT_seas1", label ="Boat Open Season 1",
+                       sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
                                    min = 0, max = 24, value = c(10,17)),
                        fluidRow(
                          column(5, 
-                                numericInput(inputId = "SFnjBT_1_smbag", label ="Small Bag Limit",
+                                numericInput(inputId = "SFnjFH_1_smbag", label ="Small Bag Limit",
                                              min = 0, max = 7, value = 2), 
-                                sliderInput(inputId = "SFnjBT_1_smlen", label ="Small Min Length",
-                                            min = 5, max = 34, value = 17, step = .5)),
+                                sliderInput(inputId = "SFnjFH_1_smlen", label ="Small Min Length",
+                                            min = 5, max = 50, value = c(17,18), step = .5)),
                          column(5,
-                                numericInput(inputId = "SFnjBT_1_lgbag", label = "Large Bag Limit",
+                                numericInput(inputId = "SFnjFH_1_lgbag", label = "Large Bag Limit",
                                              min = 0, max = 7, value = 1), 
-                                sliderInput(inputId = "SFnjBT_1_lglen", label ="Large Min Length",
-                                            min = 5, max = 34, value = 18, step = .5))), 
-                       sliderInput(inputId = "SFnjSH_seas1", label ="Shore Open Season 1",
+                                sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
+                                            min = 5, max = 50, value = c(18,50), step = .5))), 
+                       sliderInput(inputId = "SFnjPR_seas1", label ="Boat Open Season 1",  # New Jersey private rental??
+                                   min = 0, max = 24, value = c(10,17)),
+                       fluidRow(
+                         column(5, 
+                                numericInput(inputId = "SFnjPR_1_smbag", label ="Small Bag Limit",
+                                             min = 0, max = 7, value = 2), 
+                                sliderInput(inputId = "SFnjPR_1_smlen", label ="Small Min Length",
+                                            min = 5, max = 50, value = c(17, 18), step = .5)),
+                         column(5,
+                                numericInput(inputId = "SFnjPR_1_lgbag", label = "Large Bag Limit",
+                                             min = 0, max = 7, value = 1), 
+                                sliderInput(inputId = "SFnjPR_1_lglen", label ="Large Min Length",
+                                            min = 5, max = 50, value = c(18, 50), step = .5))),
+                       sliderInput(inputId = "SFnjSH_seas1", label ="Shore Open Season 1",  # New Jersey Shore season 1
                                    min = 0, max = 24, value = c(10,17)),
                        fluidRow(
                          column(5, 
                                 numericInput(inputId = "SFnjSH_1_smbag", label ="Small Bag Limit",
                                              min = 0, max = 7, value = 2), 
                                 sliderInput(inputId = "SFnjSH_1_smlen", label ="Small Min Length",
-                                            min = 5, max = 34, value = 17, step = .5)),
+                                            min = 5, max = 50, value = c(17, 18), step = .5)),
                          column(5,
                                 numericInput(inputId = "SFnjSH_1_lgbag", label = "Large Bag Limit",
                                              min = 0, max = 7, value = 1), 
                                 sliderInput(inputId = "SFnjSH_1_lglen", label ="Large Min Length",
-                                            min = 5, max = 34, value = 18, step = .5))),
+                                            min = 5, max = 50, value = c(18, 50), step = .5))),
                        actionButton("SFaddSeason", "Add Season"), 
                        # uiOutput("SF_add_season2")),
                        
                                                             
-                       shinyjs::hidden(tags$div(id = "SF_add_season2",
-                                                sliderInput(inputId = "SFnjBT_seas2", label ="Boat Open Season 2",
-                                                            min = 0, max = 24, value = c(0,0)),
-                                                fluidRow(
-                                                  column(5,
-                                                         numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
-                                                                      min = 0, max = 7, value = 0),
-                                                         sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
-                                                                     min = 5, max = 34, value = 17, step = .5)),
-                                                  column(5,
-                                                         numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
-                                                                      min = 0, max = 7, value = 0),
-                                                         sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
-                                                                     min = 5, max = 34, value = 18, step = .5))),
-                                                sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
-                                                            min = 0, max = 24, value = c(0,0)),
-                                                fluidRow(
-                                                  column(5,
-                                                         numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
-                                                                      min = 0, max = 7, value = 0),
-                                                         sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
-                                                                     min = 5, max = 34, value = 17, step = .5)),
-                                                  column(5,
-                                                         numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
-                                                                      min = 0, max = 7, value = 0),
-                                                         sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
-                                                                     min = 5, max = 34, value = 18, step = .5)))))),
+                       shinyjs::hidden(sliderInput(inputId = "SFnjFH_seas2", label ="Boat Open Season 2",
+                                                            min = 0, max = 24, value = c(0,0)))),
+                       
+                                                # fluidRow(
+                                                #   column(5,
+                                                #          numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
+                                                #                       min = 0, max = 7, value = 0),
+                                                #          sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
+                                                #                      min = 5, max = 34, value = 17, step = .5)),
+                                                #   column(5,
+                                                #          numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
+                                                #                       min = 0, max = 7, value = 0),
+                                                #          sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
+                                                #                      min = 5, max = 34, value = 18, step = .5))),
+                                                # sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
+                                                #             min = 0, max = 24, value = c(0,0)),
+                                                # fluidRow(
+                                                #   column(5,
+                                                #          numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
+                                                #                       min = 0, max = 7, value = 0),
+                                                #          sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
+                                                #                      min = 5, max = 34, value = 17, step = .5)),
+                                                #   column(5,
+                                                #          numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
+                                                #                       min = 0, max = 7, value = 0),
+                                                #          sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
+                                                #                      min = 5, max = 34, value = 18, step = .5)))))),
                 column(4, 
                        titlePanel("Black Sea Bass"),
                        sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1",
@@ -143,9 +156,6 @@ ui <- fluidPage(
     
     tabPanel("Results", 
              tableOutput(outputId = "tableout"), 
-             #imageOutput(here::here("images/SF2022Regs.png")), 
-             #imageOutput(here::here("images/SF2022Regs.png")), 
-             #imageOutput(here::here("images/SF2022Regs.png")),
              tableOutput(outputId = "regtableout")), 
     tabPanel("Documentation")
   ))
@@ -211,50 +221,28 @@ server <- function(input, output, session) {
   scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
   
   
-  #shinyjs::hide("SF_add_season2")
   
-  # output$SF_add_season2 <- renderUI({
-  #   if(input$SFaddseason2){
-  #     switch(input$SF_add_season2 ,
-  #            sliderInput(inputId = "SFnjBT_seas2", label ="Boat Open Season 2",min = 0, max = 24, value = c(0,0)),
-  #            fluidRow(
-  #              column(5,
-  #                     numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
-  #                                  min = 0, max = 7, value = 0),
-  #                     sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
-  #                                 min = 5, max = 34, value = 17, step = .5)),
-  #              column(5,
-  #                     numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
-  #                                  min = 0, max = 7, value = 0),
-  #                     sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
-  #                                 min = 5, max = 34, value = 18, step = .5))),
-  #            sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
-  #                        min = 0, max = 24, value = c(0,0)),
-  #            fluidRow(
-  #              column(5,
-  #                     numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
-  #                                  min = 0, max = 7, value = 0),
-  #                     sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
-  #                                 min = 5, max = 34, value = 17, step = .5)),
-  #              column(5,
-  #                     numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
-  #                                  min = 0, max = 7, value = 0),
-  #                     sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
-  #                                 min = 5, max = 34, value = 18, step = .5))))
-  #                     
-  #   }})
-  
-  
+
+  # observe(input$SFaddSeason, {
+  #   shinyjs::toggle(id = "SFnjFH_seas2")
+  # 
+  # })
+
   
   #observeEvent(input$runmeplease, {
   observeEvent(input$runmeplease, {
     state <- input$state
     # Summer Flounder
-    SFnjBT_seas1 <- input$SFnjBT_seas1
-    SFnjBT_1_smbag <- input$SFnjBT_1_smbag
-    SFnjBT_1_smlen <- input$SFnjBT_1_smlen
-    SFnjBT_1_lgbag <- input$SFnjBT_1_lgbag
-    SFnjBT_1_lglen <- input$SFnjBT_1_lglen
+    SFnjFH_seas1 <- input$SFnjPR_seas1
+    SFnjFH_1_smbag <- input$SFnjPR_1_smbag
+    SFnjFH_1_smlen <- input$SFnjPR_1_smlen
+    SFnjFH_1_lgbag <- input$SFnjPR_1_lgbag
+    SFnjFH_1_lglen <- input$SFnjPR_1_lglen
+    SFnjPR_seas1 <- input$SFnjPR_seas1
+    SFnjPR_1_smbag <- input$SFnjPR_1_smbag
+    SFnjPR_1_smlen <- input$SFnjPR_1_smlen
+    SFnjPR_1_lgbag <- input$SFnjPR_1_lgbag
+    SFnjPR_1_lglen <- input$SFnjPR_1_lglen
     SFnjSH_seas1 <- input$SFnjSH_seas1
     SFnjSH_1_smbag <- input$SFnjSH_1_smbag
     SFnjSH_1_smlen <- input$SFnjSH_1_smlen
@@ -291,27 +279,28 @@ server <- function(input, output, session) {
     
     
     
-    directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2020.csv")))) %>% 
-      dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas1[1] & period <= SFnjBT_seas1[2] ~ c(SFnjBT_1_smbag)), #NJ boat season 1
-                    fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas1[1] & period <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
+    directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2022.csv")))) %>% 
+      dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode == "fh" & day >= SFnjFH_seas1[1] & day <= SFnjFH_seas1[2] ~ c(SFnjFH_1_smbag)), #NJ forhire season 1
+                    fluke_bag1= dplyr::case_when(state == "NJ" & mode == "pr" & day >= SFnjPR_seas1[1] & day <= SFnjPR_seas1[2] ~ c(SFnjPR_1_smbag)), #NJ pr season 1
+                    fluke_bag1= dplyr::case_when(state == "NJ" & mode == "sh" & day >= SFnjSH_seas1[1] & day <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(SFnjSH_2_smbag)), #NJ shore season 2
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period <= SFnjSH_seas1[1] & period >= SFnjSH_seas1[2] & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(0)), #NJ shore closed season
                     #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
-                    bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas1[1] & period <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas2[1] & period <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas3[1] & period <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & period >= BSBnj_seas4[1] & period <= BSBnj_seas4[2] ~ c(BSBnj_4_bag)),
+                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas1[1] & day <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
+                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas2[1] & day <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
+                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas3[1] & day <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
+                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas4[1] & day <= BSBnj_seas4[2] ~ c(BSBnj_4_bag)),
                     #fluke_bag2= dplyr::case_when(state == "NJ" ~ c(NJ_SFlg_baglimit1)), 
                     #bsb_bag= dplyr::case_when(state == "NJ" ~ c(NJ_BSB_baglimit1)), 
-                    scup_bag= dplyr::case_when(state == "NJ" & period >= SCUPnj_seas1[1] & period <= SCUPnj_seas1[2] ~ c(SCUPnj_1_bag)))
+                    scup_bag= dplyr::case_when(state == "NJ" & day >= SCUPnj_seas1[1] & day <= SCUPnj_seas1[2] ~ c(SCUPnj_1_bag)))
     directed_trips_table<-subset(directed_trips_table, state!="NC")
     directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
     
     
-    source(here::here(paste0("model_run_",state,".R")), local = TRUE)
+    
     output$tableout<- renderTable({
-      outputtable
+      source(here::here(paste0("model_run_",state,".R")), local = TRUE)
     })
     
     output$regtableout <- renderTable({
