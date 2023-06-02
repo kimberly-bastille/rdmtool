@@ -13,14 +13,14 @@
 # p_star_sf <- p_star_sf_VA_variable
 # p_star_bsb<-p_star_bsb_VA_variable
 # p_star_scup<-p_star_scup_VA_variable
-# state1 <- "NJ"
-# state_no<-34
-# directed_trips_table <- directed_trips_table_base[[5]]
-# sf_catch_data_all <- catch_files_all_base[[5]]
-# p_star_sf <- p_star_sf_VA_variable
-# p_star_bsb<-p_star_bsb_VA_variable
-# p_star_scup<-p_star_scup_VA_variable
-# p_star_scup<-p_star_scup_VA_variable
+state1 <- "NJ"
+state_no<-34
+directed_trips_table <- directed_trips_table_base[[5]]
+sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_ind_files_NJ.rds"))
+p_star_sf <- p_star_sf_NJ_variable
+p_star_bsb<-p_star_bsb_NJ_variable
+p_star_scup<-p_star_scup_NJ_variable
+p_star_scup<-p_star_scup_NJ_variable
 
 calibrate_rec_catch <- function(state1,
                                 state_no,
@@ -29,26 +29,6 @@ calibrate_rec_catch <- function(state1,
                                 p_star_sf,
                                 p_star_bsb,
                                 p_star_scup, k){
-  
-  #
-  
-  #avg_cv<-list()
-  #for (x in 1:10){
-  #profile<-    profvis::profvis({
-  #   # #
-  
-  #test vals to run the function directly
-  
-  # state1 <- "VA"
-  # state_no<-51
-  # directed_trips_table <- directed_trips_table_base[[8]]
-  # sf_catch_data_all <- catch_files_all_base[[8]]
-  # p_star_sf <- p_star_sf_VA_variable
-  # p_star_bsb<-p_star_bsb_VA_variable
-  # p_star_scup<-p_star_scup_VA_variable
-  
-  #profvis::profvis({
-  #if (state1 %in% c("MA", "RI", "CT", "NY", "NJ", "VA")) {
   
   
   # Input regul
@@ -61,8 +41,8 @@ calibrate_rec_catch <- function(state1,
   ######################################
   
   # Set up an output file for the separately simulated within-season regulatory periods
-  directed_trips_p <- directed_trips %>% #subset(directed_trips, period == p)
-    dplyr::mutate(period2 = as.character(period2)) %>%
+  directed_trips_p <- directed_trips %>% 
+    dplyr::mutate(period2 = as.character(paste0(day_i, "-", mode))) %>% #make day of year and mode combo
     #group_by(period) %>%
     dplyr::mutate(#n_trips = floor(mean(dtrip_2019)),
       n_trips = floor(dtrip),

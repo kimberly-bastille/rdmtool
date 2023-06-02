@@ -7,11 +7,12 @@
 #    http://shiny.rstudio.com/
 #
 
+if (interactive()) {
 library(shiny)
-
+library(shinyjs)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-  
+  useShinyjs(),
   # Application title
   titlePanel("Recreational Fisheries Decision Support Tool"),
   
@@ -40,7 +41,7 @@ ui <- fluidPage(
                                              min = 0, max = 7, value = 1), 
                                 sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
                                             min = 5, max = 50, value = c(18,50), step = .5))), 
-                       sliderInput(inputId = "SFnjPR_seas1", label ="Boat Open Season 1",  # New Jersey private rental??
+                       sliderInput(inputId = "SFnjPR_seas1", label ="Private/Rental Open Season 1",  # New Jersey private rental??
                                    min = 0, max = 24, value = c(10,17)),
                        fluidRow(
                          column(5, 
@@ -66,76 +67,196 @@ ui <- fluidPage(
                                              min = 0, max = 7, value = 1), 
                                 sliderInput(inputId = "SFnjSH_1_lglen", label ="Large Min Length",
                                             min = 5, max = 50, value = c(18, 50), step = .5))),
-                       actionButton("SFaddSeason", "Add Season"), 
-                       # uiOutput("SF_add_season2")),
-                       
-                                                            
-                       shinyjs::hidden(sliderInput(inputId = "SFnjFH_seas2", label ="Boat Open Season 2",
-                                                            min = 0, max = 24, value = c(0,0)))),
-                       
-                                                # fluidRow(
-                                                #   column(5,
-                                                #          numericInput(inputId = "SFnjBT_2_smbag", label ="Small Bag Limit",
-                                                #                       min = 0, max = 7, value = 0),
-                                                #          sliderInput(inputId = "SFnjBT_2_smlen", label ="Small Min Length",
-                                                #                      min = 5, max = 34, value = 17, step = .5)),
-                                                #   column(5,
-                                                #          numericInput(inputId = "SFnjBT_2_lgbag", label = "Large Bag Limit",
-                                                #                       min = 0, max = 7, value = 0),
-                                                #          sliderInput(inputId = "SFnjBT_2_lglen", label ="Large Min Length",
-                                                #                      min = 5, max = 34, value = 18, step = .5))),
-                                                # sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",
-                                                #             min = 0, max = 24, value = c(0,0)),
-                                                # fluidRow(
-                                                #   column(5,
-                                                #          numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
-                                                #                       min = 0, max = 7, value = 0),
-                                                #          sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
-                                                #                      min = 5, max = 34, value = 17, step = .5)),
-                                                #   column(5,
-                                                #          numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
-                                                #                       min = 0, max = 7, value = 0),
-                                                #          sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
-                                                #                      min = 5, max = 34, value = 18, step = .5)))))),
+                       actionButton("SFNJaddSeason", "Add Season"), 
+                       shinyjs::hidden( div(ID = "SFnjSeason2",
+                                        sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 1
+                                                    min = 0, max = 24, value = c(10,17)),#)),
+                                        fluidRow(
+                                          column(5,
+                                                 numericInput(inputId = "SFnjFH_2_smbag", label ="Small Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjFH_2_smlen", label ="Small Min Length",
+                                                             min = 5, max = 50, value = c(17,18), step = .5)),
+                                          column(5,
+                                                 numericInput(inputId = "SFnjFH_2_lgbag", label = "Large Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
+                                                             min = 5, max = 50, value = c(18,50), step = .5))),
+                                        sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private rental??
+                                                    min = 0, max = 24, value = c(10,17)),
+                                        fluidRow(
+                                          column(5,
+                                                 numericInput(inputId = "SFnjPR_2_smbag", label ="Small Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjPR_2_smlen", label ="Small Min Length",
+                                                             min = 5, max = 50, value = c(17, 18), step = .5)),
+                                          column(5,
+                                                 numericInput(inputId = "SFnjPR_2_lgbag", label = "Large Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjPR_2_lglen", label ="Large Min Length",
+                                                             min = 5, max = 50, value = c(18, 50), step = .5))),
+                                        sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 1
+                                                    min = 0, max = 24, value = c(10,17)),
+                                        fluidRow(
+                                          column(5,
+                                                 numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
+                                                             min = 5, max = 50, value = c(17, 18), step = .5)),
+                                          column(5,
+                                                 numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
+                                                              min = 0, max = 7, value = 0),
+                                                 sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
+                                                             min = 5, max = 50, value = c(18, 50), step = .5)))))),
+
                 column(4, 
                        titlePanel("Black Sea Bass"),
-                       sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1",
+                       #Season 1
+                       sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
                                    min = 0, max = 24, value = c(5,6)),
                        fluidRow(
                          column(4,
-                                numericInput(inputId = "BSBnj_1_bag", label ="Bag Limit",
+                                numericInput(inputId = "BSBnjFH_1_bag", label ="Bag Limit",
                                              min = 0, max = 20, value = 10)), 
                          column(6,
-                                sliderInput(inputId = "BSBnj_1_len", label ="Min Length",
+                                sliderInput(inputId = "BSBnjFH_1_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnj_seas2", label ="Open Season 2",
-                                   min = 0, max = 24, value = c(7,8)),
+                       sliderInput(inputId = "BSBnjPR_seas1", label ="Private/Rental Open Season 1",
+                                   min = 0, max = 24, value = c(5,6)),
                        fluidRow(
                          column(4,
-                                numericInput(inputId = "BSBnj_2_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 2)),
+                                numericInput(inputId = "BSBnjPR_1_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
                          column(6,
-                                sliderInput(inputId = "BSBnj_2_len", label ="Min Length",
+                                sliderInput(inputId = "BSBnjPR_1_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnj_seas3", label ="Open Season 3",
-                                   min = 0, max = 24, value = c(19,20)),
+                       sliderInput(inputId = "BSBnjSH_seas1", label ="Shore Open Season 1",
+                                   min = 0, max = 24, value = c(5,6)),
                        fluidRow(
                          column(4,
-                                numericInput(inputId = "BSBnj_3_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)),
+                                numericInput(inputId = "BSBnjSH_1_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
                          column(6,
-                                sliderInput(inputId = "BSBnj_3_len", label ="Min Length",
+                                sliderInput(inputId = "BSBnjSH_1_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnj_seas4", label ="OpenSeason 4",
-                                   min = 0, max = 24, value = c(21,22)),
+                       #Season 2
+                       sliderInput(inputId = "BSBnjFH_seas2", label =" For Hire Open Season 2", 
+                                   min = 0, max = 24, value = c(5,6)),
                        fluidRow(
                          column(4,
-                                numericInput(inputId = "BSBnj_4_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 15)),
+                                numericInput(inputId = "BSBnjFH_2_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
                          column(6,
-                                sliderInput(inputId = "BSBnj_4_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 13, step = .5))), 
-                       actionButton("BSBaddSeason", "Add Season")),
+                                sliderInput(inputId = "BSBnjFH_2_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjPR_seas2", label ="Private/Rental Open Season 2",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjPR_2_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjPR_2_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjSH_seas2", label ="Shore Open Season 2",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjSH_2_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjSH_2_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       #Season 3
+                       sliderInput(inputId = "BSBnjFH_seas3", label =" For Hire Open Season 3", 
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjFH_3_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjFH_3_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjPR_seas3", label ="Private/Rental Open Season 3",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjPR_3_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjPR_3_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjSH_seas3", label ="Shore Open Season 3",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjSH_3_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjSH_3_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       #Season 4
+                       sliderInput(inputId = "BSBnjFH_seas4", label =" For Hire Open Season 4", 
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjFH_4_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjFH_4_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjPR_seas4", label ="Private/Rental Open Season 4",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjPR_4_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjPR_4_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       sliderInput(inputId = "BSBnjSH_seas4", label ="Shore Open Season 4",
+                                   min = 0, max = 24, value = c(5,6)),
+                       fluidRow(
+                         column(4,
+                                numericInput(inputId = "BSBnjSH_4_bag", label ="Bag Limit",
+                                             min = 0, max = 20, value = 10)), 
+                         column(6,
+                                sliderInput(inputId = "BSBnjSH_4_len", label ="Min Length",
+                                            min = 3, max = 28.5, value = 12.5, step = .5))),
+                       
+                       
+                       actionButton("BSBNJaddSeason", "Add Season"), 
+                       #Season 5
+                       shinyjs::hidden( div(ID = "BSBnjSeason5",
+                                            sliderInput(inputId = "BSBnjFH_seas5", label =" For Hire Open Season 5", 
+                                                        min = 0, max = 24, value = c(5,6)),
+                                            fluidRow(
+                                              column(4,
+                                                     numericInput(inputId = "BSBnjFH_5_bag", label ="Bag Limit",
+                                                                  min = 0, max = 20, value = 0)), 
+                                              column(6,
+                                                     sliderInput(inputId = "BSBnjFH_5_len", label ="Min Length",
+                                                                 min = 3, max = 28.5, value = 12.5, step = .5))),
+                                            sliderInput(inputId = "BSBnjPR_seas5", label ="Private/Rental Open Season 5",
+                                                        min = 0, max = 24, value = c(5,6)),
+                                            fluidRow(
+                                              column(4,
+                                                     numericInput(inputId = "BSBnjPR_5_bag", label ="Bag Limit",
+                                                                  min = 0, max = 20, value = 0)), 
+                                              column(6,
+                                                     sliderInput(inputId = "BSBnjPR_5_len", label ="Min Length",
+                                                                 min = 3, max = 28.5, value = 12.5, step = .5))),
+                                            sliderInput(inputId = "BSBnjSH_seas5", label ="Shore Open Season 5",
+                                                        min = 0, max = 24, value = c(5,6)),
+                                            fluidRow(
+                                              column(4,
+                                                     numericInput(inputId = "BSBnjSH_5_bag", label ="Bag Limit",
+                                                                  min = 0, max = 20, value = 0)), 
+                                              column(6,
+                                                     sliderInput(inputId = "BSBnjSH_5_len", label ="Min Length",
+                                                                 min = 3, max = 28.5, value = 12.5, step = .5)))))),
+                       
+                
                 
                 
                 column(4, 
@@ -149,10 +270,10 @@ ui <- fluidPage(
                          column(6,
                                 sliderInput(inputId = "SCUPnj_1_len", label ="Min Length",
                                             min = 5, max = 15, value = 9, step = .5))), 
-                       actionButton("SCUPaddSeason", "Add Season"))),
+                       actionButton("SCUPaddSeason", "Add Season")),
               
               
-              actionButton("runmeplease", "Run Me")),
+              actionButton("runmeplease", "Run Me"))),
     
     tabPanel("Results", 
              tableOutput(outputId = "tableout"), 
@@ -196,14 +317,14 @@ server <- function(input, output, session) {
   p_star_scup_VA_variable<- 0.65
   #p_star_scup_NC_variable<- 0.65
   
+                  
+  observeEvent(input$SFNJaddSeason, {
+    show("SFnjSeason2")
+  })
+  observeEvent(input$BSBNJaddSeason, {
+    show("BSBnjSeason5")
+  })
   
-  
-  
-  
-  
-  
-  # For the baseline (no correlation) scenario, use catch-per-trip distributions from the baseline year (observed_catch_2020_SS_MM_md.csv)
-  # For all scenarios, use the adjusted catch-at-length distribution and no stock adjustments
   
   
   sf_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE),
@@ -222,13 +343,11 @@ server <- function(input, output, session) {
   
   
   
-
-  # observe(input$SFaddSeason, {
-  #   shinyjs::toggle(id = "SFnjFH_seas2")
-  # 
+  shinyjs::onclick("SFaddseason",
+                   shinyjs::toggle(id = "SFnjFH_seas2", anim = TRUE))
+  # observe({
+  # shinyjs::toggle(id = "SFnjFH_seas2", condition = input$SFaddSeason)
   # })
-
-  
   #observeEvent(input$runmeplease, {
   observeEvent(input$runmeplease, {
     state <- input$state
@@ -259,18 +378,51 @@ server <- function(input, output, session) {
     SFnjSH_2_lgbag <- input$SFnjSH_2_lgbag
     SFnjSH_2_lglen <- input$SFnjSH_2_lglen
     # Black Sea Bass
-    BSBnj_seas1 <- input$BSBnj_seas1
-    BSBnj_1_bag <- input$BSBnj_1_bag
-    BSBnj_1_len <- input$BSBnj_1_len
-    BSBnj_seas2 <- input$BSBnj_seas2
-    BSBnj_2_bag <- input$BSBnj_2_bag
-    BSBnj_2_len <- input$BSBnj_2_len
-    BSBnj_seas3 <- input$BSBnj_seas3
-    BSBnj_3_bag <- input$BSBnj_3_bag
-    BSBnj_3_len <- input$BSBnj_3_len
-    BSBnj_seas4 <- input$BSBnj_seas4
-    BSBnj_4_bag <- input$BSBnj_4_bag
-    BSBnj_4_len <- input$BSBnj_4_len
+    BSBnjFH_seas1 <- input$BSBnjFH_seas1
+    BSBnjFH_1_bag <- input$BSBnjFH_1_bag
+    BSBnjFH_1_len <- input$BSBnjFH_1_len
+    BSBnjPR_seas1 <- input$BSBnjPR_seas1
+    BSBnjPR_1_bag <- input$BSBnjPR_1_bag
+    BSBnjPR_1_len <- input$BSBnjPR_1_len
+    BSBnjSH_seas1 <- input$BSBnjSH_seas1
+    BSBnjSH_1_bag <- input$BSBnjSH_1_bag
+    BSBnjSH_1_len <- input$BSBnjSH_1_len
+    BSBnjFH_seas2 <- input$BSBnjFH_seas2
+    BSBnjFH_2_bag <- input$BSBnjFH_2_bag
+    BSBnjFH_2_len <- input$BSBnjFH_2_len
+    BSBnjPR_seas2 <- input$BSBnjPR_seas2
+    BSBnjPR_2_bag <- input$BSBnjPR_2_bag
+    BSBnjPR_2_len <- input$BSBnjPR_2_len
+    BSBnjSH_seas2 <- input$BSBnjSH_seas2
+    BSBnjSH_2_bag <- input$BSBnjSH_2_bag
+    BSBnjSH_2_len <- input$BSBnjSH_2_len
+    BSBnjFH_seas3 <- input$BSBnjFH_seas3
+    BSBnjFH_3_bag <- input$BSBnjFH_3_bag
+    BSBnjFH_3_len <- input$BSBnjFH_3_len
+    BSBnjPR_seas3 <- input$BSBnjPR_seas3
+    BSBnjPR_3_bag <- input$BSBnjPR_3_bag
+    BSBnjPR_3_len <- input$BSBnjPR_3_len
+    BSBnjSH_seas3 <- input$BSBnjSH_seas3
+    BSBnjSH_3_bag <- input$BSBnjSH_3_bag
+    BSBnjSH_3_len <- input$BSBnjSH_3_len
+    BSBnjFH_seas4 <- input$BSBnjFH_seas4
+    BSBnjFH_4_bag <- input$BSBnjFH_4_bag
+    BSBnjFH_4_len <- input$BSBnjFH_4_len
+    BSBnjPR_seas4 <- input$BSBnjPR_seas4
+    BSBnjPR_4_bag <- input$BSBnjPR_4_bag
+    BSBnjPR_4_len <- input$BSBnjPR_4_len
+    BSBnjSH_seas4 <- input$BSBnjSH_seas4
+    BSBnjSH_4_bag <- input$BSBnjSH_4_bag
+    BSBnjSH_4_len <- input$BSBnjSH_4_len
+    BSBnjFH_seas5 <- input$BSBnjFH_seas5
+    BSBnjFH_5_bag <- input$BSBnjFH_5_bag
+    BSBnjFH_5_len <- input$BSBnjFH_5_len
+    BSBnjPR_seas5 <- input$BSBnjPR_seas5
+    BSBnjPR_5_bag <- input$BSBnjPR_5_bag
+    BSBnjPR_5_len <- input$BSBnjPR_5_len
+    BSBnjSH_seas5 <- input$BSBnjSH_seas5
+    BSBnjSH_5_bag <- input$BSBnjSH_5_bag
+    BSBnjSH_5_len <- input$BSBnjSH_5_len
     # Scup
     SCUPnj_seas1 <- input$SCUPnj_seas1
     SCUPnj_1_bag <- input$SCUPnj_1_bag
@@ -355,7 +507,7 @@ server <- function(input, output, session) {
     })})
 
 }
-
+}
 
 #Message of where the model is in the run. Don't know where to put this
 #showNotification(strong(paste("Running model", x,"/100 for", state)),duration=NULL,id="running",type="message")
