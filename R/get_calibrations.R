@@ -1,12 +1,12 @@
 ## get_calibrations
-catch_files_CT<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_CT.rds")))
-catch_files_DE<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_DE.rds")))
-catch_files_MA<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_MA.rds")))
-catch_files_MD<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_MD.rds")))
-catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_NJ.rds")))
-catch_files_NY<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_NY.rds")))
-catch_files_RI<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_RI.rds")))
-catch_files_VA<- readRDS(here::here(paste0("data-raw/catch/catch_ind_files_VA.rds")))
+catch_files_CT<- readRDS(here::here(paste0("data-raw/catch/catch_files_CT.rds")))
+catch_files_DE<- readRDS(here::here(paste0("data-raw/catch/catch_files_DE.rds")))
+catch_files_MA<- readRDS(here::here(paste0("data-raw/catch/catch_files_MA.rds")))
+catch_files_MD<- readRDS(here::here(paste0("data-raw/catch/catch_files_MD.rds")))
+catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
+catch_files_NY<- readRDS(here::here(paste0("data-raw/catch/catch_files_NY.rds")))
+catch_files_RI<- readRDS(here::here(paste0("data-raw/catch/catch_files_RI.rds")))
+catch_files_VA<- readRDS(here::here(paste0("data-raw/catch/catch_files_VA.rds")))
 
 #### Connecticut
 for(k in 1:100){
@@ -53,7 +53,7 @@ for(k in 1:100){
 }
 
 #### New Jersey
-for(k in 1:100){
+for(k in 1:1){
   calibration<- calibrate_rec_catch("NJ", 34, directed_trips_table_base[[5]],
                                     catch_files_NJ, p_star_sf_NJ_variable,
                                     p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)
