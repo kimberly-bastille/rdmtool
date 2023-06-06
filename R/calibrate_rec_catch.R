@@ -41,8 +41,10 @@ calibrate_rec_catch <- function(state1,
   ######################################
   
   # Set up an output file for the separately simulated within-season regulatory periods
-  directed_trips_p <- directed_trips %>% 
-    dplyr::mutate(period2 = as.character(paste0(day_i, "-", mode))) %>% #make day of year and mode combo
+  directed_trips_p <- directed_trips %>%
+    dplyr::mutate(day = as.numeric(stringr::str_extract(day, "^\\d{2}")), 
+                  month = as.numeric(month)) %>% 
+    dplyr::mutate(period2 = as.character(paste0(month, "_", day, "_", mode))) %>% #make day of year and mode combo
     #group_by(period) %>%
     dplyr::mutate(#n_trips = floor(mean(dtrip_2019)),
       n_trips = floor(dtrip),
@@ -156,7 +158,7 @@ calibrate_rec_catch <- function(state1,
     dplyr::mutate(fishid=dplyr::row_number())
   
   
-  sf_catch_data <- sf_catch_data %>%
+  sf_catch_data2 <- sf_catch_data %>%
     dplyr::left_join(regs, by = "period2") %>%
     dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
     dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%

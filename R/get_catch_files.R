@@ -6,57 +6,113 @@
 catch_files <- read.csv(file.path(here::here("data-raw/daily catch draws 2022.csv")))
 
 ## Connecticut
-catch_CT <- catch_files %>%
-  dplyr::filter(state=="CT")
+catch_CT_pr <- catch_files %>% 
+  dplyr::filter(state=="CT", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_CT <- catch_files %>% 
+  dplyr::filter(state=="CT") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_CT_pr)
 
 catch_files_CT <- data.table::data.table(catch_CT)
 saveRDS(catch_files_CT,file  = "data-raw/catch/catch_files_CT.rds")
 
 ## Deleware
-catch_DE <- catch_files %>%
-  dplyr::filter(state=="DE")
+catch_DE_pr <- catch_files %>% 
+  dplyr::filter(state=="DE", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_DE <- catch_files %>% 
+  dplyr::filter(state=="DE") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_DE_pr)
 
 catch_files_DE <- data.table::data.table(catch_DE)
 saveRDS(catch_files_DE,file  = "data-raw/catch/catch_files_DE.rds")
 
 ## Massachusetts
-catch_MA <- catch_files %>%
-  dplyr::filter(state=="MA")
+catch_MA_pr <- catch_files %>% 
+  dplyr::filter(state=="MA", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_MA <- catch_files %>% 
+  dplyr::filter(state=="MA") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_MA_pr)
 
 catch_files_MA <- data.table::data.table(catch_MA)
 saveRDS(catch_files_MA,file  = "data-raw/catch/catch_files_MA.rds")
 
 ## Maryland
-catch_MD <- catch_files %>%
-  dplyr::filter(state=="MD")
+catch_MD_pr <- catch_files %>% 
+  dplyr::filter(state=="MD", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_MD <- catch_files %>% 
+  dplyr::filter(state=="MD") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_MD_pr)
 
 catch_files_MD <- data.table::data.table(catch_MD)
 saveRDS(catch_files_MD,file  = "data-raw/catch/catch_files_MD.rds")
 
 ## New Jersey
-catch_NJ <- catch_files %>%
-  dplyr::filter(state=="NJ")
+catch_NJ_pr <- catch_files %>% 
+  dplyr::filter(state=="NJ", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_NJ <- catch_files %>% 
+  dplyr::filter(state=="NJ") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_NJ_pr)
 
 catch_files_NJ <- data.table::data.table(catch_NJ)
 saveRDS(catch_files_NJ,file  = "data-raw/catch/catch_files_NJ.rds")
 
 ## New York
-catch_NY <- catch_files %>%
-  dplyr::filter(state=="NY")
+catch_NY_pr <- catch_files %>% 
+  dplyr::filter(state=="NY", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_NY <- catch_files %>% 
+  dplyr::filter(state=="NY") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_NY_pr)
 
 catch_files_NY <- data.table::data.table(catch_NY)
 saveRDS(catch_files_NY,file  = "data-raw/catch/catch_files_NY.rds")
 
 ## Rhode Island
-catch_RI <- catch_files %>%
-  dplyr::filter(state=="RI")
+catch_RI_pr <- catch_files %>% 
+  dplyr::filter(state=="RI", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_RI <- catch_files %>% 
+  dplyr::filter(state=="RI") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_RI_pr)
 
 catch_files_RI <- data.table::data.table(catch_RI)
 saveRDS(catch_files_RI,file  = "data-raw/catch/catch_files_RI.rds")
 
 ## Virginia
-catch_VA <- catch_files %>%
-  dplyr::filter(state=="VA")
+catch_VA_pr <- catch_files %>% 
+  dplyr::filter(state=="VA", 
+                mode1 == "bt") %>% 
+  dplyr::mutate(mode1 = "pr")
+
+catch_VA <- catch_files %>% 
+  dplyr::filter(state=="VA") %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  rbind(catch_VA_pr)
 
 catch_files_VA <- data.table::data.table(catch_VA)
 saveRDS(catch_files_VA,file  = "data-raw/catch/catch_files_VA.rds")

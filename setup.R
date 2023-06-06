@@ -4,7 +4,7 @@ library(magrittr)
 ## This script creates objects used in multiple following locations
 options(future.globals.maxSize= 10000000000)
 
-n_drawz<-1000
+n_drawz<-50
 n_catch_draws<-30
 
 
