@@ -10,7 +10,7 @@ catch_files_VA<- readRDS(here::here(paste0("data-raw/catch/catch_files_VA.rds"))
 
 #### Connecticut
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("CT", 9, directed_trips_table_base[[1]],
+  calibration<- calibrate_rec_catch("CT", 9, 
                                     catch_files_CT, p_star_sf_CT_variable,
                                     p_star_bsb_CT_variable, p_star_scup_CT_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -21,7 +21,7 @@ for(k in 1:100){
 
 #### Deleware
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("DE", 10, directed_trips_table_base[[2]],
+  calibration<- calibrate_rec_catch("DE", 10,
                                     catch_files_DE, p_star_sf_DE_variable,
                                     p_star_bsb_DE_variable, p_star_scup_DE_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -32,7 +32,7 @@ for(k in 1:100){
 
 #### Massachusetts
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("MA", 25, directed_trips_table_base[[3]],
+  calibration<- calibrate_rec_catch("MA", 25, 
                                     catch_files_MA, p_star_sf_MA_variable,
                                     p_star_bsb_MA_variable, p_star_scup_MA_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -43,7 +43,7 @@ for(k in 1:100){
 
 #### Maryland
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("MD", 24, directed_trips_table_base[[4]],
+  calibration<- calibrate_rec_catch("MD", 24, 
                                     catch_files_MD, p_star_sf_MD_variable,
                                     p_star_bsb_MD_variable, p_star_scup_MD_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -53,8 +53,8 @@ for(k in 1:100){
 }
 
 #### New Jersey
-for(k in 1:1){
-  calibration<- calibrate_rec_catch("NJ", 34, directed_trips_table_base[[5]],
+for(k in 1:100){
+  calibration<- calibrate_rec_catch("NJ", 34, 
                                     catch_files_NJ, p_star_sf_NJ_variable,
                                     p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -65,7 +65,7 @@ for(k in 1:1){
 
 #### New York
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("NY", 36, directed_trips_table_base[[6]],
+  calibration<- calibrate_rec_catch("NY", 36, 
                                     catch_files_NY, p_star_sf_NY_variable,
                                     p_star_bsb_NY_variable, p_star_scup_NY_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -76,7 +76,7 @@ for(k in 1:100){
 
 #### Rhode Island
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("RI", 44, directed_trips_table_base[[7]],
+  calibration<- calibrate_rec_catch("RI", 44, 
                                     catch_files_RI, p_star_sf_RI_variable,
                                     p_star_bsb_RI_variable, p_star_scup_RI_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])
@@ -89,7 +89,7 @@ for(k in 1:100){
 
 #### Virginia
 for(k in 1:100){
-  calibration<- calibrate_rec_catch("VA", 51, directed_trips_table_base[[8]],
+  calibration<- calibrate_rec_catch("VA", 51, 
                                     catch_files_VA, p_star_sf_VA_variable,
                                     p_star_bsb_VA_variable, p_star_scup_VA_variable, k)
   pds_new_all<- data.table::data.table(calibration[1][[1]])

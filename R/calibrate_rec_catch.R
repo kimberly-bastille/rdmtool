@@ -13,26 +13,25 @@
 # p_star_sf <- p_star_sf_VA_variable
 # p_star_bsb<-p_star_bsb_VA_variable
 # p_star_scup<-p_star_scup_VA_variable
-state1 <- "NJ"
-state_no<-34
-directed_trips_table <- directed_trips_table_base[[5]]
-sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
-p_star_sf <- p_star_sf_NJ_variable
-p_star_bsb<-p_star_bsb_NJ_variable
-p_star_scup<-p_star_scup_NJ_variable
-p_star_scup<-p_star_scup_NJ_variable
+# state1 <- "NJ"
+# state_no<-34
+# directed_trips_table <- directed_trips_table_base[[5]]
+# sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
+# p_star_sf <- p_star_sf_NJ_variable
+# p_star_bsb<-p_star_bsb_NJ_variable
+# p_star_scup<-p_star_scup_NJ_variable
 
 calibrate_rec_catch <- function(state1,
                                 state_no,
-                                directed_trips_table,
                                 sf_catch_data_all,
                                 p_star_sf,
                                 p_star_bsb,
                                 p_star_scup, k){
   
+  print(k)
   
-  # Input regul
-  directed_trips <- directed_trips_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
+  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,"_",k,".rds")))) %>% 
+    tibble::tibble()
   
   
   
@@ -63,12 +62,13 @@ calibrate_rec_catch <- function(state1,
     dplyr::select(period2, n_draws, month) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  sf_catch_data <- sf_catch_data_all #%>%
+  sf_catch_data <- sf_catch_data_all %>% 
+    dplyr::rename(mode = mode1)#%>%
     #dplyr::rename(tot_sf_catch = sf_catch,  tot_bsb_catch = bsb_catch, tot_scup_catch = scup_catch)  %>%
     #dplyr::select(-c(month))
   
   sf_catch_data <- sf_catch_data %>%
-    dplyr::mutate(period2 = paste0(month, "_", day, "_", mode1)) %>% 
+    dplyr::mutate(period2 = paste0(month, "_", day, "_", mode)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%
     dplyr::mutate(#period = rep(period_vec$period2, each = nsamp),
@@ -158,7 +158,7 @@ calibrate_rec_catch <- function(state1,
     dplyr::mutate(fishid=dplyr::row_number())
   
   
-  sf_catch_data2 <- sf_catch_data %>%
+  sf_catch_data <- sf_catch_data %>%
     dplyr::left_join(regs, by = "period2") %>%
     dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
     dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%
@@ -183,8 +183,8 @@ calibrate_rec_catch <- function(state1,
   
   
   
-  sf_catch_data2<- sf_catch_data %>% 
-    dplyr::select=c(fishid, tripid, keep_tot, release, period2, catch_draw, mode, month) %>%
+  sf_catch_data<- sf_catch_data %>% 
+    dplyr::select(c(fishid, tripid, keep_tot, release, period2, catch_draw, mode, month)) %>%
     dplyr::rename(keep = keep_tot)
   
   #Uncomment this if you want sizes of fish
@@ -244,9 +244,8 @@ calibrate_rec_catch <- function(state1,
   trip_data <- dplyr::bind_rows(trip_data, sf_zero_catch) %>%
     #arrange(period, catch_draw, tripid) %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-    dplyr::mutate(state = state1,
-                  tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
+    dplyr::mutate(state = state1) %>%
+    dplyr::select(c(period2, catch_draw, tripid, mode, month, tot_keep_sf, tot_rel_sf, state))
   
   
   if (sf_catch_check==0){
@@ -254,7 +253,7 @@ calibrate_rec_catch <- function(state1,
       dplyr::mutate(tot_keep_sf=0,
                     tot_rel_sf=0,
                     tot_sf_catch = tot_keep_sf+tot_rel_sf)
-    subset(select=-c(tot_bsb_catch, tot_scup_catch))
+    subset(dplyr::select(-c(tot_bsb_catch, tot_scup_catch)))
     
   }
   
@@ -268,18 +267,18 @@ calibrate_rec_catch <- function(state1,
   
   if (bsb_catch_check!=0){
     # subset trips with zero catch, as no size draws are required
-    bsb_zero_catch <- dplyr::filter(sf_bsb_catch_data, tot_bsb_catch == 0)
+    bsb_zero_catch <- dplyr::filter(sf_bsb_catch_data, bsb_tot_cat  == 0)
     
     #remove trips with zero summer flounder catch
     #sf_catch_data=sf_catch_data[sf_catch_data$tot_sf_catch!=0, ]
-    bsb_catch_data <- dplyr::filter(sf_bsb_catch_data, tot_bsb_catch > 0)
+    bsb_catch_data <- dplyr::filter(sf_bsb_catch_data, bsb_tot_cat  > 0)
     
     #expand the sf_catch_data so that each row represents a fish
     row_inds <- seq_len(nrow(bsb_catch_data))
     #bsb_catch_data <- bsb_catch_data[c(rep(row_inds, bsb_catch_data$tot_bsb_catch)), ]
     
     bsb_catch_data<- bsb_catch_data %>%
-      dplyr::slice(rep(row_inds,tot_bsb_catch))
+      dplyr::slice(rep(row_inds,bsb_tot_cat ))
     
     rownames(bsb_catch_data) <- NULL
     bsb_catch_data$fishid <- 1:nrow(bsb_catch_data)
@@ -316,7 +315,8 @@ calibrate_rec_catch <- function(state1,
     
     #catch_size_data$release<-ifelse((catch_size_data$keep_adj==0), 1,0)
     
-    bsb_catch_data<- subset(bsb_catch_data, select=c(fishid, tripid, keep_adj, release, period2, catch_draw, mode, month)) %>%
+    bsb_catch_data<- bsb_catch_data %>% 
+      dplyr::select(c(fishid, tripid, keep_adj, release, period2, catch_draw, mode, month)) %>%
       dplyr::rename(keep = keep_adj)
     
     #Uncomment this if you want sizes of fish
@@ -373,9 +373,9 @@ calibrate_rec_catch <- function(state1,
     trip_data_bsb <- dplyr::bind_rows(trip_data_bsb, bsb_zero_catch) %>%
       #arrange(period, catch_draw, tripid) %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-      dplyr::mutate(state = state1,
-                    tot_bsb_catch = tot_keep_bsb + tot_rel_bsb)  %>%
-      dplyr::select(-c("tot_sf_catch", "tot_scup_catch"))
+      dplyr::mutate(state = state1) %>%  #,
+                    #tot_bsb_catch = tot_keep_bsb + tot_rel_bsb)  %>%
+      dplyr::select(c( period2, catch_draw, tripid, mode, month, tot_keep_bsb, tot_rel_bsb, state))
     
     
     # merge the bsb trip data with the rest of the trip data
@@ -389,7 +389,7 @@ calibrate_rec_catch <- function(state1,
   }
   
   if (bsb_catch_check==0){
-    trip_data$tot_bsb_catch<-0
+    trip_data$bsb_tot_cat<-0
     trip_data$tot_keep_bsb<-0
     trip_data$tot_rel_bsb<-0
   }
@@ -412,11 +412,11 @@ calibrate_rec_catch <- function(state1,
     
     if (scup_catch_check>0){
       # subset trips with zero catch, as no size draws are required
-      scup_zero_catch <- dplyr::filter(sf_bsb_catch_data, tot_scup_catch == 0) %>%
-        dplyr::select(-c("tot_sf_catch", "tot_bsb_catch"))
+      scup_zero_catch <- dplyr::filter(sf_bsb_catch_data, scup_tot_cat == 0) %>%
+        dplyr::select(-c("sf_tot_cat", "bsb_tot_cat"))
       
       #remove trips with zero summer flounder catch
-      scup_catch_data <- dplyr::filter(sf_bsb_catch_data, tot_scup_catch > 0)
+      scup_catch_data <- dplyr::filter(sf_bsb_catch_data, scup_tot_cat > 0)
       
       #expand the sf_catch_data so that each row represents a fish
       row_inds <- seq_len(nrow(scup_catch_data))
@@ -424,7 +424,7 @@ calibrate_rec_catch <- function(state1,
       
       
       scup_catch_data<- scup_catch_data %>%
-        dplyr::slice(rep(row_inds,tot_scup_catch))
+        dplyr::slice(rep(row_inds,scup_tot_cat))
       
       
       rownames(scup_catch_data) <- NULL
@@ -462,7 +462,8 @@ calibrate_rec_catch <- function(state1,
       
       #catch_size_data$release<-ifelse((catch_size_data$keep_adj==0), 1,0)
       
-      scup_catch_data<- subset(scup_catch_data, select=c(fishid, tripid, keep_adj, release, period2, catch_draw, mode, month)) %>%
+      scup_catch_data<- scup_catch_data %>% 
+        dplyr::select(c(fishid, tripid, keep_adj, release, period2, catch_draw, mode, month)) %>%
         dplyr::rename(keep = keep_adj)
       
       #Uncomment this if you want sizes of fish
@@ -522,8 +523,8 @@ calibrate_rec_catch <- function(state1,
       trip_data_scup <- dplyr::bind_rows(trip_data_scup, scup_zero_catch) %>%
         #arrange(period, catch_draw, tripid) %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-        dplyr::mutate(state = state1,
-                      tot_scup_catch = tot_keep_scup + tot_rel_scup)
+        dplyr::mutate(state = state1) %>% 
+        dplyr::select(c(period2, catch_draw, tripid, mode, month, tot_keep_scup, tot_rel_scup, state))
       
       
       
