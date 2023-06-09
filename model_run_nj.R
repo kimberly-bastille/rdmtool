@@ -10,7 +10,7 @@ predictions = list()
 # catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
 # sf_catch_data_all <- catch_files_NJ[[1]]
 
-catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_corr_files_NJ.rds")))
+catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
 ## Print to track progress
 # Start the clock!
 #ptm <- proc.time()
@@ -35,6 +35,8 @@ for (x in 1:1){
   cost_files_all_base <- split(costs_new_all, costs_new_all$state)
   
   
+  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,"_",x,".rds")))) %>% 
+    tibble::tibble()
   
   
   #2) Run the prediction model

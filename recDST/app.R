@@ -430,24 +430,24 @@ server <- function(input, output, session) {
     
     
     
-    
-    directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2022.csv")))) %>% 
-      dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode == "fh" & day >= SFnjFH_seas1[1] & day <= SFnjFH_seas1[2] ~ c(SFnjFH_1_smbag)), #NJ forhire season 1
-                    fluke_bag1= dplyr::case_when(state == "NJ" & mode == "pr" & day >= SFnjPR_seas1[1] & day <= SFnjPR_seas1[2] ~ c(SFnjPR_1_smbag)), #NJ pr season 1
-                    fluke_bag1= dplyr::case_when(state == "NJ" & mode == "sh" & day >= SFnjSH_seas1[1] & day <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
-                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
-                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(SFnjSH_2_smbag)), #NJ shore season 2
-                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period <= SFnjSH_seas1[1] & period >= SFnjSH_seas1[2] & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(0)), #NJ shore closed season
-                    #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
-                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas1[1] & day <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas2[1] & day <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas3[1] & day <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
-                    bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas4[1] & day <= BSBnj_seas4[2] ~ c(BSBnj_4_bag)),
-                    #fluke_bag2= dplyr::case_when(state == "NJ" ~ c(NJ_SFlg_baglimit1)), 
-                    #bsb_bag= dplyr::case_when(state == "NJ" ~ c(NJ_BSB_baglimit1)), 
-                    scup_bag= dplyr::case_when(state == "NJ" & day >= SCUPnj_seas1[1] & day <= SCUPnj_seas1[2] ~ c(SCUPnj_1_bag)))
-    directed_trips_table<-subset(directed_trips_table, state!="NC")
-    directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
+    ####### Directed trips moved to Model Run scripts
+    # directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2022.csv")))) %>% 
+    #   dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode == "fh" & day >= SFnjFH_seas1[1] & day <= SFnjFH_seas1[2] ~ c(SFnjFH_1_smbag)), #NJ forhire season 1
+    #                 fluke_bag1= dplyr::case_when(state == "NJ" & mode == "pr" & day >= SFnjPR_seas1[1] & day <= SFnjPR_seas1[2] ~ c(SFnjPR_1_smbag)), #NJ pr season 1
+    #                 fluke_bag1= dplyr::case_when(state == "NJ" & mode == "sh" & day >= SFnjSH_seas1[1] & day <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
+    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
+    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(SFnjSH_2_smbag)), #NJ shore season 2
+    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period <= SFnjSH_seas1[1] & period >= SFnjSH_seas1[2] & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(0)), #NJ shore closed season
+    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
+    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas1[1] & day <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
+    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas2[1] & day <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
+    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas3[1] & day <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
+    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas4[1] & day <= BSBnj_seas4[2] ~ c(BSBnj_4_bag)),
+    #                 #fluke_bag2= dplyr::case_when(state == "NJ" ~ c(NJ_SFlg_baglimit1)), 
+    #                 #bsb_bag= dplyr::case_when(state == "NJ" ~ c(NJ_BSB_baglimit1)), 
+    #                 scup_bag= dplyr::case_when(state == "NJ" & day >= SCUPnj_seas1[1] & day <= SCUPnj_seas1[2] ~ c(SCUPnj_1_bag)))
+    # directed_trips_table<-subset(directed_trips_table, state!="NC")
+    # directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
     
     
     
