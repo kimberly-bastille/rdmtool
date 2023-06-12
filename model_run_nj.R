@@ -10,7 +10,10 @@ predictions = list()
 # catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
 # sf_catch_data_all <- catch_files_NJ[[1]]
 
-catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
+catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
+  dplyr::rename(tot_sf_catch = sf_tot_cat,  
+                tot_bsb_catch = bsb_tot_cat, 
+                tot_scup_catch = scup_tot_cat) 
 ## Print to track progress
 # Start the clock!
 #ptm <- proc.time()
@@ -62,7 +65,7 @@ for (x in 1:1){
   
   params <- list(state1 = c( "NJ"),
                  calibration_data_table = c(list(calibration_data_table_base[[1]])),
-                 directed_trips_table = c(list(directed_trips_table_base[[5]])),
+                 #directed_trips_table = c(list(directed_trips_table_base[[5]])),
                  sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
                  bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
                  scup_size_data_read = c(list(scup_size_data_read_base[[5]])),

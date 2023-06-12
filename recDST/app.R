@@ -328,17 +328,20 @@ server <- function(input, output, session) {
   
   
   sf_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE),
-                         state!="NC",select=c(state, fitted_length, prob_star))
+                         state!="NC",select=c(state, fitted_length, prob_star)) %>% 
+    dplyr::rename(fitted_prob = prob_star)
   sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
   
   
   bsb_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE),
-                          state!="NC", select=c(state, fitted_length, prob_star))
+                          state!="NC", select=c(state, fitted_length, prob_star))%>% 
+    dplyr::rename(fitted_prob = prob_star)
   bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
   
   
   scup_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE),
-                           state!="NC",select=c(state, fitted_length, prob_star))
+                           state!="NC",select=c(state, fitted_length, prob_star))%>% 
+    dplyr::rename(fitted_prob = prob_star)
   scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
   
   

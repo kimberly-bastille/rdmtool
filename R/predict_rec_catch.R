@@ -88,12 +88,14 @@ predict_rec_catch <- function(state1,
   # Input the calibration output which contains the number of choice occasions needed to simulate
   calibration_data <- calibration_data_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
   
+  print("pre-rename")
   # Input regul
   #directed_trips <- directed_trips_table[[1]] %>% tibble::tibble() %>% dplyr::filter(state == state1) 
-  sf_size_data <- sf_size_data_read[[1]] %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
-  bsb_size_data <- bsb_size_data_read[[1]]  %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
-  scup_size_data <- scup_size_data_read[[1]]  %>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  sf_size_data <- sf_size_data_read[[1]] #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  bsb_size_data <- bsb_size_data_read[[1]]  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  scup_size_data <- scup_size_data_read[[1]]  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
   
+  print("out of rename")
   ######################################
   ##   Begin simulating trip outcomes ##
   ######################################
@@ -122,11 +124,11 @@ predict_rec_catch <- function(state1,
                   scup_bag,
                   scup_min )
   
-  
-  sf_catch_data <- sf_catch_data_all[[1]] %>%
-    dplyr::rename(tot_sf_catch = sf_tot_cat,  tot_bsb_catch = bsb_tot_cat, tot_scup_catch = scup_tot_cat)  
-  
-  sf_catch_data <- sf_catch_data %>%
+
+  sf_catch_data <- sf_catch_data_all[[1]]  
+
+  print("premutate")
+  sf_catch_data2 <- sf_catch_data %>%
     dplyr::mutate(period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%
@@ -134,7 +136,7 @@ predict_rec_catch <- function(state1,
       catch_draw = rep(1:n_catch_draws, length.out = n_drawz*n_catch_draws),
       tripid = rep(1:n_drawz, each=n_catch_draws)) %>%
     dplyr::ungroup()
-  
+  print("postmutate")
   
   #Need 1,000xn_catch_draws(per trip) random draws of catch for each period, with catch-per-trip rates that vary by month.
   
@@ -220,7 +222,7 @@ predict_rec_catch <- function(state1,
   catch_size_data <- sf_catch_data %>%
     dplyr::mutate(fitted_length = sample(sf_size_data$fitted_length,
                                          nrow(.),
-                                         prob = sf_size_data$fitted_prob,
+                                         prob = sf_size_data$prob_star,
                                          replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
   
   ##I()
@@ -355,7 +357,7 @@ predict_rec_catch <- function(state1,
     catch_size_data <- bsb_catch_data %>%
       dplyr::mutate(fitted_length = sample(bsb_size_data$fitted_length,
                                            nrow(.),
-                                           prob = bsb_size_data$fitted_prob,
+                                           prob = bsb_size_data$prob_star,
                                            replace = TRUE)) #%>%
     
     
@@ -508,7 +510,7 @@ predict_rec_catch <- function(state1,
       catch_size_data <- scup_catch_data %>%
         dplyr::mutate(fitted_length = sample(scup_size_data$fitted_length,
                                              nrow(.),
-                                             prob = scup_size_data$fitted_prob,
+                                             prob = scup_size_data$prob_star,
                                              replace = TRUE)) #%>%
       
       
@@ -921,54 +923,56 @@ predict_rec_catch <- function(state1,
                                                             opt_out, v0, v0_optout, vA, vA_optout, vA_col_sum))
   
   # Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
-  ############# HELP!!!!!!! ########################################
-  list_names <- colnames(mean_trip_data8)[colnames(mean_trip_data8) !="tripid"
-                                         & colnames(mean_trip_data8) !="period"
-                                         & colnames(mean_trip_data8) !="probA"
-                                         & colnames(mean_trip_data8) !="prob0"
-                                         & colnames(mean_trip_data8) !="change_CS"
-                                         & colnames(mean_trip_data8) !="CS_base"
-                                         & colnames(mean_trip_data8) !="CS_alt"
-                                         & colnames(mean_trip_data8) !="tot_keep_bsb_base"
-                                         & colnames(mean_trip_data8) !="tot_cat_scup_base"
-                                         & colnames(mean_trip_data8) !="tot_keep_sf_base"
-                                         & colnames(mean_trip_data8) !="tot_rel_bsb_base"
-                                         & colnames(mean_trip_data8) !="tot_rel_sf_base"]
+  
+  # list_names <- colnames(mean_trip_data8)[colnames(mean_trip_data8) !="tripid"
+  #                                        & colnames(mean_trip_data8) !="period"
+  #                                        & colnames(mean_trip_data8) !="probA"
+  #                                        & colnames(mean_trip_data8) !="prob0"
+  #                                        & colnames(mean_trip_data8) !="change_CS"
+  #                                        & colnames(mean_trip_data8) !="CS_base"
+  #                                        & colnames(mean_trip_data8) !="CS_alt"
+  #                                        & colnames(mean_trip_data8) !="tot_keep_bsb_base"
+  #                                        & colnames(mean_trip_data8) !="tot_cat_scup_base"
+  #                                        & colnames(mean_trip_data8) !="tot_keep_sf_base"
+  #                                        & colnames(mean_trip_data8) !="tot_rel_bsb_base"
+  #                                        & colnames(mean_trip_data8) !="tot_rel_sf_base"] #Add period2, kod, kod_24, and mode1?
   
   # for (l in list_names){
   #   mean_trip_data[,l] <- mean_trip_data[,l]*mean_trip_data$probA
   # }
-
+  list_names <- c("tot_keep_sf","tot_rel_sf", "tot_sf_catch", "tot_keep_bsb", "tot_rel_bsb" , 
+                  "tot_bsb_catch" , "tot_keep_scup" , "tot_rel_scup","tot_scup_catch" )
   
   mean_trip_data9 <- mean_trip_data8 %>%
-    #dplyr::select(-c("period2", "state", "kod", "kod_24")) %>% 
     data.table::as.data.table() %>%
     .[,as.vector(list_names) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = list_names] %>%
     .[]
   
   
-  list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
-                                         & colnames(mean_trip_data) !="period"
-                                         & colnames(mean_trip_data) !="probA"
-                                         & colnames(mean_trip_data) !="prob0"
-                                         & colnames(mean_trip_data) !="change_CS"
-                                         & colnames(mean_trip_data) !="CS_base"
-                                         & colnames(mean_trip_data) !="CS_alt"
-                                         & colnames(mean_trip_data) !="tot_keep_bsb"
-                                         & colnames(mean_trip_data) !="tot_scup_catch"
-                                         & colnames(mean_trip_data) !="tot_keep_sf"
-                                         & colnames(mean_trip_data) !="tot_rel_bsb"
-                                         & colnames(mean_trip_data) !="tot_rel_sf"]
-  
+  # list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
+  #                                        & colnames(mean_trip_data) !="period"
+  #                                        & colnames(mean_trip_data) !="probA"
+  #                                        & colnames(mean_trip_data) !="prob0"
+  #                                        & colnames(mean_trip_data) !="change_CS"
+  #                                        & colnames(mean_trip_data) !="CS_base"
+  #                                        & colnames(mean_trip_data) !="CS_alt"
+  #                                        & colnames(mean_trip_data) !="tot_keep_bsb"
+  #                                        & colnames(mean_trip_data) !="tot_scup_catch"
+  #                                        & colnames(mean_trip_data) !="tot_keep_sf"
+  #                                        & colnames(mean_trip_data) !="tot_rel_bsb"
+  #                                        & colnames(mean_trip_data) !="tot_rel_sf"]
+  list_names <- c("tot_keep_sf_base","tot_rel_sf_base", "tot_keep_bsb_base", "tot_rel_bsb_base" , 
+                  "tot_cat_scup_base" )
   
   mean_trip_data9 <- mean_trip_data8 %>%
     data.table::as.data.table() %>%
     .[,as.vector(list_names) := lapply(.SD, function(x) x * prob0), .SDcols = list_names] %>%
     .[]
   
+  mean_trip_data9<- mean_trip_data9 %>% 
+    dplyr::select(unique(colnames(mean_trip_data9)))
   
-  
-  mean_trip_data <- mean_trip_data %>%
+  mean_trip_data <- mean_trip_data9 %>%
     dplyr::mutate( n_choice_occasions_alt = rep(1,nrow(.))) %>%
     dplyr::left_join(period_names, by = c("period2"))
   
@@ -978,29 +982,31 @@ predict_rec_catch <- function(state1,
   
   #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
   #mean_trip_pool by the expansion factor (expand), so that  each choice occasion represents a certain number of choice occasions
-  calibration_data <- data.frame(calibration_data[[1]])  #%>%   rename(period2 = period)
+  #calibration_data <- data.frame(calibration_data[[1]])  #%>%   rename(period2 = period)
+  calibration_data<- calibration_output_by_period
   
   sims <- calibration_data %>%
     dplyr::select(c(n_choice_occasions, period2)) %>%
-    dplyr::left_join(mean_trip_data %>% dplyr::count(period2, name = "ndraws") %>%
-                       dplyr::mutate(period = as.character(period2)), by = "period2") %>%
+    dplyr::left_join(mean_trip_data, by = "period2") %>% 
+    dplyr::mutate(ndraws = c(50),
+      period = as.character(period2)) %>%
     dplyr::mutate(expand = n_choice_occasions/ndraws)
   
-  
+  ############################# ADD CORRECTED n_choice_occasions HERE!!!! ######################
   
   #mean_trip_data$sim=1
-  mean_trip_data <- mean_trip_data %>%
-    dplyr::mutate(sim = rep(1,nrow(.)))
+  # mean_trip_data <- mean_trip_data %>%
+  #   dplyr::mutate(sim = rep(1,nrow(.)))
   
   #Here add other trip quality statistics
   #keep_one = ifelse(tot_keep>0,1,0))
   
-  #datset to compute mean cv over all trips
-  trip_level_output <- mean_trip_data %>%
-    dplyr::left_join(sims , by = c("period2")) %>%
+  #datset to compute mean cv over all trip
+      
+  trip_level_output <- sims%>%
     dplyr::mutate(state=state1,
                   seed=eff_seed)   %>%
-    dplyr::select(c(period2, tripid, expand, change_CS, state, probA, prob0, tot_keep_sf, tot_keep_bsb, tot_scup_catch, tot_keep_sf_base,
+    dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, tot_keep_sf, tot_keep_bsb, tot_scup_catch, tot_keep_sf_base,
                     tot_keep_bsb_base, tot_cat_scup_base, seed))
   
   if (state1 %in% c("DE", "MD", "VA")){
