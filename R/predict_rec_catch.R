@@ -128,7 +128,8 @@ predict_rec_catch <- function(state1,
   sf_catch_data <- sf_catch_data_all[[1]]  
 
   print("premutate")
-  sf_catch_data2 <- sf_catch_data %>%
+  print(class(sf_catch_data))
+  sf_catch_data <- sf_catch_data %>%
     dplyr::mutate(period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%

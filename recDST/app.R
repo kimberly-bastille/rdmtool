@@ -29,7 +29,10 @@ ui <- fluidPage(
                 column(4,
                        titlePanel("Summer Flounder"),
                        sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
-                                   min = 0, max = 24, value = c(10,17)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(5, 
                                 numericInput(inputId = "SFnjFH_1_smbag", label ="Small Bag Limit",
@@ -41,8 +44,11 @@ ui <- fluidPage(
                                              min = 0, max = 7, value = 1), 
                                 sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
                                             min = 5, max = 50, value = c(18,50), step = .5))), 
-                       sliderInput(inputId = "SFnjPR_seas1", label ="Private/Rental Open Season 1",  # New Jersey private rental??
-                                   min = 0, max = 24, value = c(10,17)),
+                       sliderInput(inputId = "SFnjPR_seas1", label ="Private/Rental Open Season 1",  # New Jersey private season 1
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(5, 
                                 numericInput(inputId = "SFnjPR_1_smbag", label ="Small Bag Limit",
@@ -55,7 +61,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "SFnjPR_1_lglen", label ="Large Min Length",
                                             min = 5, max = 50, value = c(18, 50), step = .5))),
                        sliderInput(inputId = "SFnjSH_seas1", label ="Shore Open Season 1",  # New Jersey Shore season 1
-                                   min = 0, max = 24, value = c(10,17)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(5, 
                                 numericInput(inputId = "SFnjSH_1_smbag", label ="Small Bag Limit",
@@ -69,8 +78,11 @@ ui <- fluidPage(
                                             min = 5, max = 50, value = c(18, 50), step = .5))),
                        actionButton("SFNJaddSeason", "Add Season"), 
                        shinyjs::hidden( div(ID = "SFnjSeason2",
-                                        sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 1
-                                                    min = 0, max = 24, value = c(10,17)),#)),
+                                        sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 2
+                                                    min = as.Date("01-01","%m-%d"),
+                                                    max = as.Date("12-31","%m-%d"),
+                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    timeFormat = "%m-%d", ticks = FALSE),#)),
                                         fluidRow(
                                           column(5,
                                                  numericInput(inputId = "SFnjFH_2_smbag", label ="Small Bag Limit",
@@ -82,8 +94,11 @@ ui <- fluidPage(
                                                               min = 0, max = 7, value = 0),
                                                  sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
                                                              min = 5, max = 50, value = c(18,50), step = .5))),
-                                        sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private rental??
-                                                    min = 0, max = 24, value = c(10,17)),
+                                        sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private season 2
+                                                    min = as.Date("01-01","%m-%d"),
+                                                    max = as.Date("12-31","%m-%d"),
+                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    timeFormat = "%m-%d", ticks = FALSE),
                                         fluidRow(
                                           column(5,
                                                  numericInput(inputId = "SFnjPR_2_smbag", label ="Small Bag Limit",
@@ -95,8 +110,11 @@ ui <- fluidPage(
                                                               min = 0, max = 7, value = 0),
                                                  sliderInput(inputId = "SFnjPR_2_lglen", label ="Large Min Length",
                                                              min = 5, max = 50, value = c(18, 50), step = .5))),
-                                        sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 1
-                                                    min = 0, max = 24, value = c(10,17)),
+                                        sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 2
+                                                    min = as.Date("01-01","%m-%d"),
+                                                    max = as.Date("12-31","%m-%d"),
+                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    timeFormat = "%m-%d", ticks = FALSE),
                                         fluidRow(
                                           column(5,
                                                  numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
@@ -113,7 +131,10 @@ ui <- fluidPage(
                        titlePanel("Black Sea Bass"),
                        #Season 1
                        sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjFH_1_bag", label ="Bag Limit",
@@ -122,7 +143,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjFH_1_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjPR_seas1", label ="Private/Rental Open Season 1",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjPR_1_bag", label ="Bag Limit",
@@ -131,7 +155,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjPR_1_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjSH_seas1", label ="Shore Open Season 1",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjSH_1_bag", label ="Bag Limit",
@@ -141,7 +168,10 @@ ui <- fluidPage(
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        #Season 2
                        sliderInput(inputId = "BSBnjFH_seas2", label =" For Hire Open Season 2", 
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjFH_2_bag", label ="Bag Limit",
@@ -150,7 +180,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjFH_2_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjPR_seas2", label ="Private/Rental Open Season 2",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjPR_2_bag", label ="Bag Limit",
@@ -159,7 +192,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjPR_2_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjSH_seas2", label ="Shore Open Season 2",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjSH_2_bag", label ="Bag Limit",
@@ -169,7 +205,10 @@ ui <- fluidPage(
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        #Season 3
                        sliderInput(inputId = "BSBnjFH_seas3", label =" For Hire Open Season 3", 
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjFH_3_bag", label ="Bag Limit",
@@ -178,7 +217,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjFH_3_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjPR_seas3", label ="Private/Rental Open Season 3",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjPR_3_bag", label ="Bag Limit",
@@ -187,7 +229,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjPR_3_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjSH_seas3", label ="Shore Open Season 3",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjSH_3_bag", label ="Bag Limit",
@@ -197,7 +242,10 @@ ui <- fluidPage(
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        #Season 4
                        sliderInput(inputId = "BSBnjFH_seas4", label =" For Hire Open Season 4", 
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjFH_4_bag", label ="Bag Limit",
@@ -206,7 +254,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjFH_4_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjPR_seas4", label ="Private/Rental Open Season 4",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjPR_4_bag", label ="Bag Limit",
@@ -215,7 +266,10 @@ ui <- fluidPage(
                                 sliderInput(inputId = "BSBnjPR_4_len", label ="Min Length",
                                             min = 3, max = 28.5, value = 12.5, step = .5))),
                        sliderInput(inputId = "BSBnjSH_seas4", label ="Shore Open Season 4",
-                                   min = 0, max = 24, value = c(5,6)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "BSBnjSH_4_bag", label ="Bag Limit",
@@ -229,7 +283,10 @@ ui <- fluidPage(
                        #Season 5
                        shinyjs::hidden( div(ID = "BSBnjSeason5",
                                             sliderInput(inputId = "BSBnjFH_seas5", label =" For Hire Open Season 5", 
-                                                        min = 0, max = 24, value = c(5,6)),
+                                                        min = as.Date("01-01","%m-%d"),
+                                                        max = as.Date("12-31","%m-%d"),
+                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
                                                      numericInput(inputId = "BSBnjFH_5_bag", label ="Bag Limit",
@@ -238,7 +295,10 @@ ui <- fluidPage(
                                                      sliderInput(inputId = "BSBnjFH_5_len", label ="Min Length",
                                                                  min = 3, max = 28.5, value = 12.5, step = .5))),
                                             sliderInput(inputId = "BSBnjPR_seas5", label ="Private/Rental Open Season 5",
-                                                        min = 0, max = 24, value = c(5,6)),
+                                                        min = as.Date("01-01","%m-%d"),
+                                                        max = as.Date("12-31","%m-%d"),
+                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
                                                      numericInput(inputId = "BSBnjPR_5_bag", label ="Bag Limit",
@@ -247,7 +307,10 @@ ui <- fluidPage(
                                                      sliderInput(inputId = "BSBnjPR_5_len", label ="Min Length",
                                                                  min = 3, max = 28.5, value = 12.5, step = .5))),
                                             sliderInput(inputId = "BSBnjSH_seas5", label ="Shore Open Season 5",
-                                                        min = 0, max = 24, value = c(5,6)),
+                                                        min = as.Date("01-01","%m-%d"),
+                                                        max = as.Date("12-31","%m-%d"),
+                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
                                                      numericInput(inputId = "BSBnjSH_5_bag", label ="Bag Limit",
@@ -262,7 +325,10 @@ ui <- fluidPage(
                 column(4, 
                        titlePanel("Scup"),
                        sliderInput(inputId = "SCUPnj_seas1", label ="Open Season 1",
-                                   min = 0, max = 24, value = c(0,24)),
+                                   min = as.Date("01-01","%m-%d"),
+                                   max = as.Date("12-31","%m-%d"),
+                                   value=c(as.Date("01-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                   timeFormat = "%m-%d", ticks = FALSE),
                        fluidRow(
                          column(4,
                                 numericInput(inputId = "SCUPnj_1_bag", label ="Bag Limit",
@@ -270,10 +336,10 @@ ui <- fluidPage(
                          column(6,
                                 sliderInput(inputId = "SCUPnj_1_len", label ="Min Length",
                                             min = 5, max = 15, value = 9, step = .5))), 
-                       actionButton("SCUPaddSeason", "Add Season")),
+                       actionButton("SCUPaddSeason", "Add Season"))),
               
               
-              actionButton("runmeplease", "Run Me"))),
+              actionButton("runmeplease", "Run Me")),
     
     tabPanel("Results", 
              tableOutput(outputId = "tableout"), 
@@ -370,11 +436,16 @@ server <- function(input, output, session) {
     SFnjSH_1_smlen <- input$SFnjSH_1_smlen
     SFnjSH_1_lgbag <- input$SFnjSH_1_lgbag
     SFnjSH_1_lglen <- input$SFnjSH_1_lglen
-    SFnjBT_seas2 <- input$SFnjBT_seas2
-    SFnjBT_2_smbag <- input$SFnjBT_2_smbag
-    SFnjBT_2_smlen <- input$SFnjBT_2_smlen
-    SFnjBT_2_lgbag <- input$SFnjBT_2_lgbag
-    SFnjBT_2_lglen <- input$SFnjBT_2_lglen
+    SFnjFH_seas2 <- input$SFnjFH_seas2
+    SFnjFH_2_smbag <- input$SFnjFH_2_smbag
+    SFnjFH_2_smlen <- input$SFnjFH_2_smlen
+    SFnjFH_2_lgbag <- input$SFnjFH_2_lgbag
+    SFnjFH_2_lglen <- input$SFnjFH_2_lglen
+    SFnjPR_seas2 <- input$SFnjPR_seas2
+    SFnjPR_2_smbag <- input$SFnjPR_2_smbag
+    SFnjPR_2_smlen <- input$SFnjPR_2_smlen
+    SFnjPR_2_lgbag <- input$SFnjPR_2_lgbag
+    SFnjPR_2_lglen <- input$SFnjPR_2_lglen
     SFnjSH_seas2 <- input$SFnjSH_seas2
     SFnjSH_2_smbag <- input$SFnjSH_2_smbag
     SFnjSH_2_smlen <- input$SFnjSH_2_smlen
@@ -459,14 +530,22 @@ server <- function(input, output, session) {
     })
     
     output$regtableout <- renderTable({
-      SFnjBTseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Boat"),
-                              Season = paste(SFnjBT_seas1[1], "-", SFnjBT_seas1[2]), 
-                              BagLimit = paste(SFnjBT_1_smbag,",", SFnjBT_1_lgbag), 
-                              Length = paste(SFnjBT_1_smlen,",", SFnjBT_1_lglen)) 
-      SFnjBTseason2 <- data.frame(State = c("NJ"),Species = c("Summer Flounder"), Mode = c("Boat"),
-                                  Season = paste(SFnjBT_seas2[1], "-", SFnjBT_seas2[2]), 
-                                  BagLimit = paste(SFnjBT_2_smbag,",", SFnjBT_2_lgbag), 
-                                  Length = paste(SFnjSH_2_smlen,",", SFnjBT_2_lglen))
+      SFnjPRseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Private"),
+                              Season = paste(SFnjPR_seas1[1], "-", SFnjPR_seas1[2]), 
+                              BagLimit = paste(SFnjPR_1_smbag,",", SFnjPR_1_lgbag), 
+                              Length = paste(SFnjPR_1_smlen,",", SFnjPR_1_lglen))
+      SFnjPRseason2 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                  Season = paste(SFnjPR_seas2[1], "-", SFnjPR_seas2[2]), 
+                                  BagLimit = paste(SFnjPR_2_smbag,",", SFnjPR_2_lgbag), 
+                                  Length = paste(SFnjPR_2_smlen,",", SFnjPR_2_lglen)) 
+      SFnjFHseason1 <- data.frame(State = c("NJ"),Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                  Season = paste(SFnjFH_seas1[1], "-", SFnjFH_seas1[2]), 
+                                  BagLimit = paste(SFnjFH_1_smbag,",", SFnjFH_1_lgbag), 
+                                  Length = paste(SFnjFH_1_smlen,",", SFnjFH_1_lglen))
+      SFnjFHseason2 <- data.frame(State = c("NJ"),Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                  Season = paste(SFnjFH_seas2[1], "-", SFnjFH_seas2[2]), 
+                                  BagLimit = paste(SFnjFH_2_smbag,",", SFnjFH_2_lgbag), 
+                                  Length = paste(SFnjFH_2_smlen,",", SFnjFH_2_lglen))
       SFnjSHseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Shore"),
                                   Season = paste(SFnjSH_seas1[1], "-", SFnjSH_seas1[2]), 
                                   BagLimit = paste(SFnjSH_1_smbag,",", SFnjSH_1_lgbag), 
@@ -475,22 +554,66 @@ server <- function(input, output, session) {
                                   Season = paste(SFnjSH_seas2[1], "-", SFnjSH_seas2[2]), 
                                   BagLimit = paste(SFnjSH_2_smbag,",", SFnjSH_2_lgbag), 
                                   Length = paste(SFnjSH_2_smlen,",", SFnjSH_2_lglen))
-      BSBnjseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
-                                  Season = paste(BSBnj_seas1[1], "-", BSBnj_seas1[2]), 
-                                  BagLimit = paste(BSBnj_1_bag), 
-                                  Length = paste(BSBnj_1_len)) 
-      BSBnjseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
-                                 Season = paste(BSBnj_seas2[1], "-", BSBnj_seas2[2]), 
-                                 BagLimit = paste(BSBnj_2_bag), 
-                                 Length = paste(BSBnj_2_len))
-      BSBnjseason3 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
-                                 Season = paste(BSBnj_seas3[1], "-", BSBnj_seas3[2]), 
-                                 BagLimit = paste(BSBnj_3_bag), 
-                                 Length = paste(BSBnj_3_len))
-      BSBnjseason4 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
-                                 Season = paste(BSBnj_seas4[1], "-", BSBnj_seas4[2]), 
-                                 BagLimit = paste(BSBnj_4_bag), 
-                                 Length = paste(BSBnj_4_len))
+      BSBnjPRseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                  Season = paste(BSBnjPR_seas1[1], "-", BSBnjPR_seas1[2]), 
+                                  BagLimit = paste(BSBnjPR_1_bag), 
+                                  Length = paste(BSBnjPR_1_len)) 
+      BSBnjPRseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                 Season = paste(BSBnjPR_seas2[1], "-", BSBnjPR_seas2[2]), 
+                                 BagLimit = paste(BSBnjPR_2_bag), 
+                                 Length = paste(BSBnjPR_2_len))
+      BSBnjPRseason3 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                 Season = paste(BSBnjPR_seas3[1], "-", BSBnjPR_seas3[2]), 
+                                 BagLimit = paste(BSBnjPR_3_bag), 
+                                 Length = paste(BSBnjPR_3_len))
+      BSBnjPRseason4 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                 Season = paste(BSBnjPR_seas4[1], "-", BSBnjPR_seas4[2]), 
+                                 BagLimit = paste(BSBnjPR_4_bag), 
+                                 Length = paste(BSBnjPR_4_len))
+      BSBnjPRseason5 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                   Season = paste(BSBnjPR_seas5[1], "-", BSBnjPR_seas5[2]), 
+                                   BagLimit = paste(BSBnjPR_5_bag), 
+                                   Length = paste(BSBnjPR_5_len))
+      BSBnjFHseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                   Season = paste(BSBnjFH_seas1[1], "-", BSBnjFH_seas1[2]), 
+                                   BagLimit = paste(BSBnjFH_1_bag), 
+                                   Length = paste(BSBnjFH_1_len)) 
+      BSBnjFHseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                   Season = paste(BSBnjFH_seas2[1], "-", BSBnjFH_seas2[2]), 
+                                   BagLimit = paste(BSBnjFH_2_bag), 
+                                   Length = paste(BSBnjFH_2_len))
+      BSBnjFHseason3 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                   Season = paste(BSBnjFH_seas3[1], "-", BSBnjFH_seas3[2]), 
+                                   BagLimit = paste(BSBnjFH_3_bag), 
+                                   Length = paste(BSBnjFH_3_len))
+      BSBnjFHseason4 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                   Season = paste(BSBnjFH_seas4[1], "-", BSBnjFH_seas4[2]), 
+                                   BagLimit = paste(BSBnjFH_4_bag), 
+                                   Length = paste(BSBnjFH_4_len))
+      BSBnjFHseason5 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                   Season = paste(BSBnjFH_seas5[1], "-", BSBnjFH_seas5[2]), 
+                                   BagLimit = paste(BSBnjFH_5_bag), 
+                                   Length = paste(BSBnjFH_5_len))
+      BSBnjSHseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                   Season = paste(BSBnjSH_seas1[1], "-", BSBnjSH_seas1[2]), 
+                                   BagLimit = paste(BSBnjSH_1_bag), 
+                                   Length = paste(BSBnjSH_1_len)) 
+      BSBnjSHseason2 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                   Season = paste(BSBnjSH_seas2[1], "-", BSBnjSH_seas2[2]), 
+                                   BagLimit = paste(BSBnjSH_2_bag), 
+                                   Length = paste(BSBnjSH_2_len))
+      BSBnjSHseason3 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                   Season = paste(BSBnjSH_seas3[1], "-", BSBnjSH_seas3[2]), 
+                                   BagLimit = paste(BSBnjSH_3_bag), 
+                                   Length = paste(BSBnjSH_3_len))
+      BSBnjSHseason4 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                   Season = paste(BSBnjSH_seas4[1], "-", BSBnjSH_seas4[2]), 
+                                   BagLimit = paste(BSBnjSH_4_bag), 
+                                   Length = paste(BSBnjSH_4_len))
+      BSBnjSHseason5 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                   Season = paste(BSBnjSH_seas5[1], "-", BSBnjSH_seas5[2]), 
+                                   BagLimit = paste(BSBnjSH_5_bag), 
+                                   Length = paste(BSBnjSH_5_len))
       SCUPnjseason1 <- data.frame(State = c("NJ"), Species = c("SCUP"), Mode = c("All"),
                                  Season = paste(SCUPnj_seas1[1], "-", SCUPnj_seas1[2]), 
                                  BagLimit = paste(SCUPnj_1_bag), 
@@ -499,8 +622,12 @@ server <- function(input, output, session) {
       
       
       
-      regsout<- rbind(SFnjBTseason1, SFnjBTseason2, SFnjSHseason1, SFnjSHseason2, 
-                      BSBnjseason1, BSBnjseason2, BSBnjseason3, BSBnjseason4, 
+      regsout<- rbind(SFnjPRseason1, SFnjPRseason2,
+                      SFnjFHseason1, SFnjFHseason2, 
+                      SFnjSHseason1, SFnjSHseason2, 
+                      BSBnjPRseason1, BSBnjPRseason2, BSBnjPRseason3, BSBnjPRseason4, 
+                      BSBnjFHseason1, BSBnjFHseason2, BSBnjFHseason3, BSBnjFHseason4, 
+                      BSBnjSHseason1, BSBnjSHseason2, BSBnjSHseason3, BSBnjSHseason4, 
                       SCUPnjseason1) %>% 
         dplyr::filter(!BagLimit == "0", 
                       !BagLimit == "0 , 0")

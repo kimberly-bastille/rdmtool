@@ -3,7 +3,7 @@
 ##############################
 
 print("start model_NJ")
-
+state1 = "NJ"
 predictions = list()
 
 #catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_corr_files_NJ.rds")))
@@ -60,36 +60,45 @@ for (x in 1:1){
   source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
-  # future::plan(future::multisession, workers=6)
-  
-  
-  params <- list(state1 = c( "NJ"),
-                 calibration_data_table = c(list(calibration_data_table_base[[1]])),
-                 #directed_trips_table = c(list(directed_trips_table_base[[5]])),
-                 sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
-                 bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
-                 scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
-                 costs_new_all = c(list(cost_files_all_base[[1]])),
-                 #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
-                 sf_catch_data_all = c(list(catch_files_NJ)))
+  # future::plan(future::multisession, workers=6
+  # params <- list(state1 =  c("NJ"),
+  #                calibration_data_table = c(list(calibration_data_table_base[[1]])),
+  #                calibration_data_table2 = clist(calibration_data_table_base[[1]]),
+  #                #directed_trips_table = c(list(directed_trips_table_base[[5]])),
+  #                sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
+  #                bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
+  #                scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
+  #                costs_new_all = c(list(cost_files_all_base[[1]])),
+  #                #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
+  #                sf_catch_data_all = c(list(catch_files_NJ)))
   #print(head(params))
+  test<- predict_rec_catch(state1 = c("NJ"),
+                           calibration_data_table = c(list(calibration_data_table_base[[1]])),
+                           #directed_trips_table = c(list(directed_trips_table_base[[5]])),
+                           sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
+                           bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
+                           scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
+                           costs_new_all = c(list(cost_files_all_base[[1]])),
+                           #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
+                           sf_catch_data_all = c(list(catch_files_NJ)))
   
-  
-  safe_predict_rec_catch <- purrr::safely(predict_rec_catch, otherwise = NA_real_)
-  
-  #xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190))
-  xx_check <-  purrr::pmap(params, safe_predict_rec_catch)
-  print(head(xx_check))
-  #prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
-  prediction_output_by_period1 <- purrr::map(xx_check, 1)
+  # safe_predict_rec_catch <- purrr::safely(predict_rec_catch, otherwise = NA_real_)
+  # 
+  # #xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190))
+  # xx_check <-  purrr::pmap(params, safe_predict_rec_catch)
+  # print(head(xx_check))
+  # #prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
+  # prediction_output_by_period1 <- purrr::map(xx_check, 1)
   print("made it through predict")
+  
+  prediction_output_by_period1 <- data.frame(test)
   
   
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     print("prediction_output_by_period1 is not numeric")
     prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("period", "mode"), "_")
+    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "_")
     
     
     #Metrics at the choice occasion level
@@ -98,21 +107,30 @@ for (x in 1:1){
     bsb_keep_i<- weighted.mean(prediction_output_by_period1$tot_keep_bsb, prediction_output_by_period1$expand)
     
     
-    cv_i_boat<- weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$mode=="bt"],
-                              prediction_output_by_period1$expand[prediction_output_by_period1$mode=="bt"])
+    cv_i_pr<- weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$mode=="pr"],
+                              prediction_output_by_period1$expand[prediction_output_by_period1$mode=="pr"])
+    
+    cv_i_fh<- weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$mode=="fh"],
+                            prediction_output_by_period1$expand[prediction_output_by_period1$mode=="fh"])
     
     cv_i_shore<- weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$mode=="sh"],
                                prediction_output_by_period1$expand[prediction_output_by_period1$mode=="sh"])
     
     
-    sf_keep_i_boat<- weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$mode=="bt"],
-                                   prediction_output_by_period1$expand[prediction_output_by_period1$mode=="bt"])
+    sf_keep_i_pr<- weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$mode=="pr"],
+                                   prediction_output_by_period1$expand[prediction_output_by_period1$mode=="pr"])
+    
+    sf_keep_i_fh<- weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$mode=="fh"],
+                                   prediction_output_by_period1$expand[prediction_output_by_period1$mode=="fh"])
     
     sf_keep_i_shore<- weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$mode=="sh"],
                                     prediction_output_by_period1$expand[prediction_output_by_period1$mode=="sh"])
     
-    bsb_keep_i_boat<- weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$mode=="bt"],
-                                    prediction_output_by_period1$expand[prediction_output_by_period1$mode=="bt"])
+    bsb_keep_i_pr<- weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$mode=="pr"],
+                                    prediction_output_by_period1$expand[prediction_output_by_period1$mode=="pr"])
+    
+    bsb_keep_i_fh<- weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$mode=="fh"],
+                                    prediction_output_by_period1$expand[prediction_output_by_period1$mode=="fh"])
     
     bsb_keep_i_shore<- weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$mode=="sh"],
                                      prediction_output_by_period1$expand[prediction_output_by_period1$mode=="sh"])
@@ -124,13 +142,17 @@ for (x in 1:1){
       .[, sf_keep_sum := expand*tot_keep_sf] %>%
       .[, bsb_keep_sum := expand*tot_keep_bsb] %>%
       .[, ntrips_alt := expand*probA] %>%
-      .[mode=="bt", cv_sum_boat := expand*change_CS] %>%
+      .[mode=="pr", cv_sum_pr := expand*change_CS] %>%
+      .[mode=="fh", cv_sum_fh := expand*change_CS] %>%
       .[mode=="sh", cv_sum_sh := expand*change_CS] %>%
-      .[mode=="bt", sf_keep_sum_boat := expand*tot_keep_sf] %>%
+      .[mode=="pr", sf_keep_sum_pr := expand*tot_keep_sf] %>%
+      .[mode=="fh", sf_keep_sum_fh := expand*tot_keep_sf] %>%
       .[mode=="sh", sf_keep_sum_sh := expand*tot_keep_sf] %>%
-      .[mode=="bt", bsb_keep_sum_boat := expand*tot_keep_bsb] %>%
+      .[mode=="pr", bsb_keep_sum_pr := expand*tot_keep_bsb] %>%
+      .[mode=="fh", bsb_keep_sum_fh := expand*tot_keep_bsb] %>%
       .[mode=="sh", bsb_keep_sum_sh := expand*tot_keep_bsb] %>%
-      .[mode=="bt", ntrips_boat := expand*probA] %>%
+      .[mode=="pr", ntrips_pr := expand*probA] %>%
+      .[mode=="fh", ntrips_fh := expand*probA] %>%
       .[mode=="sh", ntrips_sh := expand*probA]
     
     prediction_output_by_period1 <- prediction_output_by_period1 %>%
@@ -144,8 +166,11 @@ for (x in 1:1){
       assign(paste0("cv_i_", s), weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$state==s],
                                                prediction_output_by_period1$expand[prediction_output_by_period1$state==s]))
       
-      assign(paste0("cv_i_boat_", s), weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"],
-                                                    prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("cv_i_pr_", s), weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"],
+                                                    prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      
+      assign(paste0("cv_i_fh_", s), weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"],
+                                                    prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       
       assign(paste0("cv_i_shore_", s), weighted.mean(prediction_output_by_period1$change_CS[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"],
                                                      prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
@@ -154,8 +179,10 @@ for (x in 1:1){
       assign(paste0("sf_keep_i_", s), weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$state==s],
                                                     prediction_output_by_period1$expand[prediction_output_by_period1$state==s]))
       
-      assign(paste0("sf_keep_i_boat_", s), weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"],
-                                                         prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("sf_keep_i_pr_", s), weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"],
+                                                         prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("sf_keep_i_fh_", s), weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"],
+                                                         prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       
       assign(paste0("sf_keep_i_shore_", s), weighted.mean(prediction_output_by_period1$tot_keep_sf[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"],
                                                           prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
@@ -164,27 +191,33 @@ for (x in 1:1){
       assign(paste0("bsb_keep_i_", s), weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$state==s],
                                                      prediction_output_by_period1$expand[prediction_output_by_period1$state==s]))
       
-      assign(paste0("bsb_keep_i_boat_", s), weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"],
-                                                          prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("bsb_keep_i_pr_", s), weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"],
+                                                          prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("bsb_keep_i_fh_", s), weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"],
+                                                          prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       
       assign(paste0("bsb_keep_i_shore_", s), weighted.mean(prediction_output_by_period1$tot_keep_bsb[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"],
                                                            prediction_output_by_period1$expand[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       #Sum values per by state
       assign(paste0("cv_sum_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("cv_sum_boat_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("cv_sum_pr_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("cv_sum_fh_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       assign(paste0("cv_sum_shore_", s), base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       assign(paste0("sf_keep_sum_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("sf_keep_sum_boat_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("sf_keep_sum_pr_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("sf_keep_sum_fh_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       assign(paste0("sf_keep_sum_shore_", s), base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       assign(paste0("bsb_keep_sum_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s]))
-      assign(paste0("bsb_keep_sum_boat_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("bsb_keep_sum_pr_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("bsb_keep_sum_fh_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       assign(paste0("bsb_keep_sum_shore_", s), base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       assign(paste0("ntrips_sum_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s]))
-      assign(paste0("ntrips_sum_boat_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="bt"]))
+      assign(paste0("ntrips_sum_pr_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="pr"]))
+      assign(paste0("ntrips_sum_fh_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="fh"]))
       assign(paste0("ntrips_sum_shore_", s), base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state==s & prediction_output_by_period1$mode=="sh"]))
       
       
@@ -208,19 +241,23 @@ for (x in 1:1){
     
     #Metrics a coast level
     cv_sum<- base::sum(prediction_output_by_period1$cv_sum)
-    cv_sum_boat<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="bt"])
+    cv_sum_pr<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="pr"])
+    cv_sum_fh<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="fh"])
     cv_sum_shore<- base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$mode=="sh"])
     
     sf_keep_sum<- base::sum(prediction_output_by_period1$sf_keep_sum)
-    sf_keep_sum_boat<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="bt"])
+    sf_keep_sum_pr<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="pr"])
+    sf_keep_sum_fh<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="fh"])
     sf_keep_sum_shore<- base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$mode=="sh"])
     
     bsb_keep_sum<- base::sum(prediction_output_by_period1$bsb_keep_sum)
-    bsb_keep_sum_boat<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="bt"])
+    bsb_keep_sum_pr<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="pr"])
+    bsb_keep_sum_fh<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="fh"])
     bsb_keep_sum_shore<- base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$mode=="sh"])
     
     ntrips_sum<-base::sum(prediction_output_by_period1$ntrips_alt)
-    ntrips_sum_boat<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="bt"])
+    ntrips_sum_pr<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="pr"])
+    ntrips_sum_fh<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="fh"])
     ntrips_sum_shore<-base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$mode=="sh"])
     
     n_choice_occasions_sum<-base::sum(calibration_output_by_period$n_choice_occasions)
@@ -231,31 +268,31 @@ for (x in 1:1){
       
       #Mean CV per choice occasion
       cv_i, 
-      cv_i_NJ, cv_i_boat_NJ, cv_i_shore_NJ,
+      cv_i_NJ, cv_i_pr_NJ,cv_i_fh_NJ, cv_i_shore_NJ,
       
       #Sum CV
-      cv_sum, cv_sum_shore, cv_sum_boat,
-      cv_sum_NJ, cv_sum_shore_NJ, cv_sum_boat_NJ, 
+      cv_sum, cv_sum_shore, cv_sum_pr,cv_sum_fh,
+      cv_sum_NJ, cv_sum_shore_NJ, cv_sum_pr_NJ, cv_sum_fh_NJ, 
       
       #Mean SF keep per choice occasion
-      sf_keep_i, sf_keep_i_boat, sf_keep_i_shore,
-      sf_keep_i_NJ, sf_keep_i_boat_NJ, sf_keep_i_shore_NJ,
+      sf_keep_i, sf_keep_i_pr, sf_keep_i_fh,  sf_keep_i_shore,
+      sf_keep_i_NJ, sf_keep_i_pr_NJ, sf_keep_i_fh_NJ, sf_keep_i_shore_NJ,
       
       #Sum SF keep
-      sf_keep_sum, sf_keep_sum_boat, sf_keep_i_shore,
-      sf_keep_sum_NJ, sf_keep_sum_boat_NJ, sf_keep_sum_shore_NJ,
+      sf_keep_sum, sf_keep_sum_pr, sf_keep_sum_fh, sf_keep_i_shore,
+      sf_keep_sum_NJ, sf_keep_sum_pr_NJ, sf_keep_sum_fh_NJ,sf_keep_sum_shore_NJ,
       
       #Mean BSB keep per choice occasion
-      bsb_keep_i, bsb_keep_i_boat, bsb_keep_i_shore,
-      bsb_keep_i_NJ, bsb_keep_i_boat_NJ, bsb_keep_i_shore_NJ, 
+      bsb_keep_i, bsb_keep_i_pr, bsb_keep_i_fh, bsb_keep_i_shore,
+      bsb_keep_i_NJ, bsb_keep_i_pr_NJ, bsb_keep_i_fh_NJ, bsb_keep_i_shore_NJ, 
       
       #Sum BSB keep
-      bsb_keep_sum, bsb_keep_sum_boat, bsb_keep_i_shore,
-      bsb_keep_sum_NJ, bsb_keep_sum_boat_NJ, bsb_keep_sum_shore_NJ, 
+      bsb_keep_sum, bsb_keep_sum_pr, bsb_keep_sum_fh, bsb_keep_i_shore,
+      bsb_keep_sum_NJ, bsb_keep_sum_pr_NJ, bsb_keep_sum_fh_NJ, bsb_keep_sum_shore_NJ, 
       
       #Sum of number of trips
-      ntrips_sum, ntrips_sum_boat, ntrips_sum_shore,
-      ntrips_sum_NJ, ntrips_sum_boat_NJ, ntrips_sum_shore_NJ,
+      ntrips_sum, ntrips_sum_pr, ntrips_sum_fh, ntrips_sum_shore,
+      ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ,
       
       #seeds
       seed_NJ, 
