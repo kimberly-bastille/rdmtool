@@ -3,32 +3,17 @@
 
 predict_rec_catch <- function(state1,
                               calibration_data_table,
+                              directed_trips_table = directed_trips,
                               sf_size_data_read,
                               bsb_size_data_read,
                               scup_size_data_read,
                               costs_new_all,
                               sf_catch_data_all, 
-                              n_drawz = 50, 
-                              n_catch_draws = 30, 
+                              n_drawz = 10, 
+                              n_catch_draws = 10, 
                               eff_seed=32190){
   
   #test vals to run the function directly
-  #  "CT", "DE", "MA", "MD", "NJ","NY", "RI", "VA"
-  # state1 <- "CT"
-  # calibration_data_table <- calibration_data_table_base[[1]]
-  # directed_trips_table <- directed_trips_table_base[[1]]
-  # sf_size_data_read <- sf_size_data_read_base[[1]]
-  # bsb_size_data_read <- bsb_size_data_read_base[[1]]
-  # scup_size_data_read <- scup_size_data_read_base[[1]]
-  # #param_draws_MA <- param_draws_CT
-  # costs_new_all <- costs_new_all_CT
-  # sf_catch_data_all <- catch_files_all_base[[1]]
-  #
-  
-  #avg_cv<-list()
-  #for (x in 1:10){
-  #profile<-    profvis::profvis({
-  #   # #
   # state1 <- "NJ"
   # calibration_data_table <- calibration_data_table_base[[1]]
   # directed_trips_table <- directed_trips_table_base[[5]]
@@ -45,48 +30,11 @@ predict_rec_catch <- function(state1,
   #set.seed(24735)
   # x<-.Random.seed
   
-  
-  #set.seed(15975)
-  #
-  #
-  # #print(sprintf("Seed for session: %s", eff_seed))
-  # #set.seed(eff_seed)
-  # #set.seed(27107)
-  #
-  # state1 <- "DE"
-  # calibration_data_table <- calibration_data_table_base[[2]]
-  # directed_trips_table <- directed_trips_table_base[[2]]
-  # sf_size_data_read <- sf_size_data_read_base[[2]]
-  # bsb_size_data_read <- bsb_size_data_read_base[[2]]
-  # scup_size_data_read <- scup_size_data_read_base[[2]]
-  # costs_new_all <- cost_files_all_base[[2]]
-  # sf_catch_data_all <- catch_files_all_base[[2]]
-  
-  #
-  # state1 <- "CT"
-  # calibration_data_table <- calibration_data_table_base[[1]]
-  # directed_trips_table <- directed_trips_table_base[[1]]
-  # sf_size_data_read <- sf_size_data_read_base[[1]]
-  # bsb_size_data_read <- bsb_size_data_read_base[[1]]
-  # scup_size_data_read <- scup_size_data_read_base[[1]]
-  # costs_new_all <- cost_files_all_base[[1]]
-  # sf_catch_data_all <- catch_files_all_base[[1]]
-  
-  # state1 <- "RI"
-  # calibration_data_table <- calibration_data_table_base[[7]]
-  # directed_trips_table <- directed_trips_table_base[[7]]
-  # sf_size_data_read <- sf_size_data_read_base[[7]]
-  # bsb_size_data_read <- bsb_size_data_read_base[[7]]
-  # scup_size_data_read <- scup_size_data_read_base[[7]]
-  # #param_draws_MA <- param_draws_CT
-  # costs_new_all <- cost_files_all_base[[7]]
-  # sf_catch_data_all <- catch_files_all_base[[7]]
-  
   #profvis::profvis({
   #if (state1 %in% c("MA", "RI", "CT", "NY", "NJ", "VA")) {
   set.seed(eff_seed)
   # Input the calibration output which contains the number of choice occasions needed to simulate
-  calibration_data <- calibration_data_table %>% tibble::tibble() %>% dplyr::filter(state == state1)
+  calibration_data <- calibration_data_table %>% tibble::tibble() 
   
   print("pre-rename")
   # Input regul
@@ -99,23 +47,21 @@ predict_rec_catch <- function(state1,
   ######################################
   ##   Begin simulating trip outcomes ##
   ######################################
-  
+  print("into directed trips")
   # Set up an output file for the separately simulated within-season regulatory periods
-  directed_trips_p <- directed_trips %>% #subset(directed_trips, period == p)
-    dplyr::mutate(day = as.numeric(stringr::str_extract(day, "^\\d{2}")), 
-                  month = as.numeric(month)) %>% 
-    dplyr::mutate(period2 = as.character(paste0(month, "_", day, "_", mode)))%>%
+  directed_trips_p <- directed_trips %>% #subset(directed_trips, period == p) %>% 
+    #dplyr::mutate(period2 = as.character(paste0(month_day,"-", mode)))%>%
     #group_by(period) %>%
     dplyr::mutate(#n_trips = floor(mean(dtrip_2019)),
       n_trips = floor(dtrip),
       n_draws = n_drawz)
   
-  
+  print("first kod")
   period_vec <- directed_trips_p %>%
     dplyr::select(period2, n_draws, month, kod, kod_24) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  regs <- directed_trips_p %>%
+  regs <- tibble::tibble( directed_trips_p ) %>%
     dplyr::select(period2,
                   fluke_bag1, fluke_min1, fluke_max1,
                   fluke_bag2, fluke_min2, fluke_max2,
@@ -130,7 +76,7 @@ predict_rec_catch <- function(state1,
   print("premutate")
   print(class(sf_catch_data))
   sf_catch_data <- sf_catch_data %>%
-    dplyr::mutate(period2 = paste0(month, "_", day, "_", mode1)) %>% 
+    #dplyr::mutate(period2 = paste0(month, "-", day, "-", mode1)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%
     dplyr::mutate(#period = rep(period_vec$period2, each = nsamp),
@@ -223,7 +169,7 @@ predict_rec_catch <- function(state1,
   catch_size_data <- sf_catch_data %>%
     dplyr::mutate(fitted_length = sample(sf_size_data$fitted_length,
                                          nrow(.),
-                                         prob = sf_size_data$prob_star,
+                                         prob = sf_size_data$fitted_prob,
                                          replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
   
   ##I()
@@ -257,7 +203,7 @@ predict_rec_catch <- function(state1,
         fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0)))
   
   #catch_size_data[is.na(catch_size_data)] <- 0
-  catch_size_data <- catch_size_data %>%
+  catch_size_data2 <- catch_size_data %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
   
   catch_size_data <- catch_size_data %>%
@@ -358,7 +304,7 @@ predict_rec_catch <- function(state1,
     catch_size_data <- bsb_catch_data %>%
       dplyr::mutate(fitted_length = sample(bsb_size_data$fitted_length,
                                            nrow(.),
-                                           prob = bsb_size_data$prob_star,
+                                           prob = bsb_size_data$fitted_prob,
                                            replace = TRUE)) #%>%
     
     
@@ -511,7 +457,7 @@ predict_rec_catch <- function(state1,
       catch_size_data <- scup_catch_data %>%
         dplyr::mutate(fitted_length = sample(scup_size_data$fitted_length,
                                              nrow(.),
-                                             prob = scup_size_data$prob_star,
+                                             prob = scup_size_data$fitted_prob,
                                              replace = TRUE)) #%>%
       
       
@@ -814,13 +760,11 @@ predict_rec_catch <- function(state1,
   
   
   all_vars<-c()
-  all_vars <- names(mean_trip_data6)[!names(mean_trip_data6) %in% c("period","tripid")]
-  
-  
+  all_vars <- names(mean_trip_data6)[!names(mean_trip_data6) %in% c("period","tripid", "period2", "kod", "kod_24", "state", "mode1", "month.day.x")]
   
   mean_trip_data7<-mean_trip_data6  %>% data.table::as.data.table() %>%
     .[,lapply(.SD, base::mean), by = c("period2","tripid", "kod", "kod_24", "state"), .SDcols = all_vars]
-  print(head(mean_trip_data))
+  print(head(mean_trip_data7))
   
   #original code
   # Collapse data from the X catch draws so that each row contains mean values

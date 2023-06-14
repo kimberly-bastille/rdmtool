@@ -393,23 +393,25 @@ server <- function(input, output, session) {
   
   
   
-  sf_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE),
-                         state!="NC",select=c(state, fitted_length, prob_star)) %>% 
+  sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    dplyr::filter(state!="NC") %>% 
+    dplyr::select(c(state, fitted_length, prob_star))%>% 
     dplyr::rename(fitted_prob = prob_star)
   sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
   
   
-  bsb_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE),
-                          state!="NC", select=c(state, fitted_length, prob_star))%>% 
+  bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    dplyr::filter(state!="NC") %>% 
+    dplyr::select(c(state, fitted_length, prob_star))%>% 
     dplyr::rename(fitted_prob = prob_star)
   bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
   
   
-  scup_size_data <- subset(readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE),
-                           state!="NC",select=c(state, fitted_length, prob_star))%>% 
+  scup_size_data <- readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    dplyr::filter(state!="NC") %>% 
+    dplyr::select(c(state, fitted_length, prob_star))%>% 
     dplyr::rename(fitted_prob = prob_star)
   scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
-  
   
   
   shinyjs::onclick("SFaddseason",
@@ -421,17 +423,20 @@ server <- function(input, output, session) {
   observeEvent(input$runmeplease, {
     state <- input$state
     # Summer Flounder
-    SFnjFH_seas1 <- input$SFnjPR_seas1
+    SFnjFH_seas1 <- list(stringr::str_remove(input$SFnjFH_seas1[1], "2023-"), 
+                         stringr::str_remove(input$SFnjFH_seas1[2], "2023-"))
     SFnjFH_1_smbag <- input$SFnjPR_1_smbag
     SFnjFH_1_smlen <- input$SFnjPR_1_smlen
     SFnjFH_1_lgbag <- input$SFnjPR_1_lgbag
     SFnjFH_1_lglen <- input$SFnjPR_1_lglen
-    SFnjPR_seas1 <- input$SFnjPR_seas1
+    SFnjPR_seas1 <- list(stringr::str_remove(input$SFnjPR_seas1[1], "2023-"), 
+                         stringr::str_remove(input$SFnjPR_seas1[2], "2023-"))
     SFnjPR_1_smbag <- input$SFnjPR_1_smbag
     SFnjPR_1_smlen <- input$SFnjPR_1_smlen
     SFnjPR_1_lgbag <- input$SFnjPR_1_lgbag
     SFnjPR_1_lglen <- input$SFnjPR_1_lglen
-    SFnjSH_seas1 <- input$SFnjSH_seas1
+    SFnjSH_seas1<- list(stringr::str_remove(input$SFnjSH_seas1[1], "2023-"), 
+                        stringr::str_remove(input$SFnjSH_seas1[2], "2023-"))
     SFnjSH_1_smbag <- input$SFnjSH_1_smbag
     SFnjSH_1_smlen <- input$SFnjSH_1_smlen
     SFnjSH_1_lgbag <- input$SFnjSH_1_lgbag
@@ -502,31 +507,12 @@ server <- function(input, output, session) {
     SCUPnj_1_bag <- input$SCUPnj_1_bag
     SCUPnj_1_len <- input$SCUPnj_1_len
     
-    
-    
-    ####### Directed trips moved to Model Run scripts
-    # directed_trips_table<-data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2022.csv")))) %>% 
-    #   dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode == "fh" & day >= SFnjFH_seas1[1] & day <= SFnjFH_seas1[2] ~ c(SFnjFH_1_smbag)), #NJ forhire season 1
-    #                 fluke_bag1= dplyr::case_when(state == "NJ" & mode == "pr" & day >= SFnjPR_seas1[1] & day <= SFnjPR_seas1[2] ~ c(SFnjPR_1_smbag)), #NJ pr season 1
-    #                 fluke_bag1= dplyr::case_when(state == "NJ" & mode == "sh" & day >= SFnjSH_seas1[1] & day <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)), #NJ shore season 1
-    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(SFnjBT_2_smbag)), #NJ boat season 2
-    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(SFnjSH_2_smbag)), #NJ shore season 2
-    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "sh" & period <= SFnjSH_seas1[1] & period >= SFnjSH_seas1[2] & period >= SFnjSH_seas2[1] & period <= SFnjSH_seas2[2] ~ c(0)), #NJ shore closed season
-    #                 #fluke_bag1= dplyr::case_when(state == "NJ" & mode1 == "bt" & period <= SFnjBT_seas1[1] & period >= SFnjBT_seas1[2] & period >= SFnjBT_seas2[1] & period <= SFnjBT_seas2[2] ~ c(0)), #NJ boat closed season
-    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas1[1] & day <= BSBnj_seas1[2] ~ c(BSBnj_1_bag)),
-    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas2[1] & day <= BSBnj_seas2[2] ~ c(BSBnj_2_bag)),
-    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas3[1] & day <= BSBnj_seas3[2] ~ c(BSBnj_3_bag)),
-    #                 bsb_bag = dplyr::case_when(state == "NJ" & day >= BSBnj_seas4[1] & day <= BSBnj_seas4[2] ~ c(BSBnj_4_bag)),
-    #                 #fluke_bag2= dplyr::case_when(state == "NJ" ~ c(NJ_SFlg_baglimit1)), 
-    #                 #bsb_bag= dplyr::case_when(state == "NJ" ~ c(NJ_BSB_baglimit1)), 
-    #                 scup_bag= dplyr::case_when(state == "NJ" & day >= SCUPnj_seas1[1] & day <= SCUPnj_seas1[2] ~ c(SCUPnj_1_bag)))
-    # directed_trips_table<-subset(directed_trips_table, state!="NC")
-    # directed_trips_table_base <- split(directed_trips_table, directed_trips_table$state)
-    
-    
+    print(SFnjFH_seas1[1])
     
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
+      
+      
     })
     
     output$regtableout <- renderTable({
@@ -632,7 +618,7 @@ server <- function(input, output, session) {
         dplyr::filter(!BagLimit == "0", 
                       !BagLimit == "0 , 0")
       
-      print(regsout)
+      #print(regsout)
 
     })})
 

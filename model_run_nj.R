@@ -13,10 +13,19 @@ predictions = list()
 catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
   dplyr::rename(tot_sf_catch = sf_tot_cat,  
                 tot_bsb_catch = bsb_tot_cat, 
-                tot_scup_catch = scup_tot_cat) 
-## Print to track progress
-# Start the clock!
-#ptm <- proc.time()
+                tot_scup_catch = scup_tot_cat) %>% 
+  dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
+                period2 = paste0(month_day, "-", mode1))
+
+directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
+  dplyr::mutate(month_day = stringr::str_remove(lubridate::dmy(day), "2022-"), 
+                period2 = paste0(month_day, "-", mode))
+
+#%>% 
+  # dplyr::mutate(fluke_bag1= dplyr::case_when(state == "NJ" & mode == "fh" & month_day >= SFnjFH_seas1[1] & month_day <= SFnjFH_seas1[2] ~ c(SFnjFH_1_smbag)), #NJ forhire season 1
+  #               fluke_bag1= dplyr::case_when(state == "NJ" & mode == "pr" & month_day >= SFnjPR_seas1[1] & month_day <= SFnjPR_seas1[2] ~ c(SFnjPR_1_smbag)),
+  #               fluke_bag1= dplyr::case_when(state == "NJ" & mode == "sh" & month_day >= SFnjSH_seas1[1] & month_day <= SFnjSH_seas1[2] ~ c(SFnjSH_1_smbag)))#NJ pr season 1
+
 
 for (x in 1:1){
   
@@ -30,17 +39,24 @@ for (x in 1:1){
   #                sf_catch_data_all = c(list(catch_files_NJ)))
   
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) 
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) %>% 
+    tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
+    dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
+                  period2 = paste0(month_day, "-", mode)) %>% 
+    dplyr::select(-c(month, day, month_day, mode))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,".rds"))) 
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,".rds")))%>% 
+    tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
+    dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
+                  period2 = paste0(month_day, "-", mode)) %>% 
+    dplyr::select(-c(month, day, month_day, mode))
   
   calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   cost_files_all_base <- split(costs_new_all, costs_new_all$state)
   
   
-  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,"_",x,".rds")))) %>% 
-    tibble::tibble()
-  
+  directed_trips <- directed_trips %>% 
+    dplyr::filter(draw == x)
   
   #2) Run the prediction model
   
@@ -74,7 +90,7 @@ for (x in 1:1){
   #print(head(params))
   test<- predict_rec_catch(state1 = c("NJ"),
                            calibration_data_table = c(list(calibration_data_table_base[[1]])),
-                           #directed_trips_table = c(list(directed_trips_table_base[[5]])),
+                           directed_trips_table = directed_trips,
                            sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
                            bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
                            scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
@@ -96,7 +112,7 @@ for (x in 1:1){
   
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     print("prediction_output_by_period1 is not numeric")
-    prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
+    #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
     prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "_")
     
@@ -279,7 +295,7 @@ for (x in 1:1){
       sf_keep_i_NJ, sf_keep_i_pr_NJ, sf_keep_i_fh_NJ, sf_keep_i_shore_NJ,
       
       #Sum SF keep
-      sf_keep_sum, sf_keep_sum_pr, sf_keep_sum_fh, sf_keep_i_shore,
+      sf_keep_sum, sf_keep_sum_pr, sf_keep_sum_fh, sf_keep_sum_shore,
       sf_keep_sum_NJ, sf_keep_sum_pr_NJ, sf_keep_sum_fh_NJ,sf_keep_sum_shore_NJ,
       
       #Mean BSB keep per choice occasion
@@ -287,7 +303,7 @@ for (x in 1:1){
       bsb_keep_i_NJ, bsb_keep_i_pr_NJ, bsb_keep_i_fh_NJ, bsb_keep_i_shore_NJ, 
       
       #Sum BSB keep
-      bsb_keep_sum, bsb_keep_sum_pr, bsb_keep_sum_fh, bsb_keep_i_shore,
+      bsb_keep_sum, bsb_keep_sum_pr, bsb_keep_sum_fh, bsb_keep_sum_shore,
       bsb_keep_sum_NJ, bsb_keep_sum_pr_NJ, bsb_keep_sum_fh_NJ, bsb_keep_sum_shore_NJ, 
       
       #Sum of number of trips
@@ -354,12 +370,18 @@ predictions_all2<-as.data.frame(predictions_all) %>%
 
 output<- read.csv(here::here("data-raw/Output2022Save2.csv")) %>% 
   dplyr::select(colname, value22) %>% 
-  dplyr::left_join(predictions_all2, by = "colname") #%>% 
-  #dplyr::mutate(Compare = (value -value22)/value22 * 100) 
-
-outputtable<- t(output) %>% 
-  janitor::row_to_names(1)
+  dplyr::left_join(predictions_all2, by = "colname") %>% 
+  dplyr::mutate(value22 = round(value22, digits = 2), 
+                value = round(value, digits = 2),
+    Percent_Change = round(((value/value22) - 1) * 100, digits = 0))  
   
 
-outputtable
+outputtable<- t(output) %>% 
+  janitor::row_to_names(1) %>% 
+  data.frame %>% 
+  dplyr::select(c(sf_keep_sum_NJ, bsb_keep_sum_NJ )) %>% 
+  tibble::rownames_to_column( " ")
+
+
+#outputtable
 #head(predictions_all)

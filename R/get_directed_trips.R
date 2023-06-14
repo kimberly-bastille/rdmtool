@@ -72,3 +72,16 @@ for(j in 1:100){
     data.table::data.table()
   saveRDS(directed_trips_VA, file = paste0("data-raw/directed_trips/directed_trips_VA_",j,".rds"))
 }
+
+
+
+
+
+
+#############################################################
+########### TESTING ################
+
+directed_trips_NJ<-directed_trips %>% 
+  dplyr::filter(state == "NJ") %>% 
+  data.table::data.table()
+saveRDS(directed_trips_NJ, file = paste0("data-raw/directed_trips/directed_trips_NJ.rds"))
