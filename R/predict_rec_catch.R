@@ -49,7 +49,7 @@ predict_rec_catch <- function(state1,
   ######################################
   print("into directed trips")
   # Set up an output file for the separately simulated within-season regulatory periods
-  directed_trips_p <- directed_trips %>% #subset(directed_trips, period == p) %>% 
+  directed_trips_p <- directed_trips_table %>% #subset(directed_trips, period == p) %>% 
     #dplyr::mutate(period2 = as.character(paste0(month_day,"-", mode)))%>%
     #group_by(period) %>%
     dplyr::mutate(#n_trips = floor(mean(dtrip_2019)),
