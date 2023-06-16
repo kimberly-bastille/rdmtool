@@ -9,8 +9,8 @@ predict_rec_catch <- function(state1,
                               scup_size_data_read,
                               costs_new_all,
                               sf_catch_data_all, 
-                              n_drawz = 10, 
-                              n_catch_draws = 10, 
+                              n_drawz = 50, 
+                              n_catch_draws = 30, 
                               eff_seed=32190){
   
   #test vals to run the function directly
@@ -203,7 +203,7 @@ predict_rec_catch <- function(state1,
         fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0)))
   
   #catch_size_data[is.na(catch_size_data)] <- 0
-  catch_size_data2 <- catch_size_data %>%
+  catch_size_data <- catch_size_data %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
   
   catch_size_data <- catch_size_data %>%
@@ -275,7 +275,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
+    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "month_day"))
   
   
   
@@ -397,7 +397,7 @@ predict_rec_catch <- function(state1,
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
       dplyr::mutate(state = state1,
                     tot_bsb_catch = tot_keep_bsb + tot_rel_bsb)  %>%
-      dplyr::select(-c("tot_sf_catch", "tot_scup_catch"))
+      dplyr::select(-c("tot_sf_catch", "tot_scup_catch", "month_day"))
     
     
     # merge the bsb trip data with the rest of the trip data
@@ -552,7 +552,8 @@ predict_rec_catch <- function(state1,
         #arrange(period, catch_draw, tripid) %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
         dplyr::mutate(state = state1,
-                      tot_scup_catch = tot_keep_scup + tot_rel_scup)
+                      tot_scup_catch = tot_keep_scup + tot_rel_scup) %>% 
+        dplyr::select(-("month_day"))
       
       
       
