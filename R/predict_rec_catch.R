@@ -11,7 +11,7 @@ predict_rec_catch <- function(state1,
                               sf_catch_data_all, 
                               n_drawz = 50, 
                               n_catch_draws = 30, 
-                              eff_seed=32190){
+                              eff_seed=190){
   
   #test vals to run the function directly
   # state1 <- "NJ"
@@ -34,7 +34,7 @@ predict_rec_catch <- function(state1,
   #if (state1 %in% c("MA", "RI", "CT", "NY", "NJ", "VA")) {
   set.seed(eff_seed)
   # Input the calibration output which contains the number of choice occasions needed to simulate
-  calibration_data <- calibration_data_table %>% tibble::tibble() 
+  calibration_data <- calibration_data_table[[1]] %>% tibble::tibble() 
   
   print("pre-rename")
   # Input regul
@@ -929,7 +929,7 @@ predict_rec_catch <- function(state1,
   #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
   #mean_trip_pool by the expansion factor (expand), so that  each choice occasion represents a certain number of choice occasions
   #calibration_data <- data.frame(calibration_data[[1]])  #%>%   rename(period2 = period)
-  calibration_data<- calibration_output_by_period
+  #calibration_data<- calibration_output_by_period
   
   sims <- calibration_data %>%
     dplyr::select(c(n_choice_occasions, period2)) %>%

@@ -428,6 +428,20 @@ server <- function(input, output, session) {
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
+      output<- read.csv(here::here("data-raw/Output2022Save2.csv")) %>% 
+        dplyr::select(colname, value22) %>% 
+        dplyr::left_join(predictions_all2, by = "colname") %>% 
+        dplyr::mutate(value22 = round(value22, digits = 2), 
+                      value = round(value, digits = 2),
+                      Percent_Change = round(((value/value22) - 1) * 100, digits = 0))  
+      
+      
+      outputtable<- output %>% 
+        dplyr::filter(colname %in% c("sf_keep_sum_NJ", "bsb_keep_sum_NJ" )) %>% 
+        dplyr::mutate(colname = dplyr::recode(colname, "sf_keep_sum_NJ" = "SF Keep NJ" )) %>% 
+        dplyr::rename(Estimate = colname, 
+                      FY2022 = value22, 
+                      FY2024 = value)
       
     })
     
@@ -440,6 +454,25 @@ server <- function(input, output, session) {
                                   Season = paste(input$SFnjPR_seas2[1], "-", input$SFnjPR_seas2[2]), 
                                   BagLimit = paste(input$SFnjPR_2_smbag,",", input$SFnjPR_2_lgbag), 
                                   Length = paste(input$SFnjPR_2_smlen[1],"-", input$SFnjPR_2_smlen[2],",",input$SFnjPR_2_lglen[1],"-",input$SFnjPR_2_lglen[2])) 
+      
+      SFnjFHseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                  Season = paste(input$SFnjFH_seas1[1], "-", input$SFnjFH_seas1[2]), 
+                                  BagLimit = paste(input$SFnjFH_1_smbag,",", input$SFnjFH_1_lgbag), 
+                                  Length = paste(input$SFnjFH_1_smlen[1],"-", input$SFnjFH_1_smlen[2],",",input$SFnjFH_1_lglen[1],"-",input$SFnjFH_1_lglen[2]))
+      SFnjFHseason2 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                  Season = paste(input$SFnjFH_seas2[1], "-", input$SFnjFH_seas2[2]), 
+                                  BagLimit = paste(input$SFnjFH_2_smbag,",", input$SFnjFH_2_lgbag), 
+                                  Length = paste(input$SFnjFH_2_smlen[1],"-", input$SFnjFH_2_smlen[2],",",input$SFnjFH_2_lglen[1],"-",input$SFnjFH_2_lglen[2])) 
+      
+      SFnjSHseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                  Season = paste(input$SFnjSH_seas1[1], "-", input$SFnjPR_seas1[2]), 
+                                  BagLimit = paste(input$SFnjSH_1_smbag,",", input$SFnjPR_1_lgbag), 
+                                  Length = paste(input$SFnjSH_1_smlen[1],"-", input$SFnjPR_1_smlen[2],",",input$SFnjSH_1_lglen[1],"-",input$SFnjSH_1_lglen[2]))
+      SFnjSHseason2 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                  Season = paste(input$SFnjSH_seas2[1], "-", input$SFnjSH_seas2[2]), 
+                                  BagLimit = paste(input$SFnjSH_2_smbag,",", input$SFnjSH_2_lgbag), 
+                                  Length = paste(input$SFnjSH_2_smlen[1],"-", input$SFnjSH_2_smlen[2],",",input$SFnjSH_2_lglen[1],"-",input$SFnjSH_2_lglen[2])) 
+      
       SCUPnjseason1 <- data.frame(State = c("NJ"), Species = c("Scup"), Mode = c("All"),
                                  Season = paste(input$SCUPnj_seas1[1], "-", input$SCUPnj_seas1[2]), 
                                  BagLimit = paste(input$SCUPnj_1_bag), 
@@ -448,10 +481,12 @@ server <- function(input, output, session) {
       
       
       
-      regsout<- rbind(SFnjPRseason1, SFnjPRseason2, 
+      regsout<- rbind(SFnjPRseason1, SFnjPRseason2, SFnjFHseason1, SFnjFHseason2, SFnjSHseason1, SFnjSHseason2, 
                       SCUPnjseason1) %>% 
         dplyr::filter(!BagLimit == "0", 
-                      !BagLimit == "0 , 0")
+                      !BagLimit == "0 , 0") %>% 
+        dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"), 
+                      Season = stringr::str_remove(Season, pattern = "2023-"))
       
       #print(regsout)
 
