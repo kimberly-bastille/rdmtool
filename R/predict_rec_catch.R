@@ -200,7 +200,8 @@ predict_rec_catch <- function(state1,
     dplyr::ungroup() %>%
     dplyr::mutate(
       keep_adj2 = dplyr::case_when(
-        fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0)))
+        fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0),
+        TRUE ~ 0))
   
   #catch_size_data[is.na(catch_size_data)] <- 0
   catch_size_data <- catch_size_data %>%
