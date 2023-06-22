@@ -6,9 +6,10 @@ print("start model_NJ")
 state1 = "NJ"
 predictions = list()
 
-#catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_corr_files_NJ.rds")))
-# catch_files_NJ <- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds")))
-# sf_catch_data_all <- catch_files_NJ[[1]]
+p_star_sf_NJ_variable<- 0.89
+p_star_bsb_NJ_variable<- 0.885
+p_star_scup_NJ_variable<- 0.045
+
 
 catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
   dplyr::rename(tot_sf_catch = sf_tot_cat,  
@@ -31,21 +32,19 @@ directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/dir
                 fluke_bag2=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SFnjPR_seas2[1]) & day_i <= lubridate::yday(input$SFnjPR_seas2[2]) ~ as.numeric(input$SFnjPR_2_smbag), TRUE ~ fluke_bag2),
                 fluke_bag2=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SFnjSH_seas2[1]) & day_i <= lubridate::yday(input$SFnjSH_seas2[2]) ~ as.numeric(input$SFnjSH_2_smbag), TRUE ~ fluke_bag2))
 
-                # bsb_bag = dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$BSBnjFH_seas1[1]) & day_i <= lubridate::yday(input$BSBnjFH_seas1[2]) ~ input$BSBnjFH_1_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$BSBnjPR_seas1[1]) & day_i <= lubridate::yday(input$BSBnjPR_seas1[2]) ~ input$BSBnjPR_1_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$BSBnjSH_seas1[1]) & day_i <= lubridate::yday(input$BSBnjSH_seas1[2]) ~ input$BSBnjSH_1_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$BSBnjFH_seas2[1]) & day_i <= lubridate::yday(input$BSBnjFH_seas2[2]) ~ input$BSBnjFH_2_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$BSBnjPR_seas2[1]) & day_i <= lubridate::yday(input$BSBnjPR_seas2[2]) ~ input$BSBnjPR_2_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$BSBnjSH_seas2[1]) & day_i <= lubridate::yday(input$BSBnjSH_seas2[2]) ~ input$BSBnjSH_2_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$BSBnjFH_seas3[1]) & day_i <= lubridate::yday(input$BSBnjFH_seas3[2]) ~ input$BSBnjFH_3_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$BSBnjPR_seas3[1]) & day_i <= lubridate::yday(input$BSBnjPR_seas3[2]) ~ input$BSBnjPR_3_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$BSBnjSH_seas3[1]) & day_i <= lubridate::yday(input$BSBnjSH_seas3[2]) ~ input$BSBnjSH_3_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$BSBnjFH_seas4[1]) & day_i <= lubridate::yday(input$BSBnjFH_seas4[2]) ~ input$BSBnjFH_4_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$BSBnjPR_seas4[1]) & day_i <= lubridate::yday(input$BSBnjPR_seas4[2]) ~ input$BSBnjPR_4_bag, TRUE ~ bsb_bag),
-                # bsb_bag = dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$BSBnjSH_seas4[1]) & day_i <= lubridate::yday(input$BSBnjSH_seas4[2]) ~ input$BSBnjSH_4_bag, TRUE ~ bsb_bag))
+### Giant IFELSE to sort out multiple mode options!! ##
+if (input$input_type = "Single"){
+  directed_trips_test<- directed_trips %>% 
+    dplyr::mutate(bsb_bag1=dplyr::case_when(day_i >= lubridate::yday(input$BSBnj_seas1[1]) & day_i <= lubridate::yday(input$BSBnj_seas1[2]) ~ as.numeric(input$BSBnj_1_smbag), TRUE ~ bsb_bag1)) 
+} else {
+  directed_trips_test<- directed_trips %>% 
+    dplyr::mutate(bsb_bag1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$BSBnjFH_seas1[1]) & day_i <= lubridate::yday(input$BSBnjFH_seas1[2]) ~ as.numeric(input$BSBnjFH_1_smbag), TRUE ~ bsb_bag1)) 
+}               
 
 
-for (x in 1:2){
+print(directed_trips_test)
+
+for (x in 1:1){
   
   print(x)
   # params <- list(state1 = c("NJ"),
@@ -365,6 +364,7 @@ for (x in 1:2){
 predictions_all<-list()
 predictions_all<-rlist::list.rbind(predictions)
 
+write.csv(predictions_all, file = "output_save.csv")
 
 # Stop the clock
 #proc.time() - ptm

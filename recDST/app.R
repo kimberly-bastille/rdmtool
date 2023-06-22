@@ -130,155 +130,10 @@ ui <- fluidPage(
 
                 column(4, 
                        titlePanel("Black Sea Bass"),
-                       #Season 1
-                       sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjFH_1_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjFH_1_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjPR_seas1", label ="Private/Rental Open Season 1",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjPR_1_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjPR_1_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjSH_seas1", label ="Shore Open Season 1",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjSH_1_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjSH_1_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       #Season 2
-                       sliderInput(inputId = "BSBnjFH_seas2", label =" For Hire Open Season 2", 
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjFH_2_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjFH_2_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjPR_seas2", label ="Private/Rental Open Season 2",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjPR_2_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjPR_2_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjSH_seas2", label ="Shore Open Season 2",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjSH_2_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjSH_2_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       #Season 3
-                       sliderInput(inputId = "BSBnjFH_seas3", label =" For Hire Open Season 3", 
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjFH_3_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjFH_3_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjPR_seas3", label ="Private/Rental Open Season 3",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjPR_3_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjPR_3_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjSH_seas3", label ="Shore Open Season 3",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjSH_3_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjSH_3_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       #Season 4
-                       sliderInput(inputId = "BSBnjFH_seas4", label =" For Hire Open Season 4", 
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjFH_4_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjFH_4_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjPR_seas4", label ="Private/Rental Open Season 4",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjPR_4_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjPR_4_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
-                       sliderInput(inputId = "BSBnjSH_seas4", label ="Shore Open Season 4",
-                                   min = as.Date("01-01","%m-%d"),
-                                   max = as.Date("12-31","%m-%d"),
-                                   value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
-                                   timeFormat = "%m-%d", ticks = FALSE),
-                       fluidRow(
-                         column(4,
-                                numericInput(inputId = "BSBnjSH_4_bag", label ="Bag Limit",
-                                             min = 0, max = 20, value = 10)), 
-                         column(6,
-                                sliderInput(inputId = "BSBnjSH_4_len", label ="Min Length",
-                                            min = 3, max = 28.5, value = 12.5, step = .5))),
                        
+                       selectInput("input_type", "Modes to choose from:",
+                                   c("Single", "AllModes")),
+                       uiOutput("BSBnjMode"),
                        
                        actionButton("BSBNJaddSeason", "Add Season"), 
                        #Season 5
@@ -352,54 +207,13 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   library(magrittr) 
-  #once the p_star values are found, run the calibrations and save the output files
-  p_star_sf_MA_variable<- 0.85
-  p_star_sf_RI_variable<- 0.875
-  p_star_sf_CT_variable<- 0.9
-  p_star_sf_NY_variable<- 0.91
-  p_star_sf_NJ_variable<- 0.89
-  p_star_sf_DE_variable<- 0.725
-  p_star_sf_MD_variable<- 0.91
-  p_star_sf_VA_variable<- 0.9
-  #p_star_sf_NC_variable<- 0
   
-  p_star_bsb_MA_variable<- 0.82
-  p_star_bsb_RI_variable<- 0.81
-  p_star_bsb_CT_variable<- 0.82
-  p_star_bsb_NY_variable<- 0.86
-  p_star_bsb_NJ_variable<- 0.885
-  p_star_bsb_DE_variable<- 0.885
-  p_star_bsb_MD_variable<- 0.94
-  p_star_bsb_VA_variable<- 0.87
-  #p_star_bsb_NC_variable<- 0.975
-  
-  p_star_scup_MA_variable<- 0.67
-  p_star_scup_RI_variable<- 0.595
-  p_star_scup_CT_variable<- 0.56
-  p_star_scup_NY_variable<- 0.535
-  p_star_scup_NJ_variable<- 0.045
-  #No scup p-stars for DE MD VA NC
-  p_star_scup_DE_variable<- 0.65
-  p_star_scup_MD_variable<- 0.65
-  p_star_scup_VA_variable<- 0.65
-  #p_star_scup_NC_variable<- 0.65
-  
-                  
-  observeEvent(input$SFNJaddSeason, {
-    show("SFnjSeason2")
-  })
-  observeEvent(input$BSBNJaddSeason, {
-    show("BSBnjSeason5")
-  })
-  
-  
-  
+  ######### Setup ##########################################
   sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
     dplyr::filter(state!="NC") %>% 
     dplyr::select(c(state, fitted_length, prob_star))%>% 
     dplyr::rename(fitted_prob = prob_star)
   sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
-  
   
   bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
     dplyr::filter(state!="NC") %>% 
@@ -407,21 +221,255 @@ server <- function(input, output, session) {
     dplyr::rename(fitted_prob = prob_star)
   bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
   
-  
   scup_size_data <- readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
     dplyr::filter(state!="NC") %>% 
     dplyr::select(c(state, fitted_length, prob_star))%>% 
     dplyr::rename(fitted_prob = prob_star)
   scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
+  ###############################################################
   
   
+  ############### Toggle extra seasons on front end #############
   shinyjs::onclick("SFaddseason",
                    shinyjs::toggle(id = "SFnjFH_seas2", anim = TRUE))
-  # observe({
-  # shinyjs::toggle(id = "SFnjFH_seas2", condition = input$SFaddSeason)
-  # })
-  #observeEvent(input$runmeplease, {
+  shinyjs::onclick("BSBaddseason",
+                   shinyjs::toggle(id = "BSBnjFH_seas5", anim = TRUE))
+  # shinyjs::onclick("SCUPaddseason",
+  #                  shinyjs::toggle(id = "SCUPnjFH_seas2", anim = TRUE))
+  #################################################################
+  
+  
+  ############# Breakout by mode ######################################
+  output$BSBnjMode <- renderUI({
+    if (is.null(input$input_type))
+      return()
+    
+    # Depending on input$input_type, we'll generate a different
+    # UI component and send it to the client.
+    switch(input$input_type,
+           
+           "Single" = div(sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnj_1_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnj_1_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           
+                           #Season 2
+                           sliderInput(inputId = "BSBnj_seas2", label ="Open Season 2", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnj_2_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnj_2_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           
+                           #Season 3
+                           sliderInput(inputId = "BSBnj_seas3", label ="Open Season 3", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnj_3_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnj_3_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                          
+                           #Season 4
+                           sliderInput(inputId = "BSBnj_seas4", label ="Open Season 4", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnj_4_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnj_4_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5)))),
+                          
+           "AllModes" = div(sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjFH_1_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjFH_1_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjPR_seas1", label ="Private/Rental Open Season 1",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjPR_1_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjPR_1_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjSH_seas1", label ="Shore Open Season 1",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjSH_1_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjSH_1_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           #Season 2
+                           sliderInput(inputId = "BSBnjFH_seas2", label =" For Hire Open Season 2", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjFH_2_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjFH_2_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjPR_seas2", label ="Private/Rental Open Season 2",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjPR_2_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjPR_2_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjSH_seas2", label ="Shore Open Season 2",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("07-01","%m-%d"),as.Date("08-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjSH_2_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjSH_2_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           #Season 3
+                           sliderInput(inputId = "BSBnjFH_seas3", label =" For Hire Open Season 3", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjFH_3_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjFH_3_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjPR_seas3", label ="Private/Rental Open Season 3",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjPR_3_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjPR_3_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjSH_seas3", label ="Shore Open Season 3",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("10-07","%m-%d"),as.Date("10-26","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjSH_3_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjSH_3_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           #Season 4
+                           sliderInput(inputId = "BSBnjFH_seas4", label =" For Hire Open Season 4", 
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjFH_4_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjFH_4_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjPR_seas4", label ="Private/Rental Open Season 4",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjPR_4_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjPR_4_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                           sliderInput(inputId = "BSBnjSH_seas4", label ="Shore Open Season 4",
+                                       min = as.Date("01-01","%m-%d"),
+                                       max = as.Date("12-31","%m-%d"),
+                                       value=c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                                       timeFormat = "%m-%d", ticks = FALSE),
+                           fluidRow(
+                             column(4,
+                                    numericInput(inputId = "BSBnjSH_4_bag", label ="Bag Limit",
+                                                 min = 0, max = 20, value = 10)), 
+                             column(6,
+                                    sliderInput(inputId = "BSBnjSH_4_len", label ="Min Length",
+                                                min = 3, max = 28.5, value = 12.5, step = .5))))
+           
+           )
+  })
+  
+  output$input_type_text <- renderText({
+    input$input_type
+  })
+  
+  output$dynamic_value <- renderPrint({
+    str(input$dynamic)
+  })
+  
+  ######################################################################
+  
   observeEvent(input$runmeplease, {
+    # showModal(modalDialog(p("Please be patient. This might take a while."),
+    #                       title = "Model Calculating",
+    #                       #etc etc
+    # ))
+    
     state <- input$state
     
     
@@ -433,7 +481,7 @@ server <- function(input, output, session) {
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::mutate(value22 = round(value22, digits = 2), 
                       value = round(value, digits = 2),
-                      Percent_Change = round(((value/value22) - 1) * 100, digits = 0))  
+                      Percent_Change = paste(round(((value/value22) - 1) * 100, digits = 0)), "%" )
       
       
       outputtable<- output %>% 
@@ -488,9 +536,8 @@ server <- function(input, output, session) {
         dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"), 
                       Season = stringr::str_remove(Season, pattern = "2023-"))
       
-      #print(regsout)
-
-    })})
+      
+    })})#})
 
 }
 }
