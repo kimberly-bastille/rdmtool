@@ -82,7 +82,7 @@ ui <- fluidPage(
                                         sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 2
                                                     min = as.Date("01-01","%m-%d"),
                                                     max = as.Date("12-31","%m-%d"),
-                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                     timeFormat = "%m-%d", ticks = FALSE),#)),
                                         fluidRow(
                                           column(5,
@@ -98,7 +98,7 @@ ui <- fluidPage(
                                         sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private season 2
                                                     min = as.Date("01-01","%m-%d"),
                                                     max = as.Date("12-31","%m-%d"),
-                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                     timeFormat = "%m-%d", ticks = FALSE),
                                         fluidRow(
                                           column(5,
@@ -114,7 +114,7 @@ ui <- fluidPage(
                                         sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 2
                                                     min = as.Date("01-01","%m-%d"),
                                                     max = as.Date("12-31","%m-%d"),
-                                                    value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                    value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                     timeFormat = "%m-%d", ticks = FALSE),
                                         fluidRow(
                                           column(5,
@@ -141,7 +141,7 @@ ui <- fluidPage(
                                             sliderInput(inputId = "BSBnjFH_seas5", label =" For Hire Open Season 5", 
                                                         min = as.Date("01-01","%m-%d"),
                                                         max = as.Date("12-31","%m-%d"),
-                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                         timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
@@ -153,7 +153,7 @@ ui <- fluidPage(
                                             sliderInput(inputId = "BSBnjPR_seas5", label ="Private/Rental Open Season 5",
                                                         min = as.Date("01-01","%m-%d"),
                                                         max = as.Date("12-31","%m-%d"),
-                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                         timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
@@ -165,7 +165,7 @@ ui <- fluidPage(
                                             sliderInput(inputId = "BSBnjSH_seas5", label ="Shore Open Season 5",
                                                         min = as.Date("01-01","%m-%d"),
                                                         max = as.Date("12-31","%m-%d"),
-                                                        value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
+                                                        value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
                                                         timeFormat = "%m-%d", ticks = FALSE),
                                             fluidRow(
                                               column(4,
@@ -192,12 +192,28 @@ ui <- fluidPage(
                          column(6,
                                 sliderInput(inputId = "SCUPnj_1_len", label ="Min Length",
                                             min = 5, max = 15, value = 9, step = .5))), 
-                       actionButton("SCUPaddSeason", "Add Season"))),
+                       actionButton("SCUPNJaddSeason", "Add Season"), 
+                       shinyjs::hidden( div(ID = "SCUPnjSeason2",
+                                            sliderInput(inputId = "SCUPnj_seas2", label ="Open Season 2", 
+                                                        min = as.Date("01-01","%m-%d"),
+                                                        max = as.Date("12-31","%m-%d"),
+                                                        value=c(as.Date("12-30","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                        timeFormat = "%m-%d", ticks = FALSE),
+                                            fluidRow(
+                                              column(4,
+                                                     numericInput(inputId = "SCUPnj_2_bag", label ="Bag Limit",
+                                                                  min = 0, max = 20, value = 0)), 
+                                              column(6,
+                                                     sliderInput(inputId = "SCUPnj_2_len", label ="Min Length",
+                                                                 min = 3, max = 28.5, value = 12.5, step = .5))))))),
+               
               
               
               actionButton("runmeplease", "Run Me")),
     
     tabPanel("Results", 
+             conditionalPanel(condition="$('html').hasClass('shiny-busy')",
+                              tags$div("Loading...",id="loadmessage")),
              tableOutput(outputId = "tableout"), 
              tableOutput(outputId = "regtableout")), 
     tabPanel("Documentation")
@@ -230,12 +246,12 @@ server <- function(input, output, session) {
   
   
   ############### Toggle extra seasons on front end #############
-  shinyjs::onclick("SFaddseason",
-                   shinyjs::toggle(id = "SFnjFH_seas2", anim = TRUE))
-  shinyjs::onclick("BSBaddseason",
-                   shinyjs::toggle(id = "BSBnjFH_seas5", anim = TRUE))
-  # shinyjs::onclick("SCUPaddseason",
-  #                  shinyjs::toggle(id = "SCUPnjFH_seas2", anim = TRUE))
+  shinyjs::onclick("SFNJaddSeason",
+                   shinyjs::toggle(id = "SFnjSeason2", anim = TRUE))
+  shinyjs::onclick("BSBNJaddSeason",
+                   shinyjs::toggle(id = "BSBnjSeason5", anim = TRUE))
+  shinyjs::onclick("SCUPNJaddSeason",
+                  shinyjs::toggle(id = "SCUPnjSeason2", anim = TRUE))
   #################################################################
   
   
@@ -476,12 +492,12 @@ server <- function(input, output, session) {
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
-      output<- read.csv(here::here("data-raw/output_save2.csv")) %>% 
+      output<- read.csv(here::here("output_save2_base3.csv")) %>% 
         dplyr::select(colname, StatusQuo) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
                       Alternative = round(value, digits = 2),
-                      Percent_Change = paste(round(((value/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
+                      Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
         dplyr::select(!value)
       
       
