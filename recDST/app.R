@@ -191,7 +191,7 @@ ui <- fluidPage(
                                              min = 0, max = 100, value = 50)),
                          column(6,
                                 sliderInput(inputId = "SCUPnj_1_len", label ="Min Length",
-                                            min = 5, max = 15, value = 9, step = .5))), 
+                                            min = 5, max = 15, value = 10, step = .5))), 
                        actionButton("SCUPNJaddSeason", "Add Season"), 
                        shinyjs::hidden( div(ID = "SCUPnjSeason2",
                                             sliderInput(inputId = "SCUPnj_seas2", label ="Open Season 2", 
@@ -213,7 +213,7 @@ ui <- fluidPage(
     
     tabPanel("Results", 
              conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                              tags$div("Loading...",id="loadmessage")),
+                              tags$div("Calculating",id="loadmessage")),
              tableOutput(outputId = "tableout"), 
              tableOutput(outputId = "regtableout")), 
     tabPanel("Documentation")
@@ -275,7 +275,7 @@ server <- function(input, output, session) {
                                                  min = 0, max = 20, value = 10)), 
                              column(6,
                                     sliderInput(inputId = "BSBnj_1_len", label ="Min Length",
-                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                                                min = 3, max = 28.5, value = 13, step = .5))),
                            
                            #Season 2
                            sliderInput(inputId = "BSBnj_seas2", label ="Open Season 2", 
@@ -286,10 +286,10 @@ server <- function(input, output, session) {
                            fluidRow(
                              column(4,
                                     numericInput(inputId = "BSBnj_2_bag", label ="Bag Limit",
-                                                 min = 0, max = 20, value = 10)), 
+                                                 min = 0, max = 20, value = 2)), 
                              column(6,
                                     sliderInput(inputId = "BSBnj_2_len", label ="Min Length",
-                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                                                min = 3, max = 28.5, value = 13, step = .5))),
                            
                            #Season 3
                            sliderInput(inputId = "BSBnj_seas3", label ="Open Season 3", 
@@ -303,7 +303,7 @@ server <- function(input, output, session) {
                                                  min = 0, max = 20, value = 10)), 
                              column(6,
                                     sliderInput(inputId = "BSBnj_3_len", label ="Min Length",
-                                                min = 3, max = 28.5, value = 12.5, step = .5))),
+                                                min = 3, max = 28.5, value = 13, step = .5))),
                           
                            #Season 4
                            sliderInput(inputId = "BSBnj_seas4", label ="Open Season 4", 
@@ -314,10 +314,10 @@ server <- function(input, output, session) {
                            fluidRow(
                              column(4,
                                     numericInput(inputId = "BSBnj_4_bag", label ="Bag Limit",
-                                                 min = 0, max = 20, value = 10)), 
+                                                 min = 0, max = 20, value = 15)), 
                              column(6,
                                     sliderInput(inputId = "BSBnj_4_len", label ="Min Length",
-                                                min = 3, max = 28.5, value = 12.5, step = .5)))),
+                                                min = 3, max = 28.5, value = 13, step = .5)))),
                           
            "AllModes" = div(sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
                                        min = as.Date("01-01","%m-%d"),
@@ -488,6 +488,8 @@ server <- function(input, output, session) {
     
     state <- input$state
     
+    ################ Summary Outputs ######################################
+    #######################################################################
     
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)

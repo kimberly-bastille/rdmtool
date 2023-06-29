@@ -149,6 +149,9 @@ for (x in 1:3){
   
   prediction_output_by_period1 <- data.frame(test)
   
+  #### Somewhere here - calculate 
+ 
+  
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
