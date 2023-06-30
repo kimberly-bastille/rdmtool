@@ -238,22 +238,30 @@ predict_rec_catch <- function(state1,
   #The following code will retain the length of fish kept and released.
   #This takes up a lot of memory, so for now will comment out these lines.
   keep_size_data <- new_size_data %>%
-    #ungroup() %>%
     dplyr::select(-release) %>%
-    dplyr::filter(keep == 1) %>% 
+    dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+    dplyr::summarise(Number = sum(keep)) %>% 
     dplyr::group_by(period2, tripid, fitted_length) %>% 
-    dplyr::summarise(Number = length(keep), 
+    dplyr::mutate( AvgNum = Number/n_catch_draws, 
                      Species = "SF", 
-                     Keep_Releas3 = "Keep")
+                     Keep_Release = "Keep") %>% 
+    dplyr::select(-catch_draw) 
     
-  release_size_data <- new_size_data %>%
-    #ungroup() %>%
-    dplyr::select(-keep) %>%
-    dplyr::filter(release == 1) %>% 
-    dplyr::group_by(period2, tripid, fitted_length) %>% 
-    dplyr::summarise(Number = length(release), 
+    keep_size_data <- keep_size_data[!duplicated(keep_size_data),]
+  
+    
+    release_size_data <- new_size_data %>%
+      dplyr::select(-keep) %>%
+      dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+      dplyr::summarise(Number = sum(release)) %>% 
+      dplyr::group_by(period2, tripid, fitted_length) %>% 
+      dplyr::mutate( AvgNum = Number/n_catch_draws, 
                      Species = "SF", 
-                     Keep_Releas3 = "Release")
+                     Keep_Release = "Keep") %>% 
+      dplyr::select(-catch_draw) 
+    
+    release_size_data <- release_size_data[!duplicated(release_size_data),]
+    
   
   length_data_sf <- rbind(keep_size_data, release_size_data)
   
@@ -341,19 +349,29 @@ predict_rec_catch <- function(state1,
     #Uncomment this if you want sizes of fish
     keep_size_data <- new_size_data %>%
       dplyr::select(-release) %>%
-      dplyr::filter(keep == 1) %>% 
+      dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+      dplyr::summarise(Number = sum(keep)) %>% 
       dplyr::group_by(period2, tripid, fitted_length) %>% 
-      dplyr::summarise(Number = length(keep), 
-                       Species = "BSB", 
-                       Keep_Releas3 = "Keep")
+      dplyr::mutate( AvgNum = Number/n_catch_draws, 
+                     Species = "SF", 
+                     Keep_Release = "Keep") %>% 
+      dplyr::select(-catch_draw) 
+    
+    keep_size_data <- keep_size_data[!duplicated(keep_size_data),]
+    
     
     release_size_data <- new_size_data %>%
       dplyr::select(-keep) %>%
-      dplyr::filter(release == 1) %>% 
+      dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+      dplyr::summarise(Number = sum(release)) %>% 
       dplyr::group_by(period2, tripid, fitted_length) %>% 
-      dplyr::summarise(Number = length(release), 
-                       Species = "BSB", 
-                       Keep_Releas3 = "Release")
+      dplyr::mutate( AvgNum = Number/n_catch_draws, 
+                     Species = "BSB", 
+                     Keep_Release = "Keep") %>% 
+      dplyr::select(-catch_draw) 
+    
+    release_size_data <- release_size_data[!duplicated(release_size_data),]
+    
     
     length_data_bsb <- rbind(keep_size_data, release_size_data)
     
@@ -477,19 +495,29 @@ predict_rec_catch <- function(state1,
       #Uncomment this if you want sizes of fish
       keep_size_data <- new_size_data %>%
         dplyr::select(-release) %>%
-        dplyr::filter(keep == 1) %>% 
+        dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+        dplyr::summarise(Number = sum(keep)) %>% 
         dplyr::group_by(period2, tripid, fitted_length) %>% 
-        dplyr::summarise(Number = length(keep), 
-                         Species = "SCUP", 
-                         Keep_Releas3 = "Keep")
+        dplyr::mutate( AvgNum = Number/n_catch_draws, 
+                       Species = "SF", 
+                       Keep_Release = "Keep") %>% 
+        dplyr::select(-catch_draw) 
+      
+      keep_size_data <- keep_size_data[!duplicated(keep_size_data),]
+      
       
       release_size_data <- new_size_data %>%
         dplyr::select(-keep) %>%
-        dplyr::filter(release == 1) %>% 
+        dplyr::group_by(period2, tripid, fitted_length, catch_draw) %>% 
+        dplyr::summarise(Number = sum(release)) %>% 
         dplyr::group_by(period2, tripid, fitted_length) %>% 
-        dplyr::summarise(Number = length(release), 
-                         Species = "SCUP", 
-                         Keep_Releas3 = "Release")
+        dplyr::mutate( AvgNum = Number/n_catch_draws, 
+                       Species = "SCUP", 
+                       Keep_Release = "Keep") %>% 
+        dplyr::select(-catch_draw) 
+      
+      release_size_data <- release_size_data[!duplicated(release_size_data),]
+      
       
       length_data_scup <- rbind(keep_size_data, release_size_data)
       
@@ -537,6 +565,8 @@ predict_rec_catch <- function(state1,
     
   }
   
+  
+  length_data <- rbind(length_data_bsb, length_data_scup, length_data_sf)
   
   #names<- c(grep("*beta*", names(costs_new_all), value=TRUE, invert=TRUE))
   costs_new_all2 <- data.frame(  costs_new_all[[1]]) %>% #tibble() %>%
@@ -850,6 +880,10 @@ predict_rec_catch <- function(state1,
     .[]
   
   
+  length_data<- mean_trip_data9 %>% 
+    dplyr::select(period2, tripid, probA) %>% 
+    dplyr::left_join(length_data) %>% 
+    dplyr::mutate(ProbabilityNumber = AvgNum * probA) #Sum probNum over period2 and fitted_length
     
   
   # list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
@@ -891,11 +925,24 @@ predict_rec_catch <- function(state1,
   sims <- calibration_data %>%
     dplyr::select(c(n_choice_occasions, period2)) %>%
     dplyr::left_join(mean_trip_data, by = "period2") %>% 
+    #dplyr::left_join(length_data, by = "period2") %>% 
     dplyr::mutate(ndraws = c(50),
       period = as.character(period2)) %>%
     dplyr::mutate(expand = n_choice_occasions/ndraws)
   
-  Add probablitity weighted lengths
+  length_expand <- sims %>% 
+    dplyr::select(period2, expand) %>% 
+    dplyr::left_join(length_data, by = "period2", relationship = "many-to-many") %>% 
+    dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber, 
+                  SppLength = paste0(Species, "_" , fitted_length)) %>% 
+    dplyr::group_by(SppLength) %>% 
+    dplyr::summarise(NumLength = mean(Expanded_prob_number)) %>% 
+    tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength")
+  
+  
+  length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
+    #Multiply Expand by probNum then
+    #Sum by fish length across all periods and modes = single value (total Number) of SF at 17in
   
   ############################# ADD CORRECTED n_choice_occasions HERE!!!! ######################
   
@@ -909,12 +956,14 @@ predict_rec_catch <- function(state1,
   #datset to compute mean cv over all trip
       
   trip_level_output <- sims%>%
-    dplyr::mutate(state=state1,
-                  seed=eff_seed)   %>%
+    dplyr::mutate(state=state1)   %>%
     dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, tot_keep_sf, tot_keep_bsb, tot_scup_catch, tot_keep_sf_base,
-                    tot_keep_bsb_base, tot_cat_scup_base, seed))
+                    tot_keep_bsb_base, tot_cat_scup_base)) %>% 
+    cbind(length_expand)
   
-  left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
+  
+  ## Add Length_expand to trip_level_output
+  #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
   
   if (state1 %in% c("DE", "MD", "VA")){
     rm(trip_data, trip_data_bsb, sf_zero_catch, bsb_zero_catch, sf_catch_data, bsb_catch_data)
@@ -923,12 +972,7 @@ predict_rec_catch <- function(state1,
   if (state1 %in% c("MA", "RI", "CT", "NY", "NJ")){
     rm(trip_data, trip_data_bsb, trip_data_scup, sf_zero_catch, scup_zero_catch, bsb_zero_catch, sf_catch_data, bsb_catch_data, scup_catch_data)
   }
-  #sum(trip_level_output$prob0)
-  
-  # seed_stats<-c(draw, state1, eff_seed)
-  # seeds <- append(seed, seed_stats)
-  #
-  #})
+
   return(trip_level_output)
   print(head(trip_level_output))
   #end function
