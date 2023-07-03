@@ -544,9 +544,7 @@ predict_rec_catch <- function(state1,
       #trip_data <-  merge(trip_data,trip_data_scup,by=c("period2", "catch_draw", "tripid", "state", "mode", "month"))
       
       trip_data <- trip_data %>%
-        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month")) #%>%  select(-decade.x, -decade.y)
-      
-      #trip_data  <- trip_data[ , order(names(trip_data))]
+        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month"))
       
       # trip_data  <- setcolorder(trip_data,c("state", "period2", "mode1", "month1", "tripid", "catch_draw",
       #                                       "tot_sf_catch", "tot_keep_sf", "tot_rel_sf","tot_bsb_catch", "tot_keep_bsb",
@@ -612,7 +610,7 @@ predict_rec_catch <- function(state1,
     dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
   trip_data <- trip_data %>%
-    dplyr::select(-month.x, -month.y)
+    dplyr::select(-month.x, -month.y, -wv2.y, -day.y, -day.x, -day.y)
   #trip_data <- trip_data  %>%  dplyr::arrange(period2, tripid, catch_draw)
   
   
@@ -957,8 +955,11 @@ predict_rec_catch <- function(state1,
       
   trip_level_output <- sims%>%
     dplyr::mutate(state=state1)   %>%
-    dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, tot_keep_sf, tot_keep_bsb, tot_scup_catch, tot_keep_sf_base,
-                    tot_keep_bsb_base, tot_cat_scup_base)) %>% 
+    dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
+                    tot_keep_sf, tot_rel_sf, 
+                    tot_keep_bsb, tot_rel_bsb,
+                    tot_scup_catch, 
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
     cbind(length_expand)
   
   

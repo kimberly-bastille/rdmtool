@@ -494,19 +494,16 @@ server <- function(input, output, session) {
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
-      output<- read.csv(here::here("output_save2_base3.csv")) %>% 
-        dplyr::select(colname, StatusQuo) %>% 
+      output<- read.csv(here::here("output_save_base3_cut.csv")) %>% 
+        #dplyr::select(colname, StatusQuo) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
                       Alternative = round(value, digits = 2),
                       Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(!value)
+        dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change))
       
       
-      outputtable<- output %>% 
-        dplyr::filter(colname %in% c("sf_keep_sum_NJ", "bsb_keep_sum_NJ" )) %>% 
-        dplyr::mutate(colname = dplyr::recode(colname, "sf_keep_sum_NJ" = "SF Keep NJ" )) %>% 
-        dplyr::rename(X = colname)
+      outputtable<- output
       
     })
     
