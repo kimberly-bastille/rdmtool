@@ -8,7 +8,7 @@ scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
 costs_new_all = c(list(cost_files_all_base[[1]]))
 sf_catch_data_all = c(list(catch_files_NJ))
 n_drawz = 50
-n_catch_draws = 30 
+n_catch_draws = 30
 eff_seed=190
 
 
@@ -629,8 +629,9 @@ predict_rec_catch <- function(state1,
         beta_sqrt_sf_release_base*sqrt(tot_rel_sf) +
         beta_sqrt_bsb_keep_base*sqrt(tot_keep_bsb) +
         beta_sqrt_bsb_release_base*sqrt(tot_rel_bsb) +
-        beta_sqrt_sf_bsb_keep_base*(sqrt(tot_keep_sf)*sqrt(tot_keep_bsb)) +
-        beta_sqrt_scup_catch_base*sqrt(tot_scup_catch) +
+        beta_sqrt_scup_keep_base*sqrt(tot_keep_scup) +
+        beta_sqrt_scup_release_base*sqrt(tot_rel_scup) +
+        beta_sqrt_sf_bsb_scup_keep_base*(sqrt(tot_keep_sf)*sqrt(tot_keep_bsb)*sqrt(tot_keep_scup)) +
         beta_cost*cost,
       
       #  utility (base year)
@@ -638,8 +639,9 @@ predict_rec_catch <- function(state1,
         beta_sqrt_sf_release_base*sqrt(tot_rel_sf_base) +
         beta_sqrt_bsb_keep_base*sqrt(tot_keep_bsb_base) +
         beta_sqrt_bsb_release_base*sqrt(tot_rel_bsb_base) +
-        beta_sqrt_sf_bsb_keep_base*(sqrt(tot_keep_sf_base)*sqrt(tot_keep_bsb_base)) +
-        beta_sqrt_scup_catch_base*sqrt(tot_cat_scup_base) +
+        beta_sqrt_scup_keep_base*sqrt(tot_keep_scup_base) +
+        beta_sqrt_scup_release_base*sqrt(tot_rel_scup_base) +
+        beta_sqrt_sf_bsb_scup_keep_base*(sqrt(tot_keep_sf_base)*sqrt(tot_keep_bsb_base)*sqrt(tot_keep_scup_base)) +
         beta_cost*cost)
   
   
@@ -897,7 +899,7 @@ predict_rec_catch <- function(state1,
   #                                        & colnames(mean_trip_data) !="tot_rel_bsb"
   #                                        & colnames(mean_trip_data) !="tot_rel_sf"]
   list_names <- c("tot_keep_sf_base","tot_rel_sf_base", "tot_keep_bsb_base", "tot_rel_bsb_base" , 
-                  "tot_cat_scup_base" )
+                  "tot_keep_scup_base" ,  "tot_rel_scup_base")
   
   mean_trip_data9 <- mean_trip_data8 %>%
     data.table::as.data.table() %>%
@@ -958,6 +960,7 @@ predict_rec_catch <- function(state1,
     dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
                     tot_keep_sf, tot_rel_sf, 
                     tot_keep_bsb, tot_rel_bsb,
+                    tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
                     tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
     cbind(length_expand)

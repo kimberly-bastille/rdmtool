@@ -67,14 +67,6 @@ if(input$input_type == "Single"){
 for (x in 1:3){
   
   print(x)
-  # params <- list(state1 = c("NJ"),
-  #                state_no=c(34),
-  #                directed_trips_table = c(list(directed_trips_table_base[[5]])),
-  #                p_star_sf = c(p_star_sf_NJ_variable),
-  #                p_star_bsb = c(p_star_bsb_NJ_variable),
-  #                p_star_scup = c(p_star_scup_NJ_variable),
-  #                sf_catch_data_all = c(list(catch_files_NJ)))
-  
   
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
@@ -167,6 +159,8 @@ for (x in 1:3){
       .[, sf_rel_sum := expand*tot_rel_sf] %>%
       .[, bsb_keep_sum := expand*tot_keep_bsb] %>%
       .[, bsb_rel_sum := expand*tot_rel_bsb] %>%
+      .[, scup_keep_sum := expand*tot_keep_scup] %>%
+      .[, scup_rel_sum := expand*tot_rel_scup] %>%
       .[, ntrips_alt := expand*probA] %>%
       .[mode=="pr", cv_sum_pr := expand*change_CS] %>%
       .[mode=="fh", cv_sum_fh := expand*change_CS] %>%
@@ -183,6 +177,14 @@ for (x in 1:3){
       .[mode=="pr", bsb_rel_sum_pr := expand*tot_rel_bsb] %>%
       .[mode=="fh", bsb_rel_sum_fh := expand*tot_rel_bsb] %>%
       .[mode=="sh", bsb_rel_sum_sh := expand*tot_rel_bsb] %>%
+      
+      .[mode=="pr", scup_keep_sum_pr := expand*tot_keep_scup] %>%
+      .[mode=="fh", scup_keep_sum_fh := expand*tot_keep_scup] %>%
+      .[mode=="sh", scup_keep_sum_sh := expand*tot_keep_scup] %>%
+      .[mode=="pr", scup_rel_sum_pr := expand*tot_rel_scup] %>%
+      .[mode=="fh", scup_rel_sum_fh := expand*tot_rel_scup] %>%
+      .[mode=="sh", scup_rel_sum_sh := expand*tot_rel_scup] %>%
+      
       .[mode=="pr", ntrips_pr := expand*probA] %>%
       .[mode=="fh", ntrips_fh := expand*probA] %>%
       .[mode=="sh", ntrips_sh := expand*probA]
@@ -217,6 +219,16 @@ for (x in 1:3){
       assign("bsb_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
       assign("bsb_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
       
+      assign("scup_keep_sum_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ"]))
+      assign("scup_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+      assign("scup_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+      assign("scup_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+      
+      assign("scup_rel_sum_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ"]))
+      assign("scup_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+      assign("scup_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+      assign("scup_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+      
       assign("ntrips_sum_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ"]))
       assign("ntrips_sum_pr_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
       assign("ntrips_sum_fh_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
@@ -236,7 +248,9 @@ for (x in 1:3){
       #BSB release
       bsb_rel_sum_NJ, bsb_rel_sum_pr_NJ, bsb_rel_sum_fh_NJ, bsb_rel_sum_shore_NJ, 
       #Scup keep
+      scup_keep_sum_NJ, scup_keep_sum_pr_NJ, scup_keep_sum_fh_NJ, scup_keep_sum_shore_NJ, 
       #Scup release
+      scup_rel_sum_NJ, scup_rel_sum_pr_NJ, scup_rel_sum_fh_NJ, scup_rel_sum_shore_NJ, 
       #Sum of number of trips
       ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ
       ))
@@ -269,4 +283,4 @@ predictions_all2<-as.data.frame(predictions_all) %>%
   janitor::clean_names() %>% 
   dplyr::group_by(colname) %>% 
   dplyr::summarise(across(where(is.numeric), mean))
-#write.csv(predictions_all2, file = "output_save_base3_cut.csv")
+write.csv(predictions_all2, file = "output_save_testing3.csv")
