@@ -568,10 +568,7 @@ calibrate_rec_catch <- function(state1,
                   beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = .3607657, sd = .2085837),
                   beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = .0665897 , sd = .0711506),
                   beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-.0596595  , sd = .161084 ),
-                  
-                  # Missing keep and release
                   beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = .019203 , sd = 0), ### Get mean and sd for scup Keep and Release ###
-                  
                   beta_opt_out = rnorm(nrow(period_vec), mean =-1.637635 , sd = 2.059597),
                   beta_cost = -.0114955) %>%
     dplyr::group_by(period2) %>% dplyr::mutate(tripid = dplyr::row_number(period2))

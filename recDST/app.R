@@ -491,6 +491,10 @@ server <- function(input, output, session) {
     ################ Summary Outputs ######################################
     #######################################################################
     
+    length_weight_conv<-length_out %>% 
+      tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>% 
+      tidyr::separate(SppLength, into = c("Spp", "Length"), sep = "_")
+    
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
