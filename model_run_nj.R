@@ -286,22 +286,34 @@ predictions_all2<-as.data.frame(predictions_all) %>%
 write.csv(predictions_all2, file = "output_save_testing3.csv")
 
 
-
+#### Length #########
 length_out<- prediction_output_by_period1 %>% 
-  dplyr::select(
-    #SF
-    SF_3, SF_3.5, SF_4, SF_4.5, SF_5, SF_5.5, SF_6, SF_6.5, SF_7, SF_7.5, SF_8, SF_8.5, SF_9, SF_9.5,
-    SF_10, SF_10.5, SF_11, SF_11.5, SF_12, SF_12.5, SF_13, SF_13.5, SF_14, SF_14.5, SF_15, SF_15.5, SF_16, 
-    SF_16.5, SF_17, SF_17.5, SF_18, SF_18.5, SF_19, SF_19.5, SF_20, SF_20.5, SF_21, SF_21.5, SF_22, SF_22.5,
-    SF_23, SF_23.5, SF_24, SF_24.5, SF_25, SF_25.5, SF_26, SF_26.5, SF_27, SF_27.5, SF_28, SF_28.5, SF_29, 
-    SF_29.5, SF_30, SF_30.5, SF_31, SF_31.5, SF_34,
-    #BSB
-    BSB_3, BSB_3.5, BSB_4, BSB_4.5, BSB_5, BSB_5.5, BSB_6, BSB_6.5, BSB_7, BSB_7.5, BSB_8, BSB_8.5, 
-    BSB_9, BSB_9.5, BSB_10, BSB_10.5, BSB_11, BSB_11.5, BSB_12, BSB_12.5, BSB_13, BSB_13.5, BSB_14,
-    BSB_14.5, BSB_15, BSB_15.5, BSB_16, BSB_16.5, BSB_17, BSB_17.5, BSB_18, BSB_18.5, BSB_19, BSB_19.5, 
-    BSB_20, BSB_20.5, BSB_21, BSB_21.5, BSB_22, BSB_22.5, BSB_23, BSB_23.5, BSB_24, BSB_24.5, BSB_25, 
-    BSB_25.5, BSB_26, BSB_26.5, BSB_27, BSB_28.5,
-    #Scup
-    SCUP_5, SCUP_5.5, SCUP_6, SCUP_6.5, SCUP_7, SCUP_7.5, SCUP_8, SCUP_8.5, SCUP_9, SCUP_9.5, SCUP_10, 
-    SCUP_10.5, SCUP_11, SCUP_11.5, SCUP_12, SCUP_12.5, SCUP_13, SCUP_13.5, SCUP_14, SCUP_14.5, SCUP_15,  SF_10, SF_10.5) %>%
+  dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
+                   probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
+                   tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
   dplyr::slice_head(n = 1)
+
+lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>% 
+  dplyr::mutate(Month = as.numeric(Month))
+
+length_weight_conv<-length_out %>% 
+  tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>% 
+  tidyr::separate(SppLength, into = c("Spp", "keep_rel", "Month", "Length"), sep = "_") %>% 
+  dplyr::filter(!Spp == "NA") %>% 
+  dplyr::mutate(Month = as.numeric(Month), 
+                Lcm = as.numeric(Length) * 2.54) %>% 
+  dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>% 
+  dplyr::filter(State == "NJ") %>% 
+  dplyr::mutate(Wkg = dplyr::case_when(Spp == "SF" ~ (a * Lcm ^ b),
+                                Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))), 
+                                Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))), 
+                                Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b), 
+                                Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b), 
+                                ))
+
+
+
+
+
+
+

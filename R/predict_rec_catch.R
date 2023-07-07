@@ -257,7 +257,7 @@ predict_rec_catch <- function(state1,
       dplyr::group_by(period2, tripid, fitted_length) %>% 
       dplyr::mutate( AvgNum = Number/n_catch_draws, 
                      Species = "SF", 
-                     Keep_Release = "Keep") %>% 
+                     Keep_Release = "Release") %>% 
       dplyr::select(-catch_draw) 
     
     release_size_data <- release_size_data[!duplicated(release_size_data),]
@@ -367,7 +367,7 @@ predict_rec_catch <- function(state1,
       dplyr::group_by(period2, tripid, fitted_length) %>% 
       dplyr::mutate( AvgNum = Number/n_catch_draws, 
                      Species = "BSB", 
-                     Keep_Release = "Keep") %>% 
+                     Keep_Release = "Release") %>% 
       dplyr::select(-catch_draw) 
     
     release_size_data <- release_size_data[!duplicated(release_size_data),]
@@ -513,7 +513,7 @@ predict_rec_catch <- function(state1,
         dplyr::group_by(period2, tripid, fitted_length) %>% 
         dplyr::mutate( AvgNum = Number/n_catch_draws, 
                        Species = "SCUP", 
-                       Keep_Release = "Keep") %>% 
+                       Keep_Release = "Release") %>% 
         dplyr::select(-catch_draw) 
       
       release_size_data <- release_size_data[!duplicated(release_size_data),]
@@ -629,9 +629,10 @@ predict_rec_catch <- function(state1,
         beta_sqrt_sf_release_base*sqrt(tot_rel_sf) +
         beta_sqrt_bsb_keep_base*sqrt(tot_keep_bsb) +
         beta_sqrt_bsb_release_base*sqrt(tot_rel_bsb) +
-        beta_sqrt_scup_keep_base*sqrt(tot_keep_scup) +
-        beta_sqrt_scup_release_base*sqrt(tot_rel_scup) +
-        beta_sqrt_sf_bsb_scup_keep_base*(sqrt(tot_keep_sf)*sqrt(tot_keep_bsb)*sqrt(tot_keep_scup)) +
+        beta_sqrt_scup_catch_base*sqrt(tot_scup_catch) +
+        #beta_sqrt_scup_keep_base*sqrt(tot_keep_scup) +
+        #beta_sqrt_scup_release_base*sqrt(tot_rel_scup) +
+        beta_sqrt_sf_bsb_keep_base*(sqrt(tot_keep_sf)*sqrt(tot_keep_bsb)) +
         beta_cost*cost,
       
       #  utility (base year)
@@ -639,9 +640,10 @@ predict_rec_catch <- function(state1,
         beta_sqrt_sf_release_base*sqrt(tot_rel_sf_base) +
         beta_sqrt_bsb_keep_base*sqrt(tot_keep_bsb_base) +
         beta_sqrt_bsb_release_base*sqrt(tot_rel_bsb_base) +
-        beta_sqrt_scup_keep_base*sqrt(tot_keep_scup_base) +
-        beta_sqrt_scup_release_base*sqrt(tot_rel_scup_base) +
-        beta_sqrt_sf_bsb_scup_keep_base*(sqrt(tot_keep_sf_base)*sqrt(tot_keep_bsb_base)*sqrt(tot_keep_scup_base)) +
+        beta_sqrt_scup_catch_base*sqrt(tot_cat_scup_base)  +
+        #beta_sqrt_scup_keep_base*sqrt(tot_keep_scup_base) +
+        #beta_sqrt_scup_release_base*sqrt(tot_rel_scup_base) +
+        beta_sqrt_sf_bsb_keep_base*(sqrt(tot_keep_sf_base)*sqrt(tot_keep_bsb_base)) +
         beta_cost*cost)
   
   
@@ -899,7 +901,7 @@ predict_rec_catch <- function(state1,
   #                                        & colnames(mean_trip_data) !="tot_rel_bsb"
   #                                        & colnames(mean_trip_data) !="tot_rel_sf"]
   list_names <- c("tot_keep_sf_base","tot_rel_sf_base", "tot_keep_bsb_base", "tot_rel_bsb_base" , 
-                  "tot_keep_scup_base" ,  "tot_rel_scup_base")
+                  "tot_cat_scup_base" )
   
   mean_trip_data9 <- mean_trip_data8 %>%
     data.table::as.data.table() %>%
@@ -934,10 +936,11 @@ predict_rec_catch <- function(state1,
     dplyr::select(period2, expand) %>% 
     dplyr::left_join(length_data, by = "period2", relationship = "many-to-many") %>% 
     dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber, 
-                  SppLength = paste0(Species, "_" , fitted_length)) %>% 
+                  SppLength = paste0(Species, "_" ,Keep_Release, "_",stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>% 
     dplyr::group_by(SppLength) %>% 
     dplyr::summarise(NumLength = mean(Expanded_prob_number)) %>% 
     tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength")
+  
   
   
   length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
