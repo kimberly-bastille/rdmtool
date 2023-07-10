@@ -222,7 +222,7 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
-  library(magrittr) 
+   library(magrittr) 
   
   ######### Setup ##########################################
   sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 

@@ -264,10 +264,7 @@ for (x in 1:3){
     #predictions[[x]]$draw<-x
     #predictions[[x]]$decade<-d
     
-  }
-  
-  
-  else{
+  }else{
     print("prediction_output_by_period1 is numeric")
     
   }
@@ -283,7 +280,7 @@ predictions_all2<-as.data.frame(predictions_all) %>%
   janitor::clean_names() %>% 
   dplyr::group_by(colname) %>% 
   dplyr::summarise(across(where(is.numeric), mean))
-write.csv(predictions_all2, file = "output_save_testing3.csv")
+#write.csv(predictions_all2, file = "output_save_testing3.csv")
 
 
 #### Length #########
@@ -298,7 +295,7 @@ lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>%
 
 length_weight_conv<-length_out %>% 
   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>% 
-  tidyr::separate(SppLength, into = c("Spp", "keep_rel", "Month", "Length"), sep = "_") %>% 
+  tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>% 
   dplyr::filter(!Spp == "NA") %>% 
   dplyr::mutate(Month = as.numeric(Month), 
                 Lcm = as.numeric(Length) * 2.54) %>% 
@@ -308,8 +305,12 @@ length_weight_conv<-length_out %>%
                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))), 
                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))), 
                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b), 
-                                Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b), 
-                                ))
+                                Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)), 
+                Wlbs = Wkg * 2.20462, 
+                Tot_W = NumInd * Wlbs) %>%
+  dplyr::group_by(Spp, keep_rel, mode) %>% 
+  dplyr::summarise(NumInd = sum(NumInd), 
+                   Tot_W = sum(Tot_W))
 
 
 
