@@ -885,7 +885,9 @@ predict_rec_catch <- function(state1,
   length_data<- mean_trip_data9 %>% 
     dplyr::select(period2, tripid, probA) %>% 
     dplyr::left_join(length_data) %>% 
-    dplyr::mutate(ProbabilityNumber = AvgNum * probA) #Sum probNum over period2 and fitted_length
+    dplyr::mutate(ProbabilityNumber = AvgNum * probA) %>%  # Average Number * probA
+    dplyr::group_by(Species, Keep_Release, period2, fitted_length) %>% 
+    dplyr::summarise(ProbabilityNumber = sum(ProbabilityNumber))#Sum probNum over Spp, KeepRelease, period2, and fitted_length 
     
   
   # list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
@@ -936,12 +938,18 @@ predict_rec_catch <- function(state1,
     dplyr::select(period2, expand) %>% 
     dplyr::left_join(length_data, by = "period2", relationship = "many-to-many") %>% 
     dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber, 
-                  SppLength = paste0(Species, "_" ,Keep_Release, "_", mode1, "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>% 
+                  SppLength = paste0(Species, "_" ,Keep_Release, "_",  stringr::str_extract(period2, "[a-z]+"),  "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>% 
     dplyr::group_by(SppLength) %>% 
-    dplyr::summarise(NumLength = mean(Expanded_prob_number)) %>% 
-    tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength")
+    dplyr::summarise(NumLength = mean(Expanded_prob_number)) #%>% 
+    #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
   
   
+  
+  
+  length_test <- length_expand %>% 
+    tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "month", "length")) %>% 
+    dplyr::group_by(Spp, keep_rel, mode) %>% 
+    dplyr::summarise(sum(NumLength))
   
   length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then

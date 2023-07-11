@@ -500,7 +500,7 @@ server <- function(input, output, session) {
         dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
                       Alternative = round(value, digits = 2),
                       Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change))
+        dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
       
       
       outputtable<- output

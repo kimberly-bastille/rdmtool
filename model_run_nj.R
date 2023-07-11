@@ -255,22 +255,9 @@ for (x in 1:3){
       ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ
       ))
     
-    #predictions[[x]]$draw<-x
-    #predictions[[x]]$decade<-d
-    
-    # predictions[[x]]<-list.append(predictions[[x]],draw=x)
-    # predictions[[x]]<-list.append(predictions[[x]],decade=d)
-    
-    #predictions[[x]]$draw<-x
-    #predictions[[x]]$decade<-d
-    
   }else{
     print("prediction_output_by_period1 is numeric")
-    
   }
-  # rm(calibration_data_table_base, calibration_output_by_period, 
-  #    params, prediction_output_by_period1, xx_check,
-  #    costs_new_all)
 }
 predictions_all<-list()
 predictions_all<-rlist::list.rbind(predictions)
@@ -285,7 +272,7 @@ predictions_all2<-as.data.frame(predictions_all) %>%
 
 #### Length #########
 length_out<- prediction_output_by_period1 %>% 
-  dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
+  dplyr::select(-c(month, day, mode, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
                    probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
                    tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
   dplyr::slice_head(n = 1)
