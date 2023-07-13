@@ -1,15 +1,15 @@
 
-state1 = c("NJ")
-calibration_data_table = c(list(calibration_data_table_base[[1]]))
-directed_trips_table = directed_trips2
-sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
-bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
-scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
-costs_new_all = c(list(cost_files_all_base[[1]]))
-sf_catch_data_all = c(list(catch_files_NJ))
-n_drawz = 50
-n_catch_draws = 30
-eff_seed=190
+# state1 = c("NJ")
+# calibration_data_table = c(list(calibration_data_table_base[[1]]))
+# directed_trips_table = directed_trips2
+# sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
+# bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
+# scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
+# costs_new_all = c(list(cost_files_all_base[[1]]))
+# sf_catch_data_all = c(list(catch_files_NJ))
+# n_drawz = 50
+# n_catch_draws = 30
+# eff_seed=190
 
 
 
@@ -752,7 +752,6 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data7<-mean_trip_data6  %>% data.table::as.data.table() %>%
     .[,lapply(.SD, base::mean), by = c("period2","tripid", "kod", "kod_24", "state"), .SDcols = all_vars]
-  print(head(mean_trip_data7))
   
   #original code
   # Collapse data from the X catch draws so that each row contains mean values
@@ -882,9 +881,9 @@ predict_rec_catch <- function(state1,
     .[]
   
   
-  length_data<- mean_trip_data9 %>% 
+  length_data2<- mean_trip_data9 %>% 
     dplyr::select(period2, tripid, probA) %>% 
-    dplyr::left_join(length_data) %>% 
+    dplyr::left_join(length_data, relationship = "many-to-many") %>% 
     dplyr::mutate(ProbabilityNumber = AvgNum * probA) %>%  # Average Number * probA
     dplyr::group_by(Species, Keep_Release, period2, fitted_length) %>% 
     dplyr::summarise(ProbabilityNumber = sum(ProbabilityNumber))#Sum probNum over Spp, KeepRelease, period2, and fitted_length 
@@ -934,24 +933,25 @@ predict_rec_catch <- function(state1,
       period = as.character(period2)) %>%
     dplyr::mutate(expand = n_choice_occasions/ndraws)
   
-  length_expand <- sims %>% 
-    dplyr::select(period2, expand) %>% 
-    dplyr::left_join(length_data, by = "period2", relationship = "many-to-many") %>% 
-    dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber, 
-                  SppLength = paste0(Species, "_" ,Keep_Release, "_",  stringr::str_extract(period2, "[a-z]+"),  "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>% 
-    dplyr::group_by(SppLength) %>% 
-    dplyr::summarise(NumLength = mean(Expanded_prob_number)) #%>% 
-    #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
-  
-  
-  
-  
-  length_test <- length_expand %>% 
-    tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "month", "length")) %>% 
-    dplyr::group_by(Spp, keep_rel, mode) %>% 
-    dplyr::summarise(sum(NumLength))
-  
-  length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
+  # length_expand <- sims %>% 
+  #   dplyr::select(period2, expand) %>% 
+  #   dplyr::left_join(length_data2, by = "period2", relationship = "many-to-many") %>% 
+  #   dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber, 
+  #                 SppLength = paste0(Species, "_" ,Keep_Release, "_",  stringr::str_extract(period2, "[a-z]+"),  "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>% 
+  #   dplyr::group_by(SppLength) %>% 
+  #   dplyr::summarise(NumLength = mean(Expanded_prob_number)) #%>% 
+  #   #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
+  # 
+  # # help<- length_expand %>% 
+  # #   dplyr::filter(stringr::str_detect(SppLength, 'NA'))
+  # # 
+  # 
+  # length_test <- length_expand %>% 
+  #   tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>% 
+  #   dplyr::group_by(Spp, keep_rel, mode) %>% 
+  #   dplyr::summarise(sum(NumLength))
+  # 
+  # length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then
     #Sum by fish length across all periods and modes = single value (total Number) of SF at 17in
   
@@ -973,8 +973,8 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
-    cbind(length_expand)
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
+    #cbind(length_expand)
   
   
   ## Add Length_expand to trip_level_output
