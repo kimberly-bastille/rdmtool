@@ -494,7 +494,7 @@ server <- function(input, output, session) {
     output$tableout<- renderTable({
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
-      output<- read.csv(here::here(paste0("output_",state,"_1_test.csv"))) %>% 
+      output<- read.csv(here::here(paste0("output_", state, "_test1.csv"))) %>% 
         #dplyr::select(colname, StatusQuo) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 

@@ -10,6 +10,10 @@ p_star_sf_NJ_variable<- 0.89
 p_star_bsb_NJ_variable<- 0.885
 p_star_scup_NJ_variable<- 0.045
 
+p_star_sf<- 0.89
+p_star_bsb<- 0.885
+p_star_scup<- 0.045
+
 catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
   dplyr::rename(tot_sf_catch = sf_tot_cat,  
                 tot_bsb_catch = bsb_tot_cat, 
@@ -89,7 +93,7 @@ for (x in 1:1){
     dplyr::mutate(day = stringr::str_extract(day, "^\\d{2}"), 
                   #month = as.numeric(month), 
                   period2 = paste0(month24, "-", day, "-", mode))
-  print(directed_trips2)
+  #print(directed_trips2)
   #2) Run the prediction model
   
   # Function arguments are:
@@ -141,7 +145,6 @@ for (x in 1:1){
   
   prediction_output_by_period1 <- data.frame(test)
  
-  
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     #print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
@@ -190,6 +193,8 @@ for (x in 1:1){
     prediction_output_by_period1 <- prediction_output_by_period1 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
     
+    
+    mean(prediction_output_by_period1$cv_sum)
     
     #Metrics at the state level
       assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
@@ -265,7 +270,7 @@ predictions_all2<-as.data.frame(predictions_all) %>%
   janitor::clean_names() %>% 
   dplyr::group_by(colname) %>% 
   dplyr::summarise(across(where(is.numeric), mean))
-#write.csv(predictions_all2, file = "output_NJ_1_test.csv")
+#write.csv(predictions_all2, file = "output_NJ_test1.csv")
 
 
 # #### Length #########
