@@ -143,13 +143,15 @@ for (x in 1:1){
   # prediction_output_by_period1 <- purrr::map(xx_check, 1)
   print("made it through predict")
   
-  prediction_output_by_period1 <- data.frame(test)
+  prediction_output_by_period2 <- data.frame(test)
  
+  
+  
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     #print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "-")
+    prediction_output_by_period1 <- prediction_output_by_period2 %>%  tidyr::separate(period2, c("month","day", "mode"), "-")
     
     
     #Metrics at the choice occasion level
@@ -273,38 +275,37 @@ predictions_all2<-as.data.frame(predictions_all) %>%
 #write.csv(predictions_all2, file = "output_NJ_test1.csv")
 
 
-# #### Length #########
-# length_out<- prediction_output_by_period1 %>% 
-#   dplyr::select(-c(month, day, mode, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
+# # #### Length #########
+# length_out<- prediction_output_by_period2 %>%
+#   dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
 #                    probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
 #                    tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
-#   dplyr::slice_head(n = 1)
+#   dplyr::slice_head(n = 1) 
+#   
 # 
-# lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>% 
+# lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>%
 #   dplyr::mutate(Month = as.numeric(Month))
 # 
-# length_weight_conv<-length_out %>% 
-#   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>% 
-#   tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>% 
-#   dplyr::filter(!Spp == "NA") %>% 
-#   dplyr::mutate(Month = as.numeric(Month), 
-#                 Lcm = as.numeric(Length) * 2.54) %>% 
-#   dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>% 
-#   dplyr::filter(State == "NJ") %>% 
+# length_weight_conv<-length_out %>%
+#   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>%
+#   tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>%
+#   dplyr::filter(!Spp == "NA") %>%
+#   dplyr::mutate(Month = as.numeric(Month),
+#                 Lcm = as.numeric(Length) * 2.54) %>%
+#   dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>%
+#   dplyr::filter(State == "NJ") %>%
 #   dplyr::mutate(Wkg = dplyr::case_when(Spp == "SF" ~ (a * Lcm ^ b),
-#                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))), 
-#                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))), 
-#                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b), 
-#                                 Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)), 
-#                 Wlbs = Wkg * 2.20462, 
+#                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))),
+#                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))),
+#                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b),
+#                                 Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)),
+#                 Wlbs = Wkg * 2.20462,
 #                 Tot_W = NumInd * Wlbs) %>%
-#   dplyr::group_by(Spp, keep_rel, mode) %>% 
-#   dplyr::summarise(NumInd = sum(NumInd), 
+#   dplyr::group_by(Spp, keep_rel, mode) %>%
+#   dplyr::summarise(NumInd = sum(NumInd),
 #                    Tot_W = sum(Tot_W))
 # 
 # 
-
-
 
 
 
