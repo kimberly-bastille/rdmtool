@@ -214,7 +214,8 @@ ui <- fluidPage(
     tabPanel("Results", 
              conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                               tags$div("Calculating",id="loadmessage")),
-             tableOutput(outputId = "tableout"), 
+             tableOutput(outputId = "keep_release_tableout"),
+             tableOutput(outputId = "welfare_trips_tableout"),
              tableOutput(outputId = "regtableout")), 
     tabPanel("Documentation")
   ))
@@ -490,22 +491,33 @@ server <- function(input, output, session) {
     
     ################ Summary Outputs ######################################
     ######################################################################
+    source(here::here(paste0("model_run_",state,".R")), local = TRUE)
     
-    output$tableout<- renderTable({
-      source(here::here(paste0("model_run_",state,".R")), local = TRUE)
-      
+    output$keep_release_tableout<- renderTable({
       output<- read.csv(here::here(paste0("output_", state, "_test1.csv"))) %>% 
-        #dplyr::select(colname, StatusQuo) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
+        dplyr::filter(stringr::str_detect(colname, "bsb|scup|sf")) %>% 
         dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
                       Alternative = round(value, digits = 2),
                       Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
         dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
       
+      outputtable<- output
+    })
+    
+    
+    output$welfare_trips_tableout<- renderTable({
+      output<- read.csv(here::here(paste0("output_", state, "_test1.csv"))) %>% 
+        dplyr::left_join(predictions_all2, by = "colname") %>% 
+        dplyr::filter(stringr::str_detect(colname, "cv|ntrips"))%>% 
+        dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
+                      Alternative = round(value, digits = 2),
+                      Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
+        dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
       
       outputtable<- output
-      
     })
+    
     
     output$regtableout <- renderTable({
       
