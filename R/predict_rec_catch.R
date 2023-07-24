@@ -933,11 +933,11 @@ predict_rec_catch <- function(state1,
   
   length_data2<- mean_trip_data9 %>%
     dplyr::select(period2, tripid, probA) %>%
-    dplyr::left_join(length_data, relationship = "many-to-many") %>%
+    dplyr::left_join(length_data, by = c("period2", "tripid")) %>%
     dplyr::mutate(ProbabilityNumber = AvgNum * probA) %>%  # Average Number * probA
     dplyr::group_by(Species, Keep_Release, period2, fitted_length) %>%
-    dplyr::summarise(ProbabilityNumber = sum(ProbabilityNumber)) #Sum probNum over Spp, KeepRelease, period2, and fitted_length
-
+    dplyr::summarise(ProbabilityNumber = sum(ProbabilityNumber)) %>% #Sum probNum over Spp, KeepRelease, period2, and fitted_length
+    dplyr::filter(!Keep_Release == "NA") # remove mix matched periods
   
   # list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
   #                                        & colnames(mean_trip_data) !="period"
@@ -985,20 +985,12 @@ predict_rec_catch <- function(state1,
   length_expand <- sims %>%
     dplyr::select(period2, expand) %>%
     dplyr::left_join(length_data2, by = "period2", relationship = "many-to-many") %>%
-    
-    
     dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber,
-                  
-                  
                   SppLength = paste0(Species, "_" ,Keep_Release, "_",  stringr::str_extract(period2, "[a-z]+"),  "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>%
     dplyr::group_by(SppLength) %>%
-    dplyr::summarise(NumLength = mean(Expanded_prob_number)) %>%
-    tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
+    dplyr::summarise(NumLength = mean(Expanded_prob_number)) #%>%
+    #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
 
-  length_expand %>%
-    dplyr::filter(stringr::str_detect(fitted_length, 'NA'))
-
- unique(stringr::str_extract(length_expand$period2, "\\d\\d"))
  
   length_test <- length_expand %>%
     tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>%

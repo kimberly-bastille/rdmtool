@@ -494,13 +494,14 @@ server <- function(input, output, session) {
     source(here::here(paste0("model_run_",state,".R")), local = TRUE)
     
     output$keep_release_tableout<- renderTable({
-      output<- read.csv(here::here(paste0("output_", state, "_test1.csv"))) %>% 
+      output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::filter(stringr::str_detect(colname, "bsb|scup|sf")) %>% 
-        dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
-                      Alternative = round(value, digits = 2),
+        dplyr::mutate(Category = paste(Category, "(lbs)"), 
+                      StatusQuo = round(StatusQuo, digits = 0), 
+                      Alternative = round(value, digits = 0),
                       Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
+        dplyr::select(c(Species, Category, StatusQuo, Alternative, Percent_Change)) 
       
       outputtable<- output
     })
@@ -510,7 +511,9 @@ server <- function(input, output, session) {
       output<- read.csv(here::here(paste0("output_", state, "_test1.csv"))) %>% 
         dplyr::left_join(predictions_all2, by = "colname") %>% 
         dplyr::filter(stringr::str_detect(colname, "cv|ntrips"))%>% 
-        dplyr::mutate(StatusQuo = round(StatusQuo, digits = 2), 
+        dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(colname, "cv") ~ paste(Category, "($)"), 
+                                                  stringr::str_detect(colname, "ntrips") ~ Category),
+                      StatusQuo = round(StatusQuo, digits = 2), 
                       Alternative = round(value, digits = 2),
                       Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
         dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
