@@ -10,9 +10,9 @@ p_star_sf_NJ_variable<- 0.89
 p_star_bsb_NJ_variable<- 0.885
 p_star_scup_NJ_variable<- 0.045
 
-p_star_sf<- 0.89
-p_star_bsb<- 0.885
-p_star_scup<- 0.045
+# p_star_sf<- 0.89
+# p_star_bsb<- 0.885
+# p_star_scup<- 0.045
 
 catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
   dplyr::rename(tot_sf_catch = sf_tot_cat,  

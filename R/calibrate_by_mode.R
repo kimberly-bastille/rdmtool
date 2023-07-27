@@ -17,9 +17,12 @@ state1 <- "NJ"
 state_no<-34
 #directed_trips_table <- directed_trips_table_base[[5]]
 sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
-p_star_sf <- p_star_sf_NJ_variable
-p_star_bsb<-p_star_bsb_NJ_variable
-p_star_scup<-p_star_scup_NJ_variable
+p_star_sf_bt <- p_star_sf_NJ_variable
+p_star_sf_sh <- p_star_sf_NJ_variable
+p_star_bsb_bt<-p_star_bsb_NJ_variable
+p_star_bsb_sh<-p_star_bsb_NJ_variable
+p_star_scup_bt<-p_star_scup_NJ_variable
+p_star_scup_sh<-p_star_scup_NJ_variable
 n_drawz = 50
 n_catch_draws = 30
 eff_seed=190
@@ -159,17 +162,16 @@ calibrate_rec_catch <- function(state1,
   row_inds <- seq_len(nrow(sf_catch_data))
   
   #sf_catch_data <- sf_catch_data[c(rep(row_inds, sf_catch_data$tot_sf_catch)), ]
-  sf_catch_data_bt<- sf_catch_data_bt %>%
+  sf_catch_data<- sf_catch_data %>%
     dplyr::slice(rep(row_inds,sf_tot_cat))   %>%
-    dplyr::mutate(fishid=dplyr::row_number()) %>% 
-     dplyr::filter(stringr::str_detect(period2, c("pr|fh"))) 
+    dplyr::mutate(fishid=dplyr::row_number())
   
   
-  sf_catch_data_bt <- sf_catch_data %>%
+  sf_catch_data2 <- sf_catch_data %>%
     dplyr::left_join(regs, by = "period2") %>%
-    dplyr::filter(stringr::str_detect(period2, c("pr|fh"))) %>% 
-    dplyr::mutate(uniform=runif(nrow(sf_catch_data_bt))) %>%
-    dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%
+    dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
+    dplyr::mutate(posskeep = dplyr::case_when(stringr::str_detect(period2, c("pr|fh")) & uniform>=p_star_sf_bt ~ 1,
+                                              stringr::str_detect(period2, c("sh")) & uniform>=p_star_sf_sh ~ 1, TRUE ~ 0)) %>%
     dplyr::group_by(tripid, period2, catch_draw)   %>%
     dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
     dplyr::ungroup() %>%
@@ -178,10 +180,10 @@ calibrate_rec_catch <- function(state1,
         fluke_bag1 > 0 ~ ifelse(csum_keep<=fluke_bag1 & posskeep==1,1,0),
         TRUE ~ 0))
 
-  sf_catch_data_bt <- sf_catch_data_bt %>%
+  sf_catch_data <- sf_catch_data2 %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
   
-  sf_catch_data_bt <- sf_catch_data_bt %>%
+  sf_catch_data <- sf_catch_data %>%
     dplyr::mutate(keep_tot = keep_adj,
                   release = ifelse(keep_adj==0,1,0))
   
@@ -292,7 +294,8 @@ calibrate_rec_catch <- function(state1,
     bsb_catch_data <- bsb_catch_data %>%
       dplyr::left_join(regs, by = "period2") %>%
       dplyr::mutate(uniform=runif(nrow(bsb_catch_data))) %>%
-      dplyr::mutate(posskeep = ifelse(uniform>=p_star_bsb, 1,0)) %>%
+      dplyr::mutate(posskeep = dplyr::case_when(stringr::str_detect(period2, c("pr|fh")) & uniform>=p_star_bsb_bt ~ 1,
+                                                stringr::str_detect(period2, c("sh")) & uniform>=p_star_bsb_sh ~ 1, TRUE ~ 0)) %>% 
       dplyr::group_by(tripid, period2, catch_draw) %>%
       # keep = case_when(
       # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
@@ -436,10 +439,12 @@ calibrate_rec_catch <- function(state1,
       
       
       
-      scup_catch_data <- scup_catch_data %>%
+      scup_catch_data2 <- scup_catch_data %>%
         dplyr::left_join(regs, by = "period2") %>%
         dplyr::mutate(uniform=runif(nrow(scup_catch_data))) %>%
-        dplyr::mutate(posskeep = ifelse(uniform>=p_star_scup, 1,0)) %>%
+        #dplyr::mutate(posskeep = ifelse(uniform>=p_star_scup, 1,0)) %>%
+        dplyr::mutate(posskeep = dplyr::case_when(stringr::str_detect(period2, c("pr|fh")) & uniform>=p_star_scup_bt ~ 1,
+                                                  stringr::str_detect(period2, c("sh")) & uniform>=p_star_scup_sh ~ 1, TRUE ~ 0)) %>% 
         dplyr::group_by(tripid, period2, catch_draw) %>%
         # keep = case_when(
         # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
@@ -458,7 +463,7 @@ calibrate_rec_catch <- function(state1,
       # scup_bag > 0 ~ ifelse(posskeep==0 | (posskeep==1 & csum_keep>scup_bag ), 1,0)))
       
       #catch_size_data[is.na(catch_size_data)] <- 0
-      scup_catch_data <- scup_catch_data %>%
+      scup_catch_data <- scup_catch_data2 %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
       
       scup_catch_data <- scup_catch_data %>%
