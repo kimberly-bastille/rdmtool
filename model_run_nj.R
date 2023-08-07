@@ -143,7 +143,7 @@ for (x in 1:1){
   # prediction_output_by_period1 <- purrr::map(xx_check, 1)
   print("made it through predict")
   
-  prediction_output_by_period2 <- data.frame(test)
+  prediction_output_by_period1 <- data.frame(test)
  
   
   
@@ -151,7 +151,7 @@ for (x in 1:1){
     #print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
-    prediction_output_by_period1 <- prediction_output_by_period2 %>%  tidyr::separate(period2, c("month","day", "mode"), "-")
+    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "-")
     
     
     #Metrics at the choice occasion level

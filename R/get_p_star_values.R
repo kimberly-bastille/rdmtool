@@ -205,7 +205,7 @@ p_star_bsb_NJ_variable<-0.89
 p_star_scup_NJ_variable<-0.06
 
 repeat {
-  source("calibration NJ loop.R")
+  source(here::here("R/calibration_loop_NJ.R"))
   
   
   if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
