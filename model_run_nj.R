@@ -6,10 +6,15 @@ print("start model_NJ")
 state1 = "NJ"
 predictions = list()
 
-p_star_sf_NJ_variable<- 0.89
-p_star_bsb_NJ_variable<- 0.885
-p_star_scup_NJ_variable<- 0.045
+#### p_stars old ####
+# p_star_sf_NJ_variable<- 0.89
+# p_star_bsb_NJ_variable<- 0.885
+# p_star_scup_NJ_variable<- 0.045
 
+#### p_stars new ######
+p_star_sf_NJ_variable<- 0.72
+p_star_bsb_NJ_variable<- 0.72
+p_star_scup_NJ_variable<- -0.11
 # p_star_sf<- 0.89
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045

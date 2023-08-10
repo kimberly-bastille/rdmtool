@@ -15,13 +15,13 @@ n_catch_draws = 30
 
 #Import directed trips file - gives directed trips by regulatory period in 2020
 directed_trips <- data.frame( read.csv(here::here("data-raw/directed trips and regulations 2022_100 draws.csv"))) %>% 
-  dplyr::filter(dtrip == 1) %>%
+  dplyr::filter(draw == 1) %>%
   dplyr::mutate(day = as.numeric(stringr::str_extract(day, "^\\d{2}")), 
               month = as.numeric(month)) %>% 
   dplyr::mutate(period2 = as.character(paste0(month, "_", day, "_", mode))) 
 
 #directed_trips$dtrip=round(directed_trips$dtrip)
-directed_trips= subset(directed_trips, state == state1)
+directed_trips <-  directed_trips %>% dplyr::filter(state == state1)
 
 # min_period=min(directed_trips$period)
 # max_period=max(directed_trips$period)
@@ -31,14 +31,17 @@ directed_trips= subset(directed_trips, state == state1)
 # Set up an output file for the separately simulated within-season regulatory periods  
 pds = list()
 
-periodz=as.factor(directed_trips$period2)
+#periodz=as.factor(directed_trips$period2)
 #levels(periodz)
+period_list<- as.list(unique(directed_trips$period2))
 
+dfs <- data.frame()
 
 #for(p in levels(periodz)){
-for(p in levels(periodz)){
+for(p in period_list){
   #p<- "14_bt"
-  directed_trips_p = subset(directed_trips, period2 == p)
+  directed_trips_p <- directed_trips %>% 
+    dplyr::filter( period2 == p)
   n_trips = mean(directed_trips_p$dtrip)
   #n_draws = min(1000,n_trips*2.5 )
   n_draws = n_drawz
@@ -58,10 +61,10 @@ for(p in levels(periodz)){
   mode1 <- directed_trips_p[1,]$mode
   
   # Set up an output file for catch draw files 
-  dfs <- data.frame()
+  # dfs <- data.frame()
   
   #Run the catch loop X times to give X draws of catch for each species
-  for(i in 1:n_catch_draws) {
+  for(i in 1:n_catch_draws){
     # Input catch-per-trip numbers 
     # Two ways to do this, I've included code for both.
     # 1) import 2020 MRIP trip-level catch of the three species - this retains any correlation in catch between the species  
@@ -443,6 +446,7 @@ for(p in levels(periodz)){
       #add the zero catch trips 
       scup_catch_data1 = dplyr::bind_rows(scup_catch_data1, scup_zero_catch)
       scup_catch_data1 = subset(scup_catch_data1, select=-c(tot_scup_catch))
+      scup_catch_data1 <- scup_catch_data1 %>% dplyr::mutate(tot_scup_catch = c("NA"))
       
       #quick sort and cleanup 
       scup_catch_data1 = scup_catch_data1[order(scup_catch_data1$tripid),]
@@ -466,11 +470,11 @@ for(p in levels(periodz)){
     
     trip_data[is.na(trip_data)] = 0
     
-    dfs<- trip_data %>% 
+    trip_data <-trip_data %>% 
       dplyr::mutate(catch_draw = i, 
                     period2 = p)
     
-    dfs<-dfs %>% rbind(dfs) 
+    #dfs<-dfs %>% rbind(trip_data) 
     #trip_data$catch_draw=i
     #dfs[[i]]=trip_data
     
@@ -479,8 +483,8 @@ for(p in levels(periodz)){
   #combine all the catch draw files 
   #dfs_all<- list.stack(dfs, fill=TRUE)
   #dfs_all<- list(dfs, fill=TRUE)
-  dfs<-dfs %>% rbind(dfs) 
-  dfs_all<- dfs
+  dfs<-dfs %>% rbind(trip_data) 
+  pds<- dfs
   
   # dfs_all[is.na(dfs_all)] = 0
   # #dfs_all <- dfs_all[order(dfs_all$tripid),]
@@ -494,14 +498,17 @@ for(p in levels(periodz)){
 ##   End simulating trip outcomes   ##
 ######################################
 
-pds_all= list(pds, fill=TRUE)
-pds_all[is.na(pds_all)] = 0
+# pds_all= list(pds, fill=TRUE)
+# pds_all[is.na(pds_all)] = 0
+pds_all <- pds %>% 
+  dplyr::mutate(tot_bsb_catch = tot_keep_bsb+tot_rel_bsb, 
+                tot_sf_catch = tot_keep_sf+tot_rel_sf, 
+                tot_scup_catch = tot_keep_scup+tot_rel_scup)
+# pds_all$tot_bsb_catch=pds_all$tot_keep_bsb+pds_all$tot_rel_bsb
+# pds_all$tot_sf_catch=pds_all$tot_keep_sf+pds_all$tot_rel_sf
+# pds_all$tot_scup_catch=pds_all$tot_keep_scup+pds_all$tot_rel_scup
 
-pds_all$tot_bsb_catch=pds_all$tot_keep_bsb+pds_all$tot_rel_bsb
-pds_all$tot_sf_catch=pds_all$tot_keep_sf+pds_all$tot_rel_sf
-pds_all$tot_scup_catch=pds_all$tot_keep_scup+pds_all$tot_rel_scup
-
-rm(pds)
+#rm(pds)
 
 #pds_all<-subset(pds_all, select=-c(tot_bsb_catch.x,tot_bsb_catch.y, tot_scup_catch.x, tot_scup_catch.y))
 
@@ -520,10 +527,10 @@ param_draws_NJ$beta_cost = rnorm(n_drawz, mean =-.0114955 , sd =0)
 
 
 # Now calculate trip probabilities and utilities based on the multiple catch draws for each choice occasion
-costs_new_NJ = list()
+#costs_new_NJ = list()
 pds_new = list()
-levels(periodz)
-for(p in levels(periodz)){
+#levels(periodz)
+for(p in period_list){
   #p<-'14_bt'
   directed_trips_p <- subset(directed_trips, period2 == p)
   n_trips <- mean(directed_trips_p$dtrip)  
@@ -531,7 +538,8 @@ for(p in levels(periodz)){
   
   # Add trip costs. These are mean and sd estimates from over all modes from the expenditure survey
   #pds<-subset(pds_all, period2==p)
-  pds<-pds_all[p]
+  #pds<-pds_all[p]
+  pds<-pds_all %>% dplyr::filter(period2 == p)
   
   trip_costs<-data.frame(read.csv(here::here("data-raw/trip_costs_state_summary.csv")))
   trip_costs<- subset(trip_costs, mode==mode_val & state==state1)
@@ -547,18 +555,21 @@ for(p in levels(periodz)){
   
   # Costs_new_state data sets will retain raw trip outcomes from the baseline scenario. 
   # We will merge these data to the prediction year outcomes to calculate changes in CS. 
-  costs_new_NJ[[p]] = subset(trip_data, select=c(tripid, cost, catch_draw, tot_keep_sf, tot_rel_sf,
-                                                 tot_keep_bsb,tot_rel_bsb,tot_scup_catch, beta_cost, beta_opt_out, beta_sqrt_bsb_keep, 
-                                                 beta_sqrt_bsb_release, beta_sqrt_scup_catch, beta_sqrt_sf_bsb_keep, 
-                                                 beta_sqrt_sf_keep, beta_sqrt_sf_release))
-  
-  names(costs_new_NJ[[p]])[names(costs_new_NJ[[p]]) == "tot_keep_sf"] = "tot_keep_sf_base"
-  names(costs_new_NJ[[p]])[names(costs_new_NJ[[p]]) == "tot_rel_sf"] = "tot_rel_sf_base"
-  names(costs_new_NJ[[p]])[names(costs_new_NJ[[p]]) == "tot_keep_bsb"] = "tot_keep_bsb_base"
-  names(costs_new_NJ[[p]])[names(costs_new_NJ[[p]]) == "tot_rel_bsb"] = "tot_rel_bsb_base"
-  names(costs_new_NJ[[p]])[names(costs_new_NJ[[p]]) == "tot_scup_catch"] = "tot_cat_scup_base"
-  
-  costs_new_NJ[[p]]$period2 = p
+  # costs_new_NJ[[p]] = subset(trip_data, select=c(tripid, cost, catch_draw, tot_keep_sf, tot_rel_sf,
+  #                                                tot_keep_bsb,tot_rel_bsb,tot_scup_catch, beta_cost, beta_opt_out, beta_sqrt_bsb_keep, 
+  #                                                beta_sqrt_bsb_release, beta_sqrt_scup_catch, beta_sqrt_sf_bsb_keep, 
+  #                                                beta_sqrt_sf_keep, beta_sqrt_sf_release))
+  costs_new_NJ <- trip_data %>% 
+    dplyr::filter(period2 == p) %>% 
+    dplyr::select(c(tripid, cost, catch_draw, tot_keep_sf, tot_rel_sf,
+                    tot_keep_bsb,tot_rel_bsb,tot_scup_catch, beta_cost, beta_opt_out, beta_sqrt_bsb_keep, 
+                    beta_sqrt_bsb_release, beta_sqrt_scup_catch, beta_sqrt_sf_bsb_keep,
+                    beta_sqrt_sf_keep, beta_sqrt_sf_release)) %>% 
+    dplyr::rename("tot_keep_sf_base" = tot_keep_sf, 
+                  "tot_rel_sf_base" = tot_rel_sf, 
+                  "tot_keep_bsb_base" = tot_keep_bsb,
+                  "tot_rel_bsb_base" = tot_rel_bsb, 
+                  "tot_scup_catch_base" = tot_scup_catch)
   
   #Expected utility
   trip_data$vA = 
@@ -572,7 +583,7 @@ for(p in levels(periodz)){
   
   mean_trip_data <- trip_data %>% 
     dplyr::mutate(n_alt = rep(2,nrow(.))) %>% 
-    dplyr::uncount(n_alt) %>% 
+    tidyr::uncount(n_alt) %>% 
     dplyr::mutate(alt = rep(1:2,nrow(.)/2),
            opt_out = ifelse(alt == 2, 1, 0))
   
@@ -585,7 +596,7 @@ for(p in levels(periodz)){
                                        mean_trip_data$alt==2 ~ exp(mean_trip_data$v0_optout)) 
   
   mean_trip_data <- mean_trip_data %>% 
-    dplyr::group_by(period, tripid, catch_draw) %>% 
+    dplyr::group_by(period2, tripid, catch_draw) %>% 
     dplyr::mutate( v0_col_sum = sum(expon_v0)) %>% 
     dplyr::ungroup()
   
@@ -595,7 +606,7 @@ for(p in levels(periodz)){
   mean_trip_data<- subset(mean_trip_data, alt==1)
   
   mean_trip_data<-mean_trip_data %>% 
-    dplyr::group_by(period,tripid) %>% 
+    dplyr::group_by(period2,tripid) %>% 
     dplyr::summarise(across(everything(), mean), .groups = 'drop') %>% 
     tibble::tibble()
   
@@ -604,7 +615,7 @@ for(p in levels(periodz)){
   # Get rid of things we don't need. 
   mean_trip_data = subset(mean_trip_data,  select=-c(alt, opt_out, v0_optout,  catch_draw, vA, v0_optout,beta_cost, beta_opt_out, beta_sqrt_scup_catch,beta_sqrt_bsb_release, 
                                                      beta_sqrt_bsb_keep, beta_sqrt_sf_release, beta_sqrt_sf_keep, beta_sqrt_sf_bsb_keep,
-                                                     period ))
+                                                     period2 ))
   
   
   # Multiply the trip probability by each of the catch and cost variables  to get probability-weighted catch
@@ -657,24 +668,25 @@ for(p in levels(periodz)){
   
 }
 
-
-pds_new_all_NJ=list.stack(pds_new, fill=TRUE)
+pds_new_all_NJ <- pds
+#pds_new_all_NJ=list.stack(pds_new, fill=TRUE)
 
 pds_new_all_NJ[is.na(pds_new_all_NJ)] = 0
-pds_new_all_NJ$state = state1
-rm(pds_new)
+#pds_new_all_NJ$state = state1
+#rm(pds_new)
 
 # costs_new_all contain trip outcomes for the baseline period. Will use to calculate welfare changes, 
 # and assign catch-per-trip in the prediction years. 
-
-costs_new_all_NJ=list.stack(costs_new_NJ, fill=TRUE)
+costs_new_all_NJ <- costs_new_NJ
+#costs_new_all_NJ=list.stack(costs_new_NJ, fill=TRUE)
 costs_new_all_NJ[is.na(costs_new_all_NJ)] = 0
-rm(costs_new_NJ)
+#rm(costs_new_NJ)
 
 
 ###Compare calibration model output with MRIP 
 
-MRIP_data <- subset(data.frame( read.csv("total AB1B2 2020 by state.csv")), state=="NJ")                                                                          
+MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 2020 by state.csv")) %>% 
+  dplyr::filter(state=="NJ")                                                                          
 
 
 
