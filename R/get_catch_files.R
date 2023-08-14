@@ -3,8 +3,8 @@
 #catch
 
 # File with 100 daily draws for each state, mode, day combination
-catch_files <- read.csv(file.path(here::here("data-raw/daily catch draws 2022.csv")))
-
+catch_files_old <- read.csv(file.path(here::here("data-raw/daily catch draws 2022.csv")))
+catch_files <- read.csv(file.path(here::here("data-raw/fluke catch draws 2022 new.csv")))
 ## Connecticut
 catch_CT_pr <- catch_files %>% 
   dplyr::filter(state=="CT", 
@@ -62,18 +62,49 @@ catch_files_MD <- data.table::data.table(catch_MD)
 saveRDS(catch_files_MD,file  = "data-raw/catch/catch_files_MD.rds")
 
 ## New Jersey
-catch_NJ_pr <- catch_files %>% 
+catch_NJ_pr <- data.frame()
+for(k in 1:365){   #### this doesn't work with month!!
+catch_NJ_pr<- catch_files %>% 
   dplyr::filter(state=="NJ", 
                 mode1 == "bt") %>% 
-  dplyr::mutate(mode1 = "pr")
-
-catch_NJ <- catch_files %>% 
-  dplyr::filter(state=="NJ") %>% 
-  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh")) %>% 
+  dplyr::slice_sample(n = 1500) %>% 
+  dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "pr") ,
+                day_i = k, 
+                n_catch_draw = rep(1:30, 50), 
+                tripid = rep(1:50, each = 30)) %>% 
   rbind(catch_NJ_pr)
+}
 
+catch_NJ_fh <- data.frame()
+for(k in 1:365){   #### this doesn't work with month!!
+  catch_NJ_fh<- catch_files %>% 
+    dplyr::filter(state=="NJ", 
+                  mode1 == "bt") %>% 
+    dplyr::slice_sample(n = 1500) %>% 
+    dplyr::mutate(mode1 = dplyr::recode(mode1, "bt" = "fh") ,
+                  day_i = k, 
+                  n_catch_draw = rep(1:30, 50), 
+                  tripid = rep(1:50, each = 30)) %>% 
+    rbind(catch_NJ_fh)
+}
+
+catch_NJ_sh <- data.frame()
+for(k in 1:365){   #### this doesn't work with month!!
+  catch_NJ_sh<- catch_files %>% 
+    dplyr::filter(state=="NJ", 
+                  mode1 == "sh") %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::slice_sample(n = 1500) %>% 
+    dplyr::mutate(day_i = k, 
+                  n_catch_draw = rep(1:30, 50), 
+                  tripid = rep(1:50, each = 30)) %>% 
+    rbind(catch_NJ_sh)
+}
+
+
+catch_NJ<- rbind(catch_NJ_fh, catch_NJ_pr, catch_NJ_sh) 
 catch_files_NJ <- data.table::data.table(catch_NJ)
-saveRDS(catch_files_NJ,file  = "data-raw/catch/catch_files_NJ.rds")
+saveRDS(catch_files_NJ,file  = "data-raw/catch/catch_files_NJ2.rds")
 
 ## New York
 catch_NY_pr <- catch_files %>% 

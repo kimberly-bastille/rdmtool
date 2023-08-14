@@ -1,6 +1,12 @@
 
 
-
+## Get estimate starting values for P_star calc
+start_est <-  read.csv(here::here("data-raw/total AB1B2 by state mode 2022.csv")) %>% 
+  dplyr::group_by(state, mode) %>% 
+  dplyr::mutate(sf_start = sf_harvest/sf_tot_cat, 
+                bsb_start = bsb_harvest/bsb_tot_cat,
+                scup_start = scup_harvest/scup_tot_cat) %>% 
+  dplyr::select(state, mode, sf_start, bsb_start, scup_start)
 
 ###MA
 #starting points 
@@ -199,10 +205,18 @@ p_star_scup_NY_variable<- p_star_scup
 
 
 ###NJ
-#starting points 
-p_star_sf_NJ_variable<-0.89
-p_star_bsb_NJ_variable<-0.89
-p_star_scup_NJ_variable<-0.06
+# old starting starting points 
+# p_star_sf_NJ_variable<-0.89
+# p_star_bsb_NJ_variable<-0.89
+# p_star_scup_NJ_variable<-0.06
+
+### Values from harvest/total_catch in start_est above
+p_star_sf_NJ_variable_bt<-0.137
+p_star_bsb_NJ_variable_bt<-0.141
+p_star_scup_NJ_variable_bt<-0.506
+p_star_sf_NJ_variable_sh<-0.063
+p_star_bsb_NJ_variable_sh<-0
+#p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
 repeat {
   source(here::here("R/calibration_loop_NJ.R"))

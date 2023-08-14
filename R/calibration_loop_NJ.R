@@ -3,9 +3,12 @@
 state1="NJ"
 state_no=34
 
-p_star_sf <- p_star_sf_NJ_variable
-p_star_bsb<-p_star_bsb_NJ_variable
-p_star_scup<-p_star_scup_NJ_variable
+p_star_sf_bt <- p_star_sf_NJ_variable_bt
+p_star_bsb_bt<-p_star_bsb_NJ_variable_bt
+p_star_scup_bt<-p_star_scup_NJ_variable_bt
+
+p_star_sf_sh <- p_star_sf_NJ_variable_sh
+p_star_bsb_sh<-p_star_bsb_NJ_variable_sh
 
 n_drawz = 50
 n_catch_draws = 30
