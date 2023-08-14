@@ -685,7 +685,7 @@ costs_new_all_NJ[is.na(costs_new_all_NJ)] = 0
 
 ###Compare calibration model output with MRIP 
 
-MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 2020 by state.csv")) %>% 
+MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode 2022.csv")) %>% 
   dplyr::filter(state=="NJ")                                                                          
 
 

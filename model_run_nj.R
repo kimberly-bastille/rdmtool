@@ -74,7 +74,9 @@ if(input$input_type == "Single"){
 #print(directed_trips_test)
 
 for (x in 1:1){
-  
+# future::plan(future::multisession)
+# predictions<- future::future({
+  # x = 1:2
   print(x)
   
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) %>% 
@@ -245,7 +247,7 @@ for (x in 1:1){
       assign("ntrips_sum_shore_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
       
 
-    predictions[[x]]<- as.data.frame(cbind(
+    predictions[[x]]<- data.frame(cbind(
       
       #Sum CV
       cv_sum_NJ, cv_sum_shore_NJ, cv_sum_pr_NJ, cv_sum_fh_NJ, 
@@ -262,13 +264,16 @@ for (x in 1:1){
       #Scup release
       scup_rel_sum_NJ, scup_rel_sum_pr_NJ, scup_rel_sum_fh_NJ, scup_rel_sum_shore_NJ, 
       #Sum of number of trips
-      ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ
-      ))
+      ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ))
+  
     
   }else{
     print("prediction_output_by_period1 is numeric")
   }
 }
+#})
+#predictions_help<- future::value(predictions)
+
 predictions_all<-list()
 predictions_all<-rlist::list.rbind(predictions)
 
@@ -276,7 +281,8 @@ predictions_all2<-as.data.frame(predictions_all) %>%
   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
   janitor::clean_names() %>% 
   dplyr::group_by(colname) %>% 
-  dplyr::summarise(across(where(is.numeric), mean))
+  dplyr::summarise(across(where(is.numeric), mean)) %>% 
+  dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
 #write.csv(predictions_all2, file = "output_NJ_test1.csv")
 
 

@@ -1,5 +1,6 @@
 
 
+
 predict_rec_catch <- function(state1,
                               calibration_data_table,
                               directed_trips_table = directed_trips,
@@ -979,10 +980,10 @@ predict_rec_catch <- function(state1,
     #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
 
  
-  length_test <- length_expand %>%
-    tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>%
-    dplyr::group_by(Spp, keep_rel, mode) %>%
-    dplyr::summarise(sum(NumLength))
+  # length_test <- length_expand %>%
+  #   tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>%
+  #   dplyr::group_by(Spp, keep_rel, mode) %>%
+  #   dplyr::summarise(sum(NumLength))
   # 
   #length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then
