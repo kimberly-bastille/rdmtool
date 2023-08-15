@@ -1,11 +1,7 @@
 #
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 
 if (interactive()) {
   library(shiny)
@@ -22,7 +18,7 @@ if (interactive()) {
                 shinyWidgets::awesomeCheckboxGroup(
                   inputId = "state",
                   label = "State", 
-                  choices = c("MA", "RI", "CT", "NY", "NJ", "DE",  "MD", "VA"),
+                  choices = c("MA", "RI", "CT", "NY", "NJ", "DE",  "MD", "VA", "NC"),
                   inline = TRUE,
                   status = "danger"),
                 
@@ -219,7 +215,10 @@ if (interactive()) {
                         tableOutput(outputId = "keep_release_tableout")),
                  column(4, 
                         tableOutput(outputId = "welfare_trips_tableout")),
-               tableOutput(outputId = "regtableout"))), 
+               tableOutput(outputId = "regtableout"), 
+               tableOutput(outputId = "futureplansout"))), 
+      
+      
       tabPanel("Documentation")
     ))
   
@@ -657,6 +656,15 @@ if (interactive()) {
                         !BagLimit == "0 , 0") %>%
           dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"),
                         Season = stringr::str_remove(Season, pattern = "2023-"))
+        })
+        
+        output$futureplansout <- renderTable({
+        futureout <- data.frame(Variable =c("Total Mortality", "Discard Mortality", 
+                                            "% of runs that result in desired outcome", 
+                                            "Catch by weight", "Incorporating Avidity and Angler Age"), 
+                                Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
+                                          "", "", "", "")
+        )
         
         
       })})#})

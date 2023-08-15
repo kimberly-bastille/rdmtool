@@ -281,8 +281,8 @@ predictions_all2<-as.data.frame(predictions_all) %>%
   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
   janitor::clean_names() %>% 
   dplyr::group_by(colname) %>% 
-  dplyr::summarise(across(where(is.numeric), mean)) %>% 
-  dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
+  dplyr::summarise(across(where(is.numeric), mean)) #%>% 
+  #dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
 #write.csv(predictions_all2, file = "output_NJ_test1.csv")
 
 
