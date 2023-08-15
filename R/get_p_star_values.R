@@ -1,7 +1,7 @@
 
 
 ## Get estimate starting values for P_star calc
-start_est <-  read.csv(here::here("data-raw/total AB1B2 by state mode 2022.csv")) %>% 
+start_est <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
   dplyr::group_by(state, mode) %>% 
   dplyr::mutate(sf_start = sf_harvest/sf_tot_cat, 
                 bsb_start = bsb_harvest/bsb_tot_cat,
