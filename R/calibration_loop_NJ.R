@@ -17,7 +17,7 @@ n_catch_draws = 30
 ######################################
 
 #Import directed trips file - gives directed trips by regulatory period in 2020
-directed_trips <- data.frame( read.csv(here::here("data-raw/directed trips and regulations 2022_100 draws.csv"))) %>% 
+directed_trips <- data.frame( read.csv(here::here("data-raw/directed trips and regulations 2022_pstar.csv"))) %>% 
   dplyr::filter(draw == 1) %>%
   dplyr::mutate(day = as.numeric(stringr::str_extract(day, "^\\d{2}")), 
               month = as.numeric(month)) %>% 
@@ -188,7 +188,7 @@ for(p in period_list){
         
         sf_catch_data1= as.data.frame(sf_catch_data)  
         sf_catch_data1$uniform=runif(nrow(sf_catch_data1))
-        sf_catch_data1$keep = ifelse(sf_catch_data1$uniform>=p_star_sf, 1,0)
+        sf_catch_data1$keep = ifelse(sf_catch_data1$uniform>=p_star_sfn  , 1,0)
         
         sf_catch_data1$csum_keep <- ave(sf_catch_data1$keep, sf_catch_data1$tripid, FUN=cumsum)
         sf_catch_data1$keep_adj = ifelse(sf_catch_data1$csum_keep>fluke_bag, 0,sf_catch_data1$keep)
@@ -688,7 +688,7 @@ costs_new_all_NJ[is.na(costs_new_all_NJ)] = 0
 
 ###Compare calibration model output with MRIP 
 
-MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode 2022.csv")) %>% 
+MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
   dplyr::filter(state=="NJ")                                                                          
 
 
