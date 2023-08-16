@@ -3,12 +3,17 @@
 state1="NJ"
 state_no=34
 
-p_star_sf_bt <- p_star_sf_NJ_variable_bt
-p_star_bsb_bt<-p_star_bsb_NJ_variable_bt
-p_star_scup_bt<-p_star_scup_NJ_variable_bt
+p_star_sf_fh <- p_star_sf_NJ_variable_fh
+p_star_bsb_fh<-p_star_bsb_NJ_variable_fh
+p_star_scup_fh<-p_star_scup_NJ_variable_fh
+
+p_star_sf_pr <- p_star_sf_NJ_variable_pr
+p_star_bsb_pr<-p_star_bsb_NJ_variable_pr
+p_star_scup_pr<-p_star_scup_NJ_variable_pr
 
 p_star_sf_sh <- p_star_sf_NJ_variable_sh
 p_star_bsb_sh<-p_star_bsb_NJ_variable_sh
+
 
 n_drawz = 50
 n_catch_draws = 30
@@ -18,13 +23,13 @@ n_catch_draws = 30
 
 #Import directed trips file - gives directed trips by regulatory period in 2020
 directed_trips <- data.frame( read.csv(here::here("data-raw/directed trips and regulations 2022_pstar.csv"))) %>% 
-  dplyr::filter(draw == 1) %>%
+  #dplyr::filter(draw == 1) %>%
   dplyr::mutate(day = as.numeric(stringr::str_extract(day, "^\\d{2}")), 
               month = as.numeric(month)) %>% 
   dplyr::mutate(period2 = as.character(paste0(month, "_", day, "_", mode))) 
 
 #directed_trips$dtrip=round(directed_trips$dtrip)
-directed_trips <-  directed_trips %>% dplyr::filter(state == state1)
+directed_trips <-  directed_trips %>% dplyr::filter(state == "NJ")
 
 # min_period=min(directed_trips$period)
 # max_period=max(directed_trips$period)
@@ -37,19 +42,39 @@ pds = list()
 #periodz=as.factor(directed_trips$period2)
 #levels(periodz)
 period_list<- as.list(unique(directed_trips$period2))
-
+modes <- c("fh", "pr", "sh")
 dfs <- data.frame()
 
 #for(p in levels(periodz)){
+
 for(p in period_list){
+  for(m in modes){
   #p<- "14_bt"
+    
+  if(m == "sh"){
+    p_star_bsb <- p_star_bsb_sh
+    p_star_sf <- p_star_sf_sh
+    p_star_scup <- "NA"
+  } 
+  if(m == "fh"){
+    p_star_bsb <- p_star_bsb_fh
+    p_star_sf <- p_star_sf_fh
+    p_star_scup <- p_star_scup_fh
+  } 
+  if(m == "pr"){
+    p_star_bsb <- p_star_bsb_pr
+    p_star_sf <- p_star_sf_pr
+    p_star_scup <- p_star_scup_pr
+  }
+    
   directed_trips_p <- directed_trips %>% 
-    dplyr::filter( period2 == p)
+    dplyr::filter( period2 == p, 
+                   mode == m)
   n_trips = mean(directed_trips_p$dtrip)
   #n_draws = min(1000,n_trips*2.5 )
   n_draws = n_drawz
   
-  
+  if(length(directed_trips_p > 0)){
   fluke_bag = mean(directed_trips_p$fluke_bag1)
   fluke_min = mean(directed_trips_p$fluke_min1)
   bsb_bag = mean(directed_trips_p$bsb_bag)
@@ -134,16 +159,22 @@ for(p in period_list){
     
     #######
     #method 2)
-    sf_catch_data = readRDS(file.path(here::here('data-raw/catch/catch_files_NJ.rds')))
+    #sf_catch_data = readRDS(file.path(here::here('data-raw/catch/catch_files_NJ.rds')))
+    
+    sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 1.csv"))) %>% 
+      dplyr::rename(tot_sf_catch = tot_cat_sf,
+                    tot_bsb_catch = tot_cat_bsb,
+                    tot_scup_catch = tot_cat_scup) %>%
+      dplyr::filter(mode1 == m)
     #sf_catch_data = subset(sf_catch_data, decade==d)
     
     #sf_catch_data = data.frame(read.csv(paste0('observed_catch_2020_',state_no,'_', month1, '_', mode1, '.csv')))
     
-    tot_sf_catch = sf_catch_data$sf_tot_cat
-    tot_bsb_catch = sf_catch_data$bsb_tot_cat
-    tot_scup_catch = sf_catch_data$scup_tot_cat
+    tot_sf_catch = sf_catch_data$tot_sf_catch
+    tot_bsb_catch = sf_catch_data$tot_bsb_catch
+    tot_scup_catch = sf_catch_data$tot_scup_catch
     sf_catch_data = data.frame(tot_sf_catch,tot_bsb_catch,tot_scup_catch)
-    
+
     #end method 2)
     #######
     
@@ -184,11 +215,11 @@ for(p in period_list){
       
       
       #Execute the following code if the seasonal period has a positive bag limit 
-      if(fluke_bag>0){
+      if(fluke_bag > 0){
         
         sf_catch_data1= as.data.frame(sf_catch_data)  
         sf_catch_data1$uniform=runif(nrow(sf_catch_data1))
-        sf_catch_data1$keep = ifelse(sf_catch_data1$uniform>=p_star_sfn  , 1,0)
+        sf_catch_data1$keep = ifelse(sf_catch_data1$uniform>=p_star_sf  , 1,0)
         
         sf_catch_data1$csum_keep <- ave(sf_catch_data1$keep, sf_catch_data1$tripid, FUN=cumsum)
         sf_catch_data1$keep_adj = ifelse(sf_catch_data1$csum_keep>fluke_bag, 0,sf_catch_data1$keep)
@@ -209,8 +240,8 @@ for(p in period_list){
         sf_catch_data1 <- sf_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         names(sf_catch_data1)[names(sf_catch_data1) == "keep"] = "tot_keep_sf"
         names(sf_catch_data1)[names(sf_catch_data1) == "release"] = "tot_rel_sf"
@@ -227,8 +258,8 @@ for(p in period_list){
         sf_catch_data1 <- sf_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         names(sf_catch_data1)[names(sf_catch_data1) == "keep"] = "tot_keep_sf"
         names(sf_catch_data1)[names(sf_catch_data1) == "release"] = "tot_rel_sf"
@@ -313,8 +344,8 @@ for(p in period_list){
         bsb_catch_data1 <- bsb_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         names(bsb_catch_data1)[names(bsb_catch_data1) == "keep"] = "tot_keep_bsb"
         names(bsb_catch_data1)[names(bsb_catch_data1) == "release"] = "tot_rel_bsb"
@@ -331,8 +362,8 @@ for(p in period_list){
         bsb_catch_data1 <- bsb_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         names(bsb_catch_data1)[names(bsb_catch_data1) == "keep"] = "tot_keep_bsb"
         names(bsb_catch_data1)[names(bsb_catch_data1) == "release"] = "tot_rel_bsb"
@@ -417,8 +448,8 @@ for(p in period_list){
         scup_catch_data1 <- scup_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         names(scup_catch_data1)[names(scup_catch_data1) == "keep"] = "tot_keep_scup"
         names(scup_catch_data1)[names(scup_catch_data1) == "release"] = "tot_rel_scup"
@@ -436,8 +467,8 @@ for(p in period_list){
         scup_catch_data1 <- scup_catch_data1 %>% 
           dplyr::group_by(tripid) %>% 
           dplyr::summarize(keep = sum(keep),
-                    release = sum(release),
-                    .groups = "drop") #%>% 
+                           release = sum(release),
+                           .groups = "drop") #%>% 
         
         
         names(scup_catch_data1)[names(scup_catch_data1) == "keep"] = "tot_keep_scup"
@@ -475,14 +506,15 @@ for(p in period_list){
     
     trip_data <-trip_data %>% 
       dplyr::mutate(catch_draw = i, 
-                    period2 = p)
+                    period2 = p, 
+                    mode = m)
     
     #dfs<-dfs %>% rbind(trip_data) 
     #trip_data$catch_draw=i
     #dfs[[i]]=trip_data
-    
   }
   
+#}
   #combine all the catch draw files 
   #dfs_all<- list.stack(dfs, fill=TRUE)
   #dfs_all<- list(dfs, fill=TRUE)
@@ -495,7 +527,8 @@ for(p in period_list){
   # 
   # dfs_all$period=p
   # pds[[p]] = dfs_all
-}
+  }}
+  }
 
 ######################################
 ##   End simulating trip outcomes   ##
@@ -588,7 +621,7 @@ for(p in period_list){
     dplyr::mutate(n_alt = rep(2,nrow(.))) %>% 
     tidyr::uncount(n_alt) %>% 
     dplyr::mutate(alt = rep(1:2,nrow(.)/2),
-           opt_out = ifelse(alt == 2, 1, 0))
+                  opt_out = ifelse(alt == 2, 1, 0))
   
   mean_trip_data$v0_optout= mean_trip_data$beta_opt_out*mean_trip_data$opt_out 
   
@@ -596,7 +629,7 @@ for(p in period_list){
   #Now put the two values in the same column, exponentiate, and calculate their sum (vA_col_sum)
   
   mean_trip_data$expon_v0 <- dplyr::case_when(mean_trip_data$alt==1 ~ exp(mean_trip_data$vA), 
-                                       mean_trip_data$alt==2 ~ exp(mean_trip_data$v0_optout)) 
+                                              mean_trip_data$alt==2 ~ exp(mean_trip_data$v0_optout)) 
   
   mean_trip_data <- mean_trip_data %>% 
     dplyr::group_by(period2, tripid, catch_draw) %>% 
@@ -688,7 +721,7 @@ costs_new_all_NJ[is.na(costs_new_all_NJ)] = 0
 
 ###Compare calibration model output with MRIP 
 
-MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
+MRIP_data <-  read.csv(file.path(here::here("data-raw/total AB1B2 by state mode_pstar.csv"))) %>% 
   dplyr::filter(state=="NJ")                                                                          
 
 

@@ -211,16 +211,20 @@ p_star_scup_NY_variable<- p_star_scup
 # p_star_scup_NJ_variable<-0.06
 
 ### Values from harvest/total_catch in start_est above
-p_star_sf_NJ_variable_bt<-0.137
-p_star_bsb_NJ_variable_bt<-0.141
-p_star_scup_NJ_variable_bt<-0.506
+p_star_sf_NJ_variable_fh<-0.185
+p_star_bsb_NJ_variable_fh<-0.158
+p_star_scup_NJ_variable_fh<-0.517
+p_star_sf_NJ_variable_pr<-0.136
+p_star_bsb_NJ_variable_pr<-0.14
+p_star_scup_NJ_variable_pr<-0.501
 p_star_sf_NJ_variable_sh<-0.063
 p_star_bsb_NJ_variable_sh<-0
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
 repeat {
-  source(here::here("R/calibration_loop_NJ.R"))
-  
+  #source(here::here("R/calibration_loop_NJ.R"))
+  source(here::here("R/calculate_pstar_NJ.R"))
+
   
   if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
     p_star_sf_NJ_variable<-p_star_sf_NJ_variable +.005
