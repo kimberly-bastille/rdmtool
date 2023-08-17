@@ -23,7 +23,8 @@
 # p_star_bsb<-p_star_bsb_NJ_variable
 # p_star_scup<-p_star_scup_NJ_variable
 
-m = "fh"
+
+calculate_pstar_NJ <- function(m){ # m = mode
   p_star_sf_fh <- p_star_sf_NJ_variable_fh
   p_star_bsb_fh<-p_star_bsb_NJ_variable_fh
   p_star_scup_fh<-p_star_scup_NJ_variable_fh
@@ -34,7 +35,7 @@ m = "fh"
   
   p_star_sf_sh <- p_star_sf_NJ_variable_sh
   p_star_bsb_sh<-p_star_bsb_NJ_variable_sh
-  
+  p_star_scup_sh<-p_star_scup_NJ_variable_sh
   
   n_drawz = 50
   n_catch_draws = 30
@@ -43,7 +44,7 @@ m = "fh"
   if(m == "sh"){
     p_star_bsb <- p_star_bsb_sh
     p_star_sf <- p_star_sf_sh
-    p_star_scup <- "NA"
+    p_star_scup <- p_star_scup
   } 
   if(m == "fh"){
     p_star_bsb <- p_star_bsb_fh
@@ -109,7 +110,8 @@ m = "fh"
   #dplyr::select(-c(month))
   
   sf_catch_data <- sf_catch_data %>%
-    dplyr::mutate(period2 = paste0(month, "_", day, "_", mode)) %>% 
+    dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
+                  period2 = paste0(month, "_", day, "_", mode)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%
     dplyr::mutate(#period = rep(period_vec$period2, each = nsamp),
@@ -671,7 +673,7 @@ m = "fh"
     
   }
   
-  demographics<- as.data.frame(demographics0[[1]])
+  demographics<- as.data.frame(do.call(rbind, demographics0))
   
   #now merge the ages and avidities to the trip data
   
@@ -787,9 +789,10 @@ m = "fh"
   
   
   # Get rid of things we don't need.
-  mean_trip_data <- subset(mean_trip_data, alt==1,dplyr::select(-c(alt, beta_cost, mean, st_error,
-                                                            catch_draw,  expon_vA,
-                                                            opt_out, vA, vA_optout, vA_col_sum)))
+  mean_trip_data <- mean_trip_data2 %>% 
+    dplyr::select(-c(alt, beta_cost, mean, st_error,
+                     catch_draw,  expon_vA,
+                     opt_out, vA, vA_optout, vA_col_sum))
   
   # Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
   list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
@@ -878,56 +881,85 @@ m = "fh"
   
   
   ##SF
-  sum(pds_new_all_NJ$tot_keep_sf)
+  sum(pds_new_all$tot_keep_sf)
   sum(MRIP_data$sf_harvest)
-  sf_harvest_harv_diff<-((sum(MRIP_data$sf_harvest)-sum(pds_new_all_NJ$tot_keep_sf))/sum(MRIP_data$sf_harvest))*100
+  sf_harvest_harv_diff<-((sum(MRIP_data$sf_harvest)-sum(pds_new_all$tot_keep_sf))/sum(MRIP_data$sf_harvest))*100
   sf_harvest_harv_diff
   
-  sum(pds_new_all_NJ$tot_rel_sf)
+  sum(pds_new_all$tot_rel_sf)
   sum(MRIP_data$sf_releases)
-  ((sum(MRIP_data$sf_releases)-sum(pds_new_all_NJ$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
+  ((sum(MRIP_data$sf_releases)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
   
-  sum(pds_new_all_NJ$tot_sf_catch)
+  sum(pds_new_all$tot_sf_catch)
   sum(MRIP_data$sf_tot_cat)
-  ((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all_NJ$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
+  ((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
   
   
   
   
   
   ##BSB
-  sum(pds_new_all_NJ$tot_keep_bsb)
+  sum(pds_new_all$tot_keep_bsb)
   sum(MRIP_data$bsb_harvest)
-  bsb_harvest_harv_diff<-((sum(MRIP_data$bsb_harvest)-sum(pds_new_all_NJ$tot_keep_bsb))/sum(MRIP_data$bsb_harvest))*100
+  bsb_harvest_harv_diff<-((sum(MRIP_data$bsb_harvest)-sum(pds_new_all$tot_keep_bsb))/sum(MRIP_data$bsb_harvest))*100
   bsb_harvest_harv_diff
   
-  sum(pds_new_all_NJ$tot_rel_bsb)
+  sum(pds_new_all$tot_rel_bsb)
   sum(MRIP_data$bsb_releases)
-  ((sum(MRIP_data$bsb_releases)-sum(pds_new_all_NJ$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
+  ((sum(MRIP_data$bsb_releases)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
   
-  sum(pds_new_all_NJ$tot_bsb_catch)
+  sum(pds_new_all$tot_bsb_catch)
   sum(MRIP_data$bsb_tot_cat)
-  ((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all_NJ$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
+  ((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
   
   
   
   
   
   ##scup
-  sum(pds_new_all_NJ$tot_keep_scup)
+  sum(pds_new_all$tot_keep_scup)
   sum(MRIP_data$scup_harvest)
-  scup_harvest_harv_diff<-((sum(MRIP_data$scup_harvest)-sum(pds_new_all_NJ$tot_keep_scup))/sum(MRIP_data$scup_harvest))*100
+  scup_harvest_harv_diff<-((sum(MRIP_data$scup_harvest)-sum(pds_new_all$tot_keep_scup))/sum(MRIP_data$scup_harvest))*100
   scup_harvest_harv_diff
   
-  sum(pds_new_all_NJ$tot_rel_scup)
+  sum(pds_new_all$tot_rel_scup)
   sum(MRIP_data$scup_releases)
-  ((sum(MRIP_data$scup_releases)-sum(pds_new_all_NJ$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
+  ((sum(MRIP_data$scup_releases)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
   
-  sum(pds_new_all_NJ$tot_scup_catch)
+  sum(pds_new_all$tot_scup_catch)
   sum(MRIP_data$scup_tot_cat)
-  ((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all_NJ$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
+  ((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
   
+  
+  if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+    p_star_sf<-p_star_sf +.005
+  }
+  
+  if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+    p_star_sf<-p_star_sf -.005
+  }
+  
+  if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+    p_star_bsb<-p_star_bsb +.005
+  }
+  
+  if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+    p_star_bsb<-p_star_bsb -.005
+  }
+  
+  if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+    p_star_scup<-p_star_scup +.005
+  }
+  
+  if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+    p_star_scup<-p_star_scup -.005
+  } 
+  
+  if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
 
+  p_stars <- data.frame(species = c("SF", "BSB", "SCUP"), 
+                        p_star_value = c(p_star_sf,p_star_bsb,p_star_scup), 
+                        mode = c(m, m, m))
+  return(p_stars)
 
-
-
+}

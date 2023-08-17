@@ -205,7 +205,7 @@ p_star_scup_NY_variable<- p_star_scup
 
 
 ###NJ
-# old starting starting points 
+# old starting points 
 # p_star_sf_NJ_variable<-0.89
 # p_star_bsb_NJ_variable<-0.89
 # p_star_scup_NJ_variable<-0.06
@@ -219,48 +219,18 @@ p_star_bsb_NJ_variable_pr<-0.14
 p_star_scup_NJ_variable_pr<-0.501
 p_star_sf_NJ_variable_sh<-0.063
 p_star_bsb_NJ_variable_sh<-0
+p_star_scup_NJ_variable_sh<-0
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
-repeat {
-  #source(here::here("R/calibration_loop_NJ.R"))
-  source(here::here("R/calculate_pstar_NJ.R"))
+fh_pstar <- calculate_pstar_NJ(m = "fh")
+pr_pstar <- calculate_pstar_NJ(m = "pr")
+sh_pstar <- calculate_pstar_NJ(m = "sh")
 
-  
-  if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-    p_star_sf_NJ_variable<-p_star_sf_NJ_variable +.005
-  }
-  
-  if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-    p_star_sf_NJ_variable<-p_star_sf_NJ_variable -.005
-  }
-  
-  if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-    p_star_bsb_NJ_variable<-p_star_bsb_NJ_variable +.005
-  }
-  
-  if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-    p_star_bsb_NJ_variable<-p_star_bsb_NJ_variable -.005
-  }
-  
-  if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-    p_star_scup_NJ_variable<-p_star_scup_NJ_variable +.005
-  }
-  
-  if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-    p_star_scup_NJ_variable<-p_star_scup_NJ_variable -.005
-  } 
-  
-  if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-  
-}
-
-sf_harvest_harv_diff_NJ<-sf_harvest_harv_diff
-bsb_harvest_harv_diff_NJ<-bsb_harvest_harv_diff
-scup_harvest_harv_diff_NJ<-scup_harvest_harv_diff
-
-p_star_sf_NJ_variable<- p_star_sf
-p_star_bsb_NJ_variable<- p_star_bsb
-p_star_scup_NJ_variable<- p_star_scup
+p_stars_NJ <- rbind(fh_pstar, pr_pstar, sh_pstar) %>% 
+  dplyr::mutate(p_star_value, 
+                p_star_value =  dplyr::case_when(mode == "sh" & species == "SCUP" ~ "NA",
+                                                 mode == "sh" & species == "BSB" ~ "1.1",
+                                                 TRUE ~ p_star_value))
 
 
 

@@ -215,8 +215,8 @@ if (interactive()) {
                         tableOutput(outputId = "keep_release_tableout")),
                  column(4, 
                         tableOutput(outputId = "welfare_trips_tableout")),
-               tableOutput(outputId = "regtableout"), 
-               tableOutput(outputId = "futureplansout"))), 
+                 tableOutput(outputId = "regtableout"), 
+                 tableOutput(outputId = "futureplansout"))), 
       
       
       tabPanel("Documentation")
@@ -656,9 +656,9 @@ if (interactive()) {
                         !BagLimit == "0 , 0") %>%
           dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"),
                         Season = stringr::str_remove(Season, pattern = "2023-"))
-        })
-        
-        output$futureplansout <- renderTable({
+      })
+      
+      output$futureplansout <- renderTable({
         futureout <- data.frame(Variable =c("Total Mortality", "Discard Mortality", 
                                             "% of runs that result in desired outcome", 
                                             "Catch by weight", "Incorporating Avidity and Angler Age"), 
