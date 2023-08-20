@@ -3,9 +3,9 @@
 ## Get estimate starting values for P_star calc
 start_est <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
   dplyr::group_by(state, mode) %>% 
-  dplyr::mutate(sf_start = sf_harvest/sf_tot_cat, 
-                bsb_start = bsb_harvest/bsb_tot_cat,
-                scup_start = scup_harvest/scup_tot_cat) %>% 
+  dplyr::mutate(sf_start = 1 - sf_harvest/sf_tot_cat, 
+                bsb_start = 1 - bsb_harvest/bsb_tot_cat,
+                scup_start = 1- scup_harvest/scup_tot_cat) %>% 
   dplyr::select(state, mode, sf_start, bsb_start, scup_start)
 
 ###MA
@@ -211,28 +211,108 @@ p_star_scup_NY_variable<- p_star_scup
 # p_star_scup_NJ_variable<-0.06
 
 ### Values from harvest/total_catch in start_est above
-p_star_sf_NJ_variable_fh<-0.185
-p_star_bsb_NJ_variable_fh<-0.158
-p_star_scup_NJ_variable_fh<-0.517
-p_star_sf_NJ_variable_pr<-0.136
-p_star_bsb_NJ_variable_pr<-0.14
-p_star_scup_NJ_variable_pr<-0.501
-p_star_sf_NJ_variable_sh<-0.063
-p_star_bsb_NJ_variable_sh<-0
-p_star_scup_NJ_variable_sh<-0
+p_star_sf_NJ_variable_fh<- 0.81434551
+p_star_bsb_NJ_variable_fh<-0.8419572
+p_star_scup_NJ_variable_fh<-0.48232862
+p_star_sf_NJ_variable_pr<-0.86414832
+p_star_bsb_NJ_variable_pr<-0.8598893
+p_star_scup_NJ_variable_pr<-0.49895278
+p_star_sf_NJ_variable_sh<-0.93668828
+p_star_bsb_NJ_variable_sh<-1
+p_star_scup_NJ_variable_sh<-1
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
+
+m = "pr"
+
+if(m == "sh"){
+  p_star_bsb <- p_star_bsb_NJ_variable_sh
+  p_star_sf <- p_star_sf_NJ_variable_sh
+  p_star_scup <- p_star_scup_NJ_variable_sh
+} 
+if(m == "fh"){
+  p_star_bsb <- p_star_bsb_NJ_variable_fh
+  p_star_sf <- p_star_sf_NJ_variable_fh
+  p_star_scup <- p_star_scup_NJ_variable_fh
+} 
+if(m == "pr"){
+  p_star_bsb <- p_star_bsb_NJ_variable_pr
+  p_star_sf <- p_star_sf_NJ_variable_pr
+  p_star_scup <- p_star_scup_NJ_variable_pr
+}
+
+
+repeat{
+  
+  pstar <- calculate_pstar_NJ(m = "pr") 
+  
+  sf <- pstar %>% 
+    dplyr::filter(species == "SF") 
+  p_star_sf <- sf[[2]]
+  sf_harvest_harv_diff <- sf[[6]]
+  
+  bsb <- pstar %>% 
+    dplyr::filter(species == "BSB") 
+  p_star_bsb <- bsb[[2]]
+  bsb_harvest_harv_diff <- bsb[[6]]
+  
+  scup <- pstar %>% 
+    dplyr::filter(species == "SCUP") 
+  p_star_scup <- scup[[2]]
+  scup_harvest_harv_diff <- scup[[6]]
+  
+  if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+    p_star_sf<-p_star_sf +.005
+  }
+  
+  if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+    p_star_sf<-p_star_sf -.005
+  }
+  
+  if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+    p_star_bsb<-p_star_bsb +.005
+  }
+  
+  if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+    p_star_bsb<-p_star_bsb -.005
+  }
+
+  if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+    p_star_scup<-p_star_scup +.005
+  }
+
+  if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+    p_star_scup<-p_star_scup -.005
+  }
+ 
+  print(pstar)
+  #print(bsb_harvest_harv_diff)
+  print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+  #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+  if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+  
+}
+  
+
+
+
+
+
+
+
+
+
 
 fh_pstar <- calculate_pstar_NJ(m = "fh")
 pr_pstar <- calculate_pstar_NJ(m = "pr")
 sh_pstar <- calculate_pstar_NJ(m = "sh")
 
-p_stars_NJ <- rbind(fh_pstar, pr_pstar, sh_pstar) %>% 
-  dplyr::mutate(p_star_value, 
-                p_star_value =  dplyr::case_when(mode == "sh" & species == "SCUP" ~ "NA",
-                                                 mode == "sh" & species == "BSB" ~ "1.1",
-                                                 TRUE ~ p_star_value))
+p_stars_NJ <- rbind(fh_pstar, pr_pstar, sh_pstar) # %>% 
+  # dplyr::mutate(p_star_value, 
+  #               p_star_value =  dplyr::case_when(mode == "sh" & species == "SCUP" ~ "NA",
+  #                                                mode == "sh" & species == "BSB" ~ "1.1",
+  #                                                TRUE ~ p_star_value))
 
-
+write.csv(p_stars_NJ, file = "p_star_NJ.csv")
 
 ###DE
 #starting points 

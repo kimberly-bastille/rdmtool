@@ -29,9 +29,9 @@ calibrate_rec_catch <- function(state1,
                                 p_star_scup, k){
   
   print(k)
-  
-  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,"_",k,".rds")))) %>% 
-    tibble::tibble()
+  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1, ".rds")))) %>% 
+    tibble::tibble() %>% 
+    dplyr::filter(draw == k)
   
   
   
@@ -62,7 +62,10 @@ calibrate_rec_catch <- function(state1,
     dplyr::select(period2, n_draws, month) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  sf_catch_data <- sf_catch_data_all %>% 
+  sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 1.csv"))) %>% 
+    dplyr::rename(sf_tot_cat = tot_cat_sf,
+                  bsb_tot_cat = tot_cat_bsb,
+                  scup_tot_cat = tot_cat_scup)  %>% 
     dplyr::rename(mode = mode1)#%>%
     #dplyr::rename(tot_sf_catch = sf_catch,  tot_bsb_catch = bsb_catch, tot_scup_catch = scup_catch)  %>%
     #dplyr::select(-c(month))
@@ -563,14 +566,16 @@ calibrate_rec_catch <- function(state1,
   
   
   period_vec1 <- period_vec %>%
-    dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = .8093247, sd = 1.288768),
-                  beta_sqrt_sf_release = rnorm(nrow(period_vec), mean = .0656076 , sd = .2454453) ,
-                  beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = .3607657, sd = .2085837),
-                  beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = .0665897 , sd = .0711506),
-                  beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-.0596595  , sd = .161084 ),
-                  beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = .019203 , sd = 0), ### Get mean and sd for scup Keep and Release ###
-                  beta_opt_out = rnorm(nrow(period_vec), mean =-1.637635 , sd = 2.059597),
-                  beta_cost = -.0114955) %>%
+    mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
+           beta_sqrt_sf_release = rnorm(nrow(period_vec), mean = 0.065 , sd = 0.325) , 
+           beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = 0.353, sd = 0.129), 
+           beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = 0.074 , sd = 0), 
+           beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-0.056  , sd = 0.196 ), 
+           beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = 0.018 , sd = 0), 
+           beta_opt_out = rnorm(nrow(period_vec), mean =-2.056 , sd = 1.977), 
+           beta_opt_out_avidity = rnorm(nrow(period_vec), mean =-0.010 , sd = 0), 
+           beta_opt_out_age = rnorm(nrow(period_vec), mean =0.010 , sd = 0), 
+           beta_cost = -0.012) %>%
     dplyr::group_by(period2) %>% dplyr::mutate(tripid = dplyr::row_number(period2))
   
   trip_data<- trip_data %>%
@@ -592,10 +597,68 @@ calibrate_rec_catch <- function(state1,
   trip_data <- trip_data %>%
     dplyr::mutate(state=state1)
   
+  #import age and avidity distribution and assign each trip an age and avidity
+  
+  period_vec2<- period_vec %>% select(-month) %>%
+    mutate(period2=as.factor(period2)) 
+  
+  demographics0<-list()
+  
+  levels(period_vec2$period2)
+  for(p in levels(period_vec2$period2)){
+    #p<-"10_bt"
+    
+    #Ages 
+    age_distn <- data.frame(read_csv("age_distribution_by_state.csv", show_col_types = FALSE)) %>%
+      dplyr::filter(state == state1)  
+    
+    #next two commands ensure there are enough observations  per period
+    expand_rows=round((n_drawz/nrow(age_distn)))+1
+    
+    age_distn <- age_distn %>%
+      slice(rep(1:n(), each = expand_rows))   
+    
+    #now need to assign tripid in order to merge to trip data
+    age_distn <- age_distn %>%  slice_sample(n = n_drawz) %>% 
+      mutate(period2=p, 
+             tripid = 1:n_drawz) 
+    
+    #Avidities
+    avid_distn <- data.frame(read_csv("avidity_distribution_by_state.csv", show_col_types = FALSE)) %>%
+      dplyr::filter(state == state1)  
+    
+    #next two commands ensure there are enough observations per period
+    expand_rows=round((n_drawz/nrow(avid_distn)))+1
+    
+    avid_distn <- avid_distn %>%
+      slice(rep(1:n(), each = expand_rows))   
+    
+    #now need to assign tripid in order to merge to trip data
+    avid_distn <- avid_distn %>%  slice_sample(n = n_drawz) %>% 
+      mutate(period2=p, 
+             tripid = 1:n_drawz) 
+    
+    avid_distn<- avid_distn %>%
+      left_join(age_distn, by = c("tripid", "state", "period2"))
+    
+    
+    demographics0[[p]]=avid_distn
+    
+  }
+  
+  demographics<- list.stack(demographics0)
+  
+  #now merge the ages and avidities to the trip data
+  
+  trip_data<- trip_data %>%
+    left_join(demographics, by = c("tripid", "state", "period2"))
+  
+  
   # Costs_new_state data sets will retain raw trip outcomes from the baseline scenario.
   # We will merge these data to the prediction year outcomes to calculate changes in CS.
   costs_new_all <- trip_data %>%
     subset(select=c(tripid, cost, catch_draw, tot_keep_sf, tot_rel_sf,
+                    age, days_fished, beta_opt_out_age, beta_opt_out_avidity,
                     tot_keep_bsb,tot_rel_bsb,tot_scup_catch, beta_cost, beta_opt_out, beta_sqrt_bsb_keep,
                     beta_sqrt_bsb_release, beta_sqrt_scup_catch, beta_sqrt_sf_bsb_keep,
                     beta_sqrt_sf_keep, beta_sqrt_sf_release, state, period2)) %>%
@@ -659,7 +722,8 @@ calibrate_rec_catch <- function(state1,
   
   mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
-    .[, vA_optout := beta_opt_out*opt_out] %>%
+    .[, vA_optout := beta_opt_out*opt_out+
+        beta_opt_out_age*age + beta_opt_out_avidity*days_fished] %>%
     .[alt==1, expon_vA := exp(vA)] %>%
     .[alt==2, expon_vA := exp(vA_optout)]
   

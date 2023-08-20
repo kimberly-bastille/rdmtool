@@ -25,37 +25,9 @@
 
 
 calculate_pstar_NJ <- function(m){ # m = mode
-  p_star_sf_fh <- p_star_sf_NJ_variable_fh
-  p_star_bsb_fh<-p_star_bsb_NJ_variable_fh
-  p_star_scup_fh<-p_star_scup_NJ_variable_fh
-  
-  p_star_sf_pr <- p_star_sf_NJ_variable_pr
-  p_star_bsb_pr<-p_star_bsb_NJ_variable_pr
-  p_star_scup_pr<-p_star_scup_NJ_variable_pr
-  
-  p_star_sf_sh <- p_star_sf_NJ_variable_sh
-  p_star_bsb_sh<-p_star_bsb_NJ_variable_sh
-  p_star_scup_sh<-p_star_scup_NJ_variable_sh
   
   n_drawz = 50
   n_catch_draws = 30
-  
-
-  if(m == "sh"){
-    p_star_bsb <- p_star_bsb_sh
-    p_star_sf <- p_star_sf_sh
-    p_star_scup <- p_star_scup
-  } 
-  if(m == "fh"){
-    p_star_bsb <- p_star_bsb_fh
-    p_star_sf <- p_star_sf_fh
-    p_star_scup <- p_star_scup_fh
-  } 
-  if(m == "pr"){
-    p_star_bsb <- p_star_bsb_pr
-    p_star_sf <- p_star_sf_pr
-    p_star_scup <- p_star_scup_pr
-  }
   
   
   
@@ -70,6 +42,12 @@ calculate_pstar_NJ <- function(m){ # m = mode
   directed_trips_p <- directed_trips %>% 
     dplyr::filter(mode == m)
   n_trips = mean(directed_trips_p$dtrip)
+  
+  
+  #testing
+  dir_trips_sum <- directed_trips %>% 
+    dplyr::filter(mode == m) %>% 
+    dplyr::summarise(sum(dtrip))
   
   ######################################
   ##   Begin simulating trip outcomes ##
@@ -874,9 +852,13 @@ calculate_pstar_NJ <- function(m){ # m = mode
   pds_new_all<-aggregate_trip_data %>%
     dplyr::mutate(state="NJ")
   
+  #testing
+  estimated_trips <- aggregate_trip_data %>% 
+    dplyr::summarise(sum(estimated_trips))
 
   MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
-    dplyr::filter(state=="NJ")                                                                          
+    dplyr::filter(state=="NJ", 
+                  mode == m) 
   
   
   
@@ -888,13 +870,13 @@ calculate_pstar_NJ <- function(m){ # m = mode
   
   sum(pds_new_all$tot_rel_sf)
   sum(MRIP_data$sf_releases)
-  ((sum(MRIP_data$sf_releases)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
+  sf_rel_diff<- ((sum(MRIP_data$sf_releases)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
+  sf_rel_diff
   
   sum(pds_new_all$tot_sf_catch)
   sum(MRIP_data$sf_tot_cat)
-  ((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
-  
-  
+  sf_tot_cat_diff<-((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
+  sf_tot_cat_diff
   
   
   
@@ -906,11 +888,11 @@ calculate_pstar_NJ <- function(m){ # m = mode
   
   sum(pds_new_all$tot_rel_bsb)
   sum(MRIP_data$bsb_releases)
-  ((sum(MRIP_data$bsb_releases)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
+  bsb_rel_diff<- ((sum(MRIP_data$bsb_releases)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
   
   sum(pds_new_all$tot_bsb_catch)
   sum(MRIP_data$bsb_tot_cat)
-  ((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
+  bsb_tot_cat_diff<-((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
   
   
   
@@ -924,42 +906,47 @@ calculate_pstar_NJ <- function(m){ # m = mode
   
   sum(pds_new_all$tot_rel_scup)
   sum(MRIP_data$scup_releases)
-  ((sum(MRIP_data$scup_releases)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
+  scup_rel_diff<- ((sum(MRIP_data$scup_releases)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
   
   sum(pds_new_all$tot_scup_catch)
   sum(MRIP_data$scup_tot_cat)
-  ((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
+  scup_tot_cat_diff<-((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
   
-  
-  if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-    p_star_sf<-p_star_sf +.005
-  }
-  
-  if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-    p_star_sf<-p_star_sf -.005
-  }
-  
-  if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-    p_star_bsb<-p_star_bsb +.005
-  }
-  
-  if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-    p_star_bsb<-p_star_bsb -.005
-  }
-  
-  if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-    p_star_scup<-p_star_scup +.005
-  }
-  
-  if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-    p_star_scup<-p_star_scup -.005
-  } 
-  
-  if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-
+#   repeat{
+#   if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+#     p_star_sf<-p_star_sf +.005
+#   }
+#   
+#   if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+#     p_star_sf<-p_star_sf -.005
+#   }
+#   
+#   if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+#     p_star_bsb<-p_star_bsb +.005
+#   }
+#   
+#   if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+#     p_star_bsb<-p_star_bsb -.005
+#   }
+#   
+#   if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+#     p_star_scup<-p_star_scup +.005
+#   }
+#   
+#   if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+#     p_star_scup<-p_star_scup -.005
+#   } 
+#   
+#   if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+# }
   p_stars <- data.frame(species = c("SF", "BSB", "SCUP"), 
                         p_star_value = c(p_star_sf,p_star_bsb,p_star_scup), 
-                        mode = c(m, m, m))
+                        mode = c(m, m, m), 
+                        tot_keep_model = c(sum(pds_new_all$tot_keep_sf), sum(pds_new_all$tot_keep_bsb), sum(pds_new_all$tot_keep_scup)),
+                        hervest_MRIP = c(sum(MRIP_data$sf_harvest), sum(MRIP_data$bsb_harvest), sum(MRIP_data$scup_harvest)),
+                        harvest_diff = c(sf_harvest_harv_diff, bsb_harvest_harv_diff, scup_harvest_harv_diff), 
+                        rel_diff = c(sf_rel_diff, bsb_rel_diff, scup_rel_diff), 
+                        tot_cat_diff = c(sf_tot_cat_diff,bsb_tot_cat_diff,scup_tot_cat_diff))
   return(p_stars)
 
 }
