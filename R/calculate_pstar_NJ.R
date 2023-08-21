@@ -76,7 +76,7 @@ calculate_pstar_NJ <- function(m){ # m = mode
     dplyr::select(period2, n_draws, month) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 1.csv"))) %>% 
+  sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 2.csv"))) %>% 
     dplyr::rename(sf_tot_cat = tot_cat_sf,
                  bsb_tot_cat = tot_cat_bsb,
                  scup_tot_cat = tot_cat_scup) %>%
@@ -889,10 +889,12 @@ calculate_pstar_NJ <- function(m){ # m = mode
   sum(pds_new_all$tot_rel_bsb)
   sum(MRIP_data$bsb_releases)
   bsb_rel_diff<- ((sum(MRIP_data$bsb_releases)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
+  bsb_rel_diff
   
   sum(pds_new_all$tot_bsb_catch)
   sum(MRIP_data$bsb_tot_cat)
   bsb_tot_cat_diff<-((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
+  bsb_tot_cat_diff
   
   
   
@@ -943,6 +945,8 @@ calculate_pstar_NJ <- function(m){ # m = mode
                         p_star_value = c(p_star_sf,p_star_bsb,p_star_scup), 
                         mode = c(m, m, m), 
                         tot_keep_model = c(sum(pds_new_all$tot_keep_sf), sum(pds_new_all$tot_keep_bsb), sum(pds_new_all$tot_keep_scup)),
+                        tot_rel_model = c(sum(pds_new_all$tot_rel_sf), sum(pds_new_all$tot_rel_bsb), sum(pds_new_all$tot_rel_scup)),
+                        tot_catch_model = c(sum(pds_new_all$tot_sf_catch), sum(pds_new_all$tot_bsb_catch), sum(pds_new_all$tot_scup_catch)),
                         hervest_MRIP = c(sum(MRIP_data$sf_harvest), sum(MRIP_data$bsb_harvest), sum(MRIP_data$scup_harvest)),
                         harvest_diff = c(sf_harvest_harv_diff, bsb_harvest_harv_diff, scup_harvest_harv_diff), 
                         rel_diff = c(sf_rel_diff, bsb_rel_diff, scup_rel_diff), 
