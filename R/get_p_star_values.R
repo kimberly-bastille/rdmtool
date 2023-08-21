@@ -213,6 +213,7 @@ p_star_scup_NY_variable<- p_star_scup
 ### Values from harvest/total_catch in start_est above
 p_star_sf_NJ_variable_fh<- 0.81434551
 p_star_bsb_NJ_variable_fh<-0.8419572
+#p_star_bsb_NJ_variable_fh<-0.7
 p_star_scup_NJ_variable_fh<-0.48232862
 p_star_sf_NJ_variable_pr<-0.86414832
 p_star_bsb_NJ_variable_pr<-0.8598893
@@ -222,7 +223,7 @@ p_star_bsb_NJ_variable_sh<-1
 p_star_scup_NJ_variable_sh<-1
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
-m = "pr"
+m = "fh"
 
 if(m == "sh"){
   p_star_bsb <- p_star_bsb_NJ_variable_sh
@@ -243,7 +244,7 @@ if(m == "pr"){
 
 repeat{
   
-  pstar <- calculate_pstar_NJ(m = "pr") 
+  pstar <- calculate_pstar_NJ(m = "fh") 
   
   sf <- pstar %>% 
     dplyr::filter(species == "SF") 
@@ -271,7 +272,7 @@ repeat{
   if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
     p_star_bsb<-p_star_bsb +.005
   }
-  
+
   if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
     p_star_bsb<-p_star_bsb -.005
   }
@@ -289,7 +290,7 @@ repeat{
   print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
   #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
   if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-  
+  #if ((abs(sf_harvest_harv_diff)<2)) break
 }
   
 
@@ -349,7 +350,8 @@ repeat {
   # } 
   
   #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-  if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+  #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+  if ((abs(sf_harvest_harv_diff)<2)) break
   
 }
 
