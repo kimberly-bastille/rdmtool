@@ -211,26 +211,26 @@ p_star_scup_NY_variable<- p_star_scup
 # p_star_scup_NJ_variable<-0.06
 
 ### Values from harvest/total_catch in start_est above
-# p_star_sf_NJ_variable_fh<- 0.81434551
-# p_star_bsb_NJ_variable_fh<-0.8419572
-# p_star_scup_NJ_variable_fh<-0.48232862
-# p_star_sf_NJ_variable_pr<-0.86414832
-# p_star_bsb_NJ_variable_pr<-0.8598893
-# p_star_scup_NJ_variable_pr<-0.49895278
-# p_star_sf_NJ_variable_sh<-0.93668828
-# p_star_bsb_NJ_variable_sh<-1
-# p_star_scup_NJ_variable_sh<-1
-
-### Values from draw8 estimate
-p_star_sf_NJ_variable_fh<- 0.734
-p_star_bsb_NJ_variable_fh<-0.452
-p_star_scup_NJ_variable_fh<-0.357
-p_star_sf_NJ_variable_pr<-0.814
-p_star_bsb_NJ_variable_pr<-0.719
-p_star_scup_NJ_variable_pr<-0.444
-p_star_sf_NJ_variable_sh<-0.926
+p_star_sf_NJ_variable_fh<- 0.81434551
+p_star_bsb_NJ_variable_fh<-0.8419572
+p_star_scup_NJ_variable_fh<-0.48232862
+p_star_sf_NJ_variable_pr<-0.86414832
+p_star_bsb_NJ_variable_pr<-0.8598893
+p_star_scup_NJ_variable_pr<-0.49895278
+p_star_sf_NJ_variable_sh<-0.93668828
 p_star_bsb_NJ_variable_sh<-1
 p_star_scup_NJ_variable_sh<-1
+
+### Values from draw8 estimate
+# p_star_sf_NJ_variable_fh<- 0.734
+# p_star_bsb_NJ_variable_fh<-0.452
+# p_star_scup_NJ_variable_fh<-0.357
+# p_star_sf_NJ_variable_pr<-0.814
+# p_star_bsb_NJ_variable_pr<-0.719
+# p_star_scup_NJ_variable_pr<-0.444
+# p_star_sf_NJ_variable_sh<-0.926
+# p_star_bsb_NJ_variable_sh<-1
+# p_star_scup_NJ_variable_sh<-1
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
 m = "sh"
@@ -293,7 +293,7 @@ repeat{
   # 
   # if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
   #   p_star_scup<-p_star_scup -.005
-  # }
+  #}
  
   print(pstar)
   #print(bsb_harvest_harv_diff)
@@ -319,7 +319,7 @@ sh_pstar <- pstar
 
 p_stars_NJ <- rbind(fh_pstar, pr_pstar, sh_pstar) 
 
-write.csv(p_stars_NJ, file = "p_star_NJ_draw2.csv")
+write.csv(p_stars_NJ, file = "p_star_NJ_draw5_fixed.csv")
 
 ###DE
 #starting points 
