@@ -76,7 +76,7 @@ calculate_pstar_NJ <- function(m){ # m = mode
     dplyr::select(period2, n_draws, month) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 1.csv"))) %>% 
+  sf_catch_data <- read.csv(file.path(here::here("data-raw/catch/NJ catch draws 2022 draw 4.csv"))) %>% 
     dplyr::rename(sf_tot_cat = tot_cat_sf,
                  bsb_tot_cat = tot_cat_bsb,
                  scup_tot_cat = tot_cat_scup) %>%

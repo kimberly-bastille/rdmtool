@@ -211,29 +211,29 @@ p_star_scup_NY_variable<- p_star_scup
 # p_star_scup_NJ_variable<-0.06
 
 ### Values from harvest/total_catch in start_est above
-p_star_sf_NJ_variable_fh<- 0.81434551
-p_star_bsb_NJ_variable_fh<-0.8419572
-p_star_scup_NJ_variable_fh<-0.48232862
-p_star_sf_NJ_variable_pr<-0.86414832
-p_star_bsb_NJ_variable_pr<-0.8598893
-p_star_scup_NJ_variable_pr<-0.49895278
-p_star_sf_NJ_variable_sh<-0.93668828
-p_star_bsb_NJ_variable_sh<-1
-p_star_scup_NJ_variable_sh<-1
-
-### Values from draw8 estimate
-# p_star_sf_NJ_variable_fh<- 0.729
-# p_star_bsb_NJ_variable_fh<-0.442
-# p_star_scup_NJ_variable_fh<-0.372
-# p_star_sf_NJ_variable_pr<-0.814
-# p_star_bsb_NJ_variable_pr<-0.724
-# p_star_scup_NJ_variable_pr<-0.483
-# p_star_sf_NJ_variable_sh<-0.931
+# p_star_sf_NJ_variable_fh<- 0.81434551
+# p_star_bsb_NJ_variable_fh<-0.8419572
+# p_star_scup_NJ_variable_fh<-0.48232862
+# p_star_sf_NJ_variable_pr<-0.86414832
+# p_star_bsb_NJ_variable_pr<-0.8598893
+# p_star_scup_NJ_variable_pr<-0.49895278
+# p_star_sf_NJ_variable_sh<-0.93668828
 # p_star_bsb_NJ_variable_sh<-1
 # p_star_scup_NJ_variable_sh<-1
+
+### Values from draw8 estimate
+p_star_sf_NJ_variable_fh<- 0.729
+p_star_bsb_NJ_variable_fh<-0.452
+p_star_scup_NJ_variable_fh<-0.422
+p_star_sf_NJ_variable_pr<-0.814
+p_star_bsb_NJ_variable_pr<-0.720
+p_star_scup_NJ_variable_pr<-0.503
+p_star_sf_NJ_variable_sh<-0.932
+p_star_bsb_NJ_variable_sh<-1
+p_star_scup_NJ_variable_sh<-1
 #p_star_scup_NJ_variable_sh<-NA # No shore based catch of Scup
 
-m = "fh"
+m = "pr"
 
 if(m == "sh"){
   p_star_bsb <- p_star_bsb_NJ_variable_sh
@@ -254,7 +254,7 @@ if(m == "pr"){
 
 repeat{
   
-  pstar <- calculate_pstar_NJ(m = "fh") 
+  pstar <- calculate_pstar_NJ(m = "pr") 
   
   sf <- pstar %>% 
     dplyr::filter(species == "SF") 
@@ -274,11 +274,11 @@ repeat{
   if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
     p_star_sf<-p_star_sf +.005
   }
-  
+
   if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
     p_star_sf<-p_star_sf -.005
   }
-  
+
   if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
     p_star_bsb<-p_star_bsb +.005
   }
@@ -313,13 +313,13 @@ repeat{
 
 
 
-fh_pstar <- pstar
-#pr_pstar <- pstar
+#fh_pstar <- pstar
+pr_pstar <- pstar
 #sh_pstar <- pstar
 
 p_stars_NJ <- rbind(fh_pstar, pr_pstar, sh_pstar) 
 
-write.csv(p_stars_NJ, file = "p_star_NJ_draw1_onemoretime2.csv")
+write.csv(p_stars_NJ, file = "p_star_NJ_draw3_8_23_2.csv")
 
 ###DE
 #starting points 
