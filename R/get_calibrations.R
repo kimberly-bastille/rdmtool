@@ -53,14 +53,67 @@ for(k in 1:100){
 }
 
 #### New Jersey
-for(k in 1:100){
-  calibration<- calibrate_rec_catch("NJ", 34, 
-                                    catch_files_NJ, p_star_sf_NJ_variable,
-                                    p_star_bsb_NJ_variable, p_star_scup_NJ_variable, k)
-  pds_new_all<- data.table::data.table(calibration[1][[1]])
-  costs_new_all<-  data.table::data.table(calibration[2][[1]])
-  saveRDS(pds_new_all, file = paste0("data-raw/calibration/pds_NJ_",k,".rds"))
-  saveRDS(costs_new_all, file = paste0("data-raw/calibration/costs_NJ_",k,".rds"))
+
+p_star_sf_NJ_variable_fh<- 0.734
+p_star_bsb_NJ_variable_fh<-0.442
+p_star_scup_NJ_variable_fh<-0.427
+p_star_sf_NJ_variable_pr<-0.819
+p_star_bsb_NJ_variable_pr<-0.715
+p_star_scup_NJ_variable_pr<-0.503
+p_star_sf_NJ_variable_sh<-0.927
+p_star_bsb_NJ_variable_sh<-1
+p_star_scup_NJ_variable_sh<-1
+
+# m = "fh"
+# 
+# if(m == "sh"){
+#   p_star_bsb <- p_star_bsb_NJ_variable_sh
+#   p_star_sf <- p_star_sf_NJ_variable_sh
+#   p_star_scup <- p_star_scup_NJ_variable_sh
+# } 
+# if(m == "fh"){
+#   p_star_bsb <- p_star_bsb_NJ_variable_fh
+#   p_star_sf <- p_star_sf_NJ_variable_fh
+#   p_star_scup <- p_star_scup_NJ_variable_fh
+# } 
+# if(m == "pr"){
+#   p_star_bsb <- p_star_bsb_NJ_variable_pr
+#   p_star_sf <- p_star_sf_NJ_variable_pr
+#   p_star_scup <- p_star_scup_NJ_variable_pr
+# }
+
+
+for(k in 1:5){
+  calibration_fh<- calibrate_rec_catch("NJ", 34, 
+                                       p_star_sf_NJ_variable_fh,
+                                       p_star_bsb_NJ_variable_fh,
+                                       p_star_scup_NJ_variable_fh, 
+                                       "fh",  k)
+  pds_new_all_fh<- data.table::data.table(calibration_fh[1][[1]])
+  costs_new_all_fh<-  data.table::data.table(calibration_fh[2][[1]])
+  
+  calibration_pr<- calibrate_rec_catch("NJ", 34, 
+                                       p_star_sf_NJ_variable_pr,
+                                       p_star_bsb_NJ_variable_pr,
+                                       p_star_scup_NJ_variable_pr, 
+                                       "pr",  k)
+  pds_new_all_pr<- data.table::data.table(calibration_pr[1][[1]])
+  costs_new_all_pr<-  data.table::data.table(calibration_pr[2][[1]])
+  
+  
+  calibration_sh<- calibrate_rec_catch("NJ", 34, 
+                                       p_star_sf_NJ_variable_sh,
+                                       p_star_bsb_NJ_variable_sh,
+                                       p_star_scup_NJ_variable_sh, 
+                                       "sh",  k)
+  pds_new_all_sh<- data.table::data.table(calibration_sh[1][[1]])
+  costs_new_all_sh<-  data.table::data.table(calibration_sh[2][[1]])
+  
+  pds_new_all <- rbind(pds_new_all_fh, pds_new_all_pr, pds_new_all_sh)
+  costs_new_all <- rbind(costs_new_all_fh, costs_new_all_pr, costs_new_all_sh)
+  
+  saveRDS(pds_new_all, file = paste0("data-raw/calibration/pds_NJ_",k,"_test.rds"))
+  saveRDS(costs_new_all, file = paste0("data-raw/calibration/costs_NJ_",k,"_test.rds"))
 }
 
 #### New York
