@@ -64,24 +64,6 @@ p_star_sf_NJ_variable_sh<-0.927
 p_star_bsb_NJ_variable_sh<-1
 p_star_scup_NJ_variable_sh<-1
 
-# m = "fh"
-# 
-# if(m == "sh"){
-#   p_star_bsb <- p_star_bsb_NJ_variable_sh
-#   p_star_sf <- p_star_sf_NJ_variable_sh
-#   p_star_scup <- p_star_scup_NJ_variable_sh
-# } 
-# if(m == "fh"){
-#   p_star_bsb <- p_star_bsb_NJ_variable_fh
-#   p_star_sf <- p_star_sf_NJ_variable_fh
-#   p_star_scup <- p_star_scup_NJ_variable_fh
-# } 
-# if(m == "pr"){
-#   p_star_bsb <- p_star_bsb_NJ_variable_pr
-#   p_star_sf <- p_star_sf_NJ_variable_pr
-#   p_star_scup <- p_star_scup_NJ_variable_pr
-# }
-
 
 for(k in 1:5){
   calibration_fh<- calibrate_rec_catch("NJ", 34, 

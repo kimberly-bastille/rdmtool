@@ -19,12 +19,7 @@ p_star_scup_NJ_variable<- -0.11
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045
 
-catch_files_NJ<- readRDS(here::here(paste0("data-raw/catch/catch_files_NJ.rds"))) %>% 
-  dplyr::rename(tot_sf_catch = sf_tot_cat,  
-                tot_bsb_catch = bsb_tot_cat, 
-                tot_scup_catch = scup_tot_cat) %>% 
-  dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
-                period2 = paste0(month_day, "-", mode1))
+
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
   dplyr::mutate(fluke_bag1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas1[1]) & day_i <= lubridate::yday(input$SFnjFH_seas1[2]) ~ as.numeric(input$SFnjFH_1_smbag), TRUE ~ fluke_bag1), 
@@ -77,16 +72,28 @@ for (x in 1:1){
 # future::plan(future::multisession)
 # predictions<- future::future({
   # x = 1:2
+  
+  
   print(x)
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,".rds"))) %>% 
+  catch_files_NJ<- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw ", x, ".csv")))) %>% 
+    #dplyr::filter(mode1 == select_mode) %>% 
+    dplyr::rename(tot_sf_catch = tot_cat_sf,
+                  tot_bsb_catch = tot_cat_bsb,
+                  tot_scup_catch = tot_cat_scup)  %>%
+    dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
+                  period2 = paste0(month, "_", day, "_", mode1)) 
+  
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test.rds"))) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
+    dplyr::filter(!day == "NA") %>% 
     dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
                   period2 = paste0(month_day, "-", mode)) %>% 
     dplyr::select(-c(month, day, month_day, mode))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,".rds")))%>% 
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,"_test.rds")))%>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
+    dplyr::filter(!day == "NA") %>%
     dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
                   period2 = paste0(month_day, "-", mode)) %>% 
     dplyr::select(-c(month, day, month_day, mode))

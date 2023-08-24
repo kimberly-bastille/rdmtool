@@ -1,5 +1,13 @@
 
+state1 = c("NJ")
+calibration_data_table = c(list(calibration_data_table_base[[1]]))
+directed_trips_table = directed_trips2
+sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
+bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
+scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
+costs_new_all = c(list(cost_files_all_base[[1]]))
 
+sf_catch_data_all = c(list(catch_files_NJ))
 
 predict_rec_catch <- function(state1,
                               calibration_data_table,
@@ -16,7 +24,10 @@ predict_rec_catch <- function(state1,
 
   set.seed(eff_seed)
   # Input the calibration output which contains the number of choice occasions needed to simulate
-  calibration_data <- calibration_data_table[[1]] %>% tibble::tibble() 
+  calibration_data <- calibration_data_table[[1]] %>% tibble::tibble() %>% 
+    tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
+    dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
+
   
   print("pre-rename")
   # Input regul
@@ -36,7 +47,9 @@ predict_rec_catch <- function(state1,
     #group_by(period) %>%
     dplyr::mutate(#n_trips = floor(mean(dtrip_2019)),
       n_trips = floor(dtrip),
-      n_draws = n_drawz)
+      n_draws = n_drawz) %>% 
+    tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
+    dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
   
   print("first kod")
   period_vec <- directed_trips_p %>%
@@ -58,6 +71,10 @@ predict_rec_catch <- function(state1,
   print("premutate")
   print(class(sf_catch_data))
   sf_catch_data <- sf_catch_data %>%
+    # dplyr::rename(sf_tot_cat = tot_cat_sf,
+    #               bsb_tot_cat = tot_cat_bsb,
+    #               scup_tot_cat = tot_cat_scup)  %>% 
+    # dplyr::rename(mode = mode1) %>% 
     #dplyr::mutate(period2 = paste0(month, "-", day, "-", mode1)) %>% 
     dplyr::group_by(period2) %>%
     dplyr::slice_sample(n = n_drawz*n_catch_draws, replace = TRUE)   %>%
@@ -286,7 +303,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "month_day"))
+    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
   
   
   
@@ -420,7 +437,7 @@ predict_rec_catch <- function(state1,
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
       dplyr::mutate(state = state1,
                     tot_bsb_catch = tot_keep_bsb + tot_rel_bsb)  %>%
-      dplyr::select(-c("tot_sf_catch", "tot_scup_catch", "month_day"))
+      dplyr::select(-c("tot_sf_catch", "tot_scup_catch"))
     
     
     # merge the bsb trip data with the rest of the trip data
@@ -600,8 +617,8 @@ predict_rec_catch <- function(state1,
         #arrange(period, catch_draw, tripid) %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
         dplyr::mutate(state = state1,
-                      tot_scup_catch = tot_keep_scup + tot_rel_scup) %>% 
-        dplyr::select(-("month_day"))
+                      tot_scup_catch = tot_keep_scup + tot_rel_scup) #%>% 
+        #dplyr::select(-("month_day"))
       
       
       
@@ -631,7 +648,24 @@ predict_rec_catch <- function(state1,
   
   length_data <- rbind(length_data_bsb, length_data_scup, length_data_sf)
   
+  #Draw from the distirbtuion of utility parameters for each iteration of the projection
+  
+  period_vec1 <- period_vec %>%
+    dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
+                  beta_sqrt_sf_release = rnorm(nrow(period_vec), mean = 0.065 , sd = 0.325) , 
+                  beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = 0.353, sd = 0.129), 
+                  beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = 0.074 , sd = 0), 
+                  beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-0.056  , sd = 0.196 ), 
+                  beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = 0.018 , sd = 0), 
+                  beta_opt_out = rnorm(nrow(period_vec), mean =-2.056 , sd = 1.977), 
+                  beta_opt_out_avidity = rnorm(nrow(period_vec), mean =-0.010 , sd = 0), 
+                  beta_opt_out_age = rnorm(nrow(period_vec), mean =0.010 , sd = 0), 
+                  beta_cost = -0.012) %>% 
+    dplyr::group_by(period2) %>%
+    dplyr::mutate(tripid = dplyr::row_number(period2))
+  
   #names<- c(grep("*beta*", names(costs_new_all), value=TRUE, invert=TRUE))
+
   costs_new_all2 <- data.frame(  costs_new_all[[1]]) %>% #tibble() %>%
     #dplyr::filter(catch_draw<=n_catch_draws) %>% #%>%select(all_of(names)) %>%
     dplyr::filter(catch_draw<=n_drawz) %>% 
@@ -642,7 +676,9 @@ predict_rec_catch <- function(state1,
                   beta_sqrt_bsb_release_base=beta_sqrt_bsb_release,
                   beta_sqrt_sf_bsb_keep_base=beta_sqrt_sf_bsb_keep,
                   beta_sqrt_scup_catch_base=beta_sqrt_scup_catch,
-                  beta_opt_out_base=beta_opt_out)
+                  beta_opt_out_base=beta_opt_out) %>% 
+    tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
+    dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
   
   # names<- c(grep("*length*", names(trip_data), value=TRUE, invert=TRUE))
   # trip_data<-trip_data %>%
@@ -654,30 +690,74 @@ predict_rec_catch <- function(state1,
     dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state")) #%>%  select(-decade.x, -decade.y)
   
   
-  
-  #Draw from the distirbtuion of utility parameters for each iteration of the projection
-  
-  period_vec1 <- period_vec %>%
-    mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
-           beta_sqrt_sf_release = rnorm(nrow(period_vec), mean = 0.065 , sd = 0.325) , 
-           beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = 0.353, sd = 0.129), 
-           beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = 0.074 , sd = 0), 
-           beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-0.056  , sd = 0.196 ), 
-           beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = 0.018 , sd = 0), 
-           beta_opt_out = rnorm(nrow(period_vec), mean =-2.056 , sd = 1.977), 
-           beta_opt_out_avidity = rnorm(nrow(period_vec), mean =-0.010 , sd = 0), 
-           beta_opt_out_age = rnorm(nrow(period_vec), mean =0.010 , sd = 0), 
-           beta_cost = -0.012) %>% 
-    dplyr::group_by(period2) %>%
-    dplyr::mutate(tripid = dplyr::row_number(period2))
-  
   trip_data2 <- trip_data %>%
     dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
   trip_data <- trip_data2 %>%
-    dplyr::select(-month.x, -month.y, -wv2.y, -day.y, -day.x, -day.y)
+    dplyr::select(-month.x, -month.y,-day.x, -day.y) %>% 
+    tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
+    dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
+
   #trip_data <- trip_data  %>%  dplyr::arrange(period2, tripid, catch_draw)
   
+  
+  #import age and avidity distribution and assign each trip an age and avidity
+  
+  period_vec2<- period_vec %>% dplyr::select(-month) %>%
+    dplyr::mutate(period2=as.factor(period2)) 
+  
+  demographics0<-list()
+  
+  levels(period_vec2$period2)
+  for(p in levels(period_vec2$period2)){
+    #p<-"10_bt"
+    
+    #Ages 
+    age_distn <- data.frame(read.csv(file.path(here::here("data-raw/age_distribution_by_state.csv")))) %>%
+      dplyr::filter(state == "NJ")  
+    
+    #next two commands ensure there are enough observations  per period
+    expand_rows=round((n_drawz/nrow(age_distn)))+1
+    
+    age_distn <- age_distn %>%
+      dplyr::slice(rep(1:dplyr::n(), each = expand_rows))   
+    
+    #now need to assign tripid in order to merge to trip data
+    age_distn <- age_distn %>%  dplyr::slice_sample(n = n_drawz) %>% 
+      dplyr::mutate(period2=p, 
+                    tripid = 1:n_drawz) 
+    
+    #Avidities
+    avid_distn <- data.frame(read.csv(file.path(here::here("data-raw/avidity_distribution_by_state.csv")))) %>%
+      dplyr::filter(state == "NJ")  
+    
+    #next two commands ensure there are enough observations per period
+    expand_rows=round(n_drawz/nrow(avid_distn))+1
+    
+    avid_distn <- avid_distn %>%
+      dplyr::slice(rep(1:dplyr::n(), each = expand_rows))   
+    
+    #now need to assign tripid in order to merge to trip data
+    avid_distn <- avid_distn %>%  dplyr::slice_sample(n = n_drawz) %>% 
+      dplyr::mutate(period2=p, 
+                    tripid = 1:n_drawz) 
+    
+    avid_distn<- avid_distn %>%
+      dplyr::left_join(age_distn, by = c("tripid", "state", "period2"))
+    
+    
+    demographics0[[p]]=avid_distn
+    
+  }
+  
+  demographics<- as.data.frame(do.call(rbind, demographics0))
+  
+  #now merge the ages and avidities to the trip dat
+  
+  trip_data<- trip_data %>%
+    dplyr::left_join(demographics, by = c("tripid", "state", "period2"))
+  
+
   
   #  utility (prediction year)
   trip_data <-trip_data %>%
@@ -748,7 +828,7 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data3 <- mean_trip_data2 %>%
     data.table::as.data.table() %>%
-    .[, vA_optout := beta_opt_out_base*opt_out] %>%
+    .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age.x*age.x + beta_opt_out_avidity.x*days_fished.x] %>%
     .[, v0_optout := beta_opt_out_base*opt_out] %>%
     .[alt==1, expon_vA := exp(vA)] %>%
     .[alt==2, expon_vA := exp(vA_optout)] %>%
@@ -809,20 +889,20 @@ predict_rec_catch <- function(state1,
   # mean(mean_trip_data$vA)
   # mean(mean_trip_data$v0)
   # #
-  mean(mean_trip_data$tot_keep_sf)
-  mean(mean_trip_data$tot_keep_sf_base)
-
-  mean(mean_trip_data$tot_rel_sf)
-  mean(mean_trip_data$tot_rel_sf_base)
-
-  mean(mean_trip_data$tot_keep_bsb)
-  mean(mean_trip_data$tot_keep_bsb_base)
-
-  mean(mean_trip_data$tot_rel_bsb)
-  mean(mean_trip_data$tot_rel_bsb_base)
-
-  mean(mean_trip_data$tot_scup_catch)
-  mean(mean_trip_data$tot_cat_scup_base)
+  # mean(mean_trip_data$tot_keep_sf)
+  # mean(mean_trip_data$tot_keep_sf_base)
+  # 
+  # mean(mean_trip_data$tot_rel_sf)
+  # mean(mean_trip_data$tot_rel_sf_base)
+  # 
+  # mean(mean_trip_data$tot_keep_bsb)
+  # mean(mean_trip_data$tot_keep_bsb_base)
+  # 
+  # mean(mean_trip_data$tot_rel_bsb)
+  # mean(mean_trip_data$tot_rel_bsb_base)
+  # 
+  # mean(mean_trip_data$tot_scup_catch)
+  # mean(mean_trip_data$tot_cat_scup_base)
 
   #
   #
@@ -1009,9 +1089,10 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
+    dplyr::filter(!change_CS == "NA")#%>% 
     #cbind(length_expand)
-  mean(trip_level_output$change_CS)
+  mean(trip_level_output$change_CS, na.rm = TRUE)
   
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
