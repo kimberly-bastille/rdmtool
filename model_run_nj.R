@@ -82,7 +82,8 @@ for (x in 1:1){
                   tot_bsb_catch = tot_cat_bsb,
                   tot_scup_catch = tot_cat_scup)  %>%
     dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
-                  period2 = paste0(month, "_", day, "_", mode1)) 
+                  period2 = paste0(month, "_", day, "_", mode1)) %>% 
+    dplyr::select(!c("tot_cat_scup_new", "tot_cat_bsb_new"))
   
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test.rds"))) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
