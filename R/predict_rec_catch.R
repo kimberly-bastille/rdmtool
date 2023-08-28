@@ -680,7 +680,8 @@ predict_rec_catch <- function(state1,
   # merge the trip data (summer flounder catch + lengths) with the other species data (numbers kept and released))
   trip_data2 <- trip_data %>%
     dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state", "day", "month")) %>%  
-    dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y))
+    dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
+    dplyr::filter(!day == 0)
   
   period_vec1 <- period_vec %>%
     dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
@@ -703,7 +704,7 @@ predict_rec_catch <- function(state1,
   #   dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
   trip_data4 <- trip_data3 %>%
-    dplyr::select(-month.x, -month.y,-day.x, -day.y) %>% 
+    #dplyr::select(-month.x, -month.y,-day.x, -day.y) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
     dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
 
@@ -779,7 +780,7 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data3 <- mean_trip_data2 %>%
     data.table::as.data.table() %>%
-    .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age.x*age.x + beta_opt_out_avidity.x*days_fished.x] %>%
+    .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age.x*age + beta_opt_out_avidity.x*days_fished] %>%
     .[, v0_optout := beta_opt_out_base*opt_out] %>%
     .[alt==1, expon_vA := exp(vA)] %>%
     .[alt==2, expon_vA := exp(vA_optout)] %>%
@@ -825,6 +826,11 @@ predict_rec_catch <- function(state1,
   all_vars <- names(mean_trip_data6)[!names(mean_trip_data6) %in% c("period","tripid", "period2", "kod", "kod_24", "state", "mode1", "month.day.x")]
   
   mean_trip_data7<-mean_trip_data6  %>% data.table::as.data.table() %>%
+    dplyr::mutate(month = as.numeric(month), 
+                  day = as.numeric(day)) #%>% 
+    #dplyr::select(!c("mode", "mode1")) 
+  
+  mean_trip_data8 <- mean_trip_data7 %>% 
     .[,lapply(.SD, base::mean), by = c("period2","tripid", "kod", "kod_24", "state"), .SDcols = all_vars]
   
   
@@ -985,10 +991,10 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data <- mean_trip_data9 %>%
     dplyr::mutate( n_choice_occasions_alt = rep(1,nrow(.))) %>%
-    dplyr::left_join(period_names, by = c("period2"))
+    dplyr::left_join(period_names, by = c("period2")) 
   
-  mean_trip_data <- mean_trip_data %>%
-    dplyr::select(-c("period"))
+  # mean_trip_data <- mean_trip_data %>%
+  #   dplyr::select(-c("period"))
   
   
   #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
@@ -999,10 +1005,11 @@ predict_rec_catch <- function(state1,
   sims <- calibration_data %>%
     dplyr::select(c(n_choice_occasions, period2)) %>%
     dplyr::left_join(mean_trip_data, by = c("period2")) %>% 
-    dplyr::select()
+    #dplyr::select()
     dplyr::mutate(ndraws = c(50),
       period = as.character(period2)) %>%
-    dplyr::mutate(expand = n_choice_occasions/ndraws)
+    dplyr::mutate(expand = n_choice_occasions/ndraws)%>%
+    dplyr::filter(!change_CS == "NA")
  
   length_expand <- sims %>%
     dplyr::select(period2, expand) %>%
@@ -1010,7 +1017,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(Expanded_prob_number = expand * ProbabilityNumber,
                   SppLength = paste0(Species, "_" ,Keep_Release, "_",  stringr::str_extract(period2, "[a-z]+"),  "_", stringr::str_extract(period2, "\\d\\d"), "_", fitted_length)) %>%
     dplyr::group_by(SppLength) %>%
-    dplyr::summarise(NumLength = mean(Expanded_prob_number)) #%>%
+    dplyr::summarise(NumLength = mean(Expanded_prob_number)) 
     #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
 
  
@@ -1041,11 +1048,17 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
-    dplyr::filter(!change_CS == "NA")#%>% 
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
+    #dplyr::filter(!change_CS == "NA")#%>% 
     #cbind(length_expand)
-  mean(trip_level_output$change_CS, na.rm = TRUE)
+  mean(trip_level_output$change_CS)
   
+  
+  # help<- trip_level_output %>% 
+  #   tidyr::separate("period2", into = c("month_help", "day_help", "mode_help"), sep = "_") %>%
+  #   dplyr::group_by( mode_help) %>%
+  #   dplyr::summarise(sum(tot_keep_sf, tot_keep_bsb, tot_keep_scup))
+  # 
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
   
