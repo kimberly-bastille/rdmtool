@@ -68,9 +68,9 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-for (x in 1:1){
-# future::plan(future::multisession)
-# predictions<- future::future({
+#for (x in 1:1){
+future::plan(future::multisession)
+get_predictions_out<- function(x){
   # x = 1:2
   
   
@@ -280,10 +280,12 @@ for (x in 1:1){
   }
 }
 #})
-#predictions_help<- future::value(predictions)
+# use furrr package to parallelize the get_predictions_out function 100 times
+# This will spit out a dataframe with 100 predictions 
+predictions_out<- furrr::future_map_dfr(1:20, ~get_predictions_out(.))
 
-predictions_all<-list()
-predictions_all<-rlist::list.rbind(predictions)
+# predictions_all<-list()
+# predictions_all<-rlist::list.rbind(predictions)
 
 predictions_all2<-as.data.frame(predictions_all) %>% 
   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
