@@ -861,6 +861,7 @@ calculate_pstar_NJ <- function(m){ # m = mode
                   mode == m) 
   
   
+
   
   ##SF
   sum(pds_new_all$tot_keep_sf)

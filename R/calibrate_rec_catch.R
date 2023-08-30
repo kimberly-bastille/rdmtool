@@ -19,9 +19,9 @@
  select_mode = "fh"
 # directed_trips_table <- directed_trips_table_base[[5]]
 # sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
-# p_star_sf <- p_star_sf_NJ_variable
-# p_star_bsb<-p_star_bsb_NJ_variable
-# p_star_scup<-p_star_scup_NJ_variable
+p_star_sf <- p_star_sf_NJ_variable_fh
+p_star_bsb<-p_star_bsb_NJ_variable_fh
+p_star_scup<-p_star_scup_NJ_variable_fh
 
 calibrate_rec_catch <- function(state1,
                                 state_no,
@@ -769,7 +769,7 @@ calibrate_rec_catch <- function(state1,
   
   
   
-  mean_trip_data2<-mean_trip_data  %>% data.table::as.data.table() %>%
+  mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
     .[,lapply(.SD, mean), by = c("period","tripid"), .SDcols = all_vars]
   
   

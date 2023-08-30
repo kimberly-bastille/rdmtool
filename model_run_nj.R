@@ -124,7 +124,7 @@ get_predictions_out<- function(x){
   
   
   ##Run the catch function
-  source(here::here("R/predict_rec_catch.R"))
+  #source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6
@@ -166,11 +166,11 @@ get_predictions_out<- function(x){
     #print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "-")
+    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "_")
     
     
     #Metrics at the choice occasion level
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%
+    prediction_output_by_period2 <- prediction_output_by_period1 %>%
       data.table::as.data.table() %>%
       .[, cv_sum := expand*change_CS] %>%
       .[, sf_keep_sum := expand*tot_keep_sf] %>%
@@ -207,11 +207,14 @@ get_predictions_out<- function(x){
       .[mode=="fh", ntrips_fh := expand*probA] %>%
       .[mode=="sh", ntrips_sh := expand*probA]
     
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%
+    prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
     
-    
-    mean(prediction_output_by_period1$cv_sum)
+    testing_predictions<- prediction_output_by_period1 %>% 
+      dplyr::group_by(mode) %>% 
+      dplyr::summarise(sf_keep_sum = sum(sf_keep_sum), 
+                       sf_rel_sum= sum(sf_rel_sum))
+    mean(prediction_output_by_period2$cv_sum)
     
     #Metrics at the state level
       assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
@@ -278,11 +281,12 @@ get_predictions_out<- function(x){
   }else{
     print("prediction_output_by_period1 is numeric")
   }
+  prediction_me<-predictions[[1]] 
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out<- furrr::future_map_dfr(1:20, ~get_predictions_out(.))
+predictions_out<- furrr::future_map_dfr(1, ~get_predictions_out(.))
 
 # predictions_all<-list()
 # predictions_all<-rlist::list.rbind(predictions)

@@ -630,7 +630,8 @@ predict_rec_catch <- function(state1,
       #trip_data <-  merge(trip_data,trip_data_scup,by=c("period2", "catch_draw", "tripid", "state", "mode", "month"))
       
       trip_data <- trip_data %>%
-        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month"))
+        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month")) %>% 
+        dplyr::select(!c("day.x","day_i.x","day.y","day_i.y" ))
       
       # trip_data  <- setcolorder(trip_data,c("state", "period2", "mode1", "month1", "tripid", "catch_draw",
       #                                       "tot_sf_catch", "tot_keep_sf", "tot_rel_sf","tot_bsb_catch", "tot_keep_bsb",
@@ -649,6 +650,12 @@ predict_rec_catch <- function(state1,
     
   }
   
+  
+  testing_trip_data<- trip_data %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
+                     tot_rel_sf= sum(tot_rel_sf), 
+                     tot_sf_catch= sum(tot_sf_catch))
   
   length_data <- rbind(length_data_bsb, length_data_scup, length_data_sf)
   
@@ -680,8 +687,9 @@ predict_rec_catch <- function(state1,
   # merge the trip data (summer flounder catch + lengths) with the other species data (numbers kept and released))
   trip_data2 <- trip_data %>%
     dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state", "day", "month")) %>%  
-    dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
-    dplyr::filter(!day == 0)
+    #dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
+    dplyr::filter(!day == 0, 
+                  ! cost == "NA")
   
   period_vec1 <- period_vec %>%
     dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
@@ -699,7 +707,8 @@ predict_rec_catch <- function(state1,
                   month = as.numeric(month))
   
   trip_data3 <- trip_data2 %>%
-    dplyr::left_join(period_vec1, by = c("period2","tripid", "month"))
+    dplyr::left_join(period_vec1, by = c("period2","tripid", "month", #"draw", 
+                                         "beta_opt_out_age", "beta_opt_out_avidity"))
   # trip_data3 <- trip_data2 %>%
   #   dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
@@ -753,6 +762,13 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data <- trip_data %>%
     data.table::data.table()
+  
+  
+  testing_mean_trip_data<- mean_trip_data %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
+                     tot_rel_sf= sum(tot_rel_sf), 
+                     tot_sf_catch= sum(tot_sf_catch))
     #dplyr::select(-c("state", "period2", "mode1")) %>% data.table::data.table() #%>% dplyr::arrange(period, tripid, catch_draw)
   
   #mean_trip_data<-mean_trip_data %>% dplyr::arrange(period, tripid, catch_draw)
@@ -780,7 +796,7 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data3 <- mean_trip_data2 %>%
     data.table::as.data.table() %>%
-    .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age.x*age + beta_opt_out_avidity.x*days_fished] %>%
+    .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age*age + beta_opt_out_avidity*days_fished] %>%
     .[, v0_optout := beta_opt_out_base*opt_out] %>%
     .[alt==1, expon_vA := exp(vA)] %>%
     .[alt==2, expon_vA := exp(vA_optout)] %>%
@@ -1011,6 +1027,12 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(expand = n_choice_occasions/ndraws)%>%
     dplyr::filter(!change_CS == "NA")
  
+  testing_sims<- sims %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
+                     tot_rel_sf= sum(tot_rel_sf), 
+                     tot_sf_catch= sum(tot_sf_catch))
+  
   length_expand <- sims %>%
     dplyr::select(period2, expand) %>%
     dplyr::left_join(length_data2, by = "period2", relationship = "many-to-many") %>%
@@ -1048,8 +1070,7 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
-    #dplyr::filter(!change_CS == "NA")#%>% 
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) 
     #cbind(length_expand)
   mean(trip_level_output$change_CS)
   
