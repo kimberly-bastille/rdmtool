@@ -210,7 +210,7 @@ predict_rec_catch <- function(state1,
   #    dplyr::rename(keep = keep_tot)
    
   ############# Length #####################################
-    catch_size_data2 <- catch_size_data %>%
+    catch_size_data <- catch_size_data %>%
     dplyr::left_join(regs, by = "period2") %>%
     dplyr::mutate(posskeep = ifelse(fitted_length>=fluke_min1 & fitted_length<fluke_max1,1,0)) %>%
     dplyr::group_by(tripid, period2, catch_draw)   %>%
@@ -237,13 +237,13 @@ predict_rec_catch <- function(state1,
         TRUE ~ 0))
 
   #catch_size_data[is.na(catch_size_data)] <- 0
-  catch_size_data <- catch_size_data2 %>%
+  catch_size_data <- catch_size_data %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
 
   catch_size_data <- catch_size_data %>%
     dplyr::mutate(keep_tot = keep_adj+keep_adj2,
                   release = ifelse(keep_adj==0 & keep_adj2==0,1,0))
-
+    
   catch_size_data<- catch_size_data %>%
     dplyr::select(c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw, mode1, month)) %>%
     dplyr::rename(keep = keep_tot)
@@ -296,7 +296,10 @@ predict_rec_catch <- function(state1,
 
   length_data_sf <- rbind(keep_size_data_sf, release_size_data_sf)
   
-  
+  test_length<- length_data_sf %>% 
+    dplyr::group_by(mode1, Keep_Release) %>% 
+    dplyr::summarise(Number = sum(Number), 
+                     AvgNum = sum(AvgNum))
   #end retaining sizes of fish kept and released
   
   trip_data<-summed_catch_data
@@ -309,7 +312,10 @@ predict_rec_catch <- function(state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
     dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
   
-  
+  test_trip<- trip_data %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
+                     tot_rel_sf = sum(tot_rel_sf))
   
   #######Black Sea Bass
   
@@ -685,7 +691,7 @@ predict_rec_catch <- function(state1,
   
   
   # merge the trip data (summer flounder catch + lengths) with the other species data (numbers kept and released))
-  trip_data2 <- trip_data %>%
+  trip_data <- trip_data %>%
     dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state", "day", "month")) %>%  
     #dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
     dplyr::filter(!day == 0, 
@@ -706,13 +712,13 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(tripid = dplyr::row_number(period2), 
                   month = as.numeric(month))
   
-  trip_data3 <- trip_data2 %>%
+  trip_data <- trip_data %>%
     dplyr::left_join(period_vec1, by = c("period2","tripid", "month", #"draw", 
                                          "beta_opt_out_age", "beta_opt_out_avidity"))
   # trip_data3 <- trip_data2 %>%
   #   dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
-  trip_data4 <- trip_data3 %>%
+  trip_data <- trip_data %>%
     #dplyr::select(-month.x, -month.y,-day.x, -day.y) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
     dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
@@ -721,7 +727,7 @@ predict_rec_catch <- function(state1,
 
   
   #  utility (prediction year)
-  trip_data5 <-trip_data4 %>%
+  trip_data <-trip_data %>%
     dplyr::mutate(
       # vA = beta_sqrt_sf_keep*sqrt(tot_keep_sf) +
       #   beta_sqrt_sf_release*sqrt(tot_rel_sf) +
@@ -753,7 +759,7 @@ predict_rec_catch <- function(state1,
         beta_cost*cost)
   
   
-  trip_data <- trip_data5 %>%
+  trip_data <- trip_data %>%
     dplyr::mutate(period = as.numeric(as.factor(period2)))
   
   period_names<-subset(trip_data, select=c("period", "period2"))
@@ -777,7 +783,7 @@ predict_rec_catch <- function(state1,
   
   # Now expand the data to create two alternatives, representing the alternatives available in choice survey
   #mean_trip_data <- expandRows(mean_trip_data, 3, count.is.col = FALSE)
-  mean_trip_data2 <- mean_trip_data %>%
+  mean_trip_data <- mean_trip_data %>%
     dplyr::mutate(n_alt = rep(2,nrow(.))) %>%
     tidyr::uncount(n_alt) %>%
     dplyr::mutate(alt = rep(1:2,nrow(.)/2),
@@ -794,7 +800,7 @@ predict_rec_catch <- function(state1,
   #          expon_v0= case_when(alt==1 ~ exp(v0),
   #                                alt==2 ~ exp(v0_optout)))
   
-  mean_trip_data3 <- mean_trip_data2 %>%
+  mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[, vA_optout := beta_opt_out*opt_out+beta_opt_out_age*age + beta_opt_out_avidity*days_fished] %>%
     .[, v0_optout := beta_opt_out_base*opt_out] %>%
@@ -812,7 +818,7 @@ predict_rec_catch <- function(state1,
   #   ungroup()
   
   
-  mean_trip_data4 <- mean_trip_data3 %>%
+  mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[, vA_col_sum := base::sum(expon_vA), by=list(period, catch_draw, tripid)]  %>%
     .[, v0_col_sum := base::sum(expon_v0), by=list(period, catch_draw, tripid)]
@@ -825,28 +831,28 @@ predict_rec_catch <- function(state1,
   #          prob0 = expon_v0/v0_col_sum)
   #
   
-  mean_trip_data5 <- mean_trip_data4 %>%
+  mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[, change_CS := (1/beta_cost)*(log(vA_col_sum)-log(v0_col_sum))] %>%
     .[, probA :=expon_vA/vA_col_sum] %>%
     .[, prob0 :=expon_v0/v0_col_sum]
   
   
-  mean_trip_data6<- subset(mean_trip_data5, alt==1)
+  mean_trip_data<- subset(mean_trip_data, alt==1)
   
   # mean_trip_data1<-mean_trip_data %>% group_by(period,tripid) %>% summarise(across(everything(), mean), .groups = 'drop') %>%
   #   tibble()
   
   
   all_vars<-c()
-  all_vars <- names(mean_trip_data6)[!names(mean_trip_data6) %in% c("period","tripid", "period2", "kod", "kod_24", "state", "mode1", "month.day.x")]
+  all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period","tripid", "period2", "kod", "kod_24", "state", "mode1", "month.day.x")]
   
-  mean_trip_data7<-mean_trip_data6  %>% data.table::as.data.table() %>%
+  mean_trip_data<-mean_trip_data %>% data.table::as.data.table() %>%
     dplyr::mutate(month = as.numeric(month), 
                   day = as.numeric(day)) #%>% 
     #dplyr::select(!c("mode", "mode1")) 
   
-  mean_trip_data8 <- mean_trip_data7 %>% 
+  mean_trip_data <- mean_trip_data%>% 
     .[,lapply(.SD, base::mean), by = c("period2","tripid", "kod", "kod_24", "state"), .SDcols = all_vars]
   
   
@@ -944,7 +950,7 @@ predict_rec_catch <- function(state1,
   #          prob0 = expon_v0/v0_col_sum)
   #mean(mean_trip_data$prob0)
   # Get rid of things we don't need.
-  mean_trip_data8 <- subset(mean_trip_data7, alt==1,select=-c(alt, beta_cost,
+  mean_trip_data <- subset(mean_trip_data, alt==1,select=-c(alt, beta_cost,
                                                             catch_draw, expon_v0 ,v0_col_sum, expon_vA,
                                                             opt_out, v0, v0_optout, vA, vA_optout, vA_col_sum))
   
@@ -969,12 +975,12 @@ predict_rec_catch <- function(state1,
   list_names <- c("tot_keep_sf","tot_rel_sf", "tot_sf_catch", "tot_keep_bsb", "tot_rel_bsb" , 
                   "tot_bsb_catch" , "tot_keep_scup" , "tot_rel_scup","tot_scup_catch" )
   
-  mean_trip_data9 <- mean_trip_data8 %>%
+  mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[,as.vector(list_names) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = list_names] %>%
     .[]
   
-  length_data2<- mean_trip_data9 %>%
+  length_data2<- mean_trip_data %>%
     dplyr::select(period2, tripid, probA) %>%
     dplyr::left_join(length_data, by = c("period2", "tripid")) %>%
     dplyr::mutate(ProbabilityNumber = AvgNum * probA) %>%  # Average Number * probA
@@ -997,15 +1003,15 @@ predict_rec_catch <- function(state1,
   list_names <- c("tot_keep_sf_base","tot_rel_sf_base", "tot_keep_bsb_base", "tot_rel_bsb_base" , 
                   "tot_cat_scup_base" )
   
-  mean_trip_data9 <- mean_trip_data9 %>%
+  mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[,as.vector(list_names) := lapply(.SD, function(x) x * prob0), .SDcols = list_names] %>%
     .[]
  
-  mean_trip_data9<- mean_trip_data9 %>% 
-    dplyr::select(unique(colnames(mean_trip_data9)))
+  mean_trip_data<- mean_trip_data %>% 
+    dplyr::select(unique(colnames(mean_trip_data)))
   
-  mean_trip_data <- mean_trip_data9 %>%
+  mean_trip_data <- mean_trip_data9%>%
     dplyr::mutate( n_choice_occasions_alt = rep(1,nrow(.))) %>%
     dplyr::left_join(period_names, by = c("period2")) 
   
@@ -1030,8 +1036,10 @@ predict_rec_catch <- function(state1,
   testing_sims<- sims %>% 
     dplyr::group_by(mode1) %>% 
     dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
-                     tot_rel_sf= sum(tot_rel_sf), 
-                     tot_sf_catch= sum(tot_sf_catch))
+                     tot_rel_sf = sum(tot_rel_sf), 
+                     tot_sf_catch= sum(tot_sf_catch), 
+                     tot_keep_bsb = sum(tot_keep_bsb), 
+                     tot_rel_bsb = sum(tot_rel_bsb))
   
   length_expand <- sims %>%
     dplyr::select(period2, expand) %>%
@@ -1043,11 +1051,11 @@ predict_rec_catch <- function(state1,
     #tidyr:: pivot_wider(., names_from = "SppLength", values_from = "NumLength") ### Uncomment when this should work
 
  
-  # length_test <- length_expand %>%
-  #   tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>%
-  #   dplyr::group_by(Spp, keep_rel, mode) %>%
-  #   dplyr::summarise(sum(NumLength))
-  # 
+  length_test <- length_expand %>%
+    tidyr::separate("SppLength", into = c("Spp", "keep_rel", "mode", "month", "length"), sep = "_") %>%
+    dplyr::group_by(Spp, keep_rel, mode) %>%
+    dplyr::summarise(sum(NumLength))
+
   #length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then
     #Sum by fish length across all periods and modes = single value (total Number) of SF at 17in

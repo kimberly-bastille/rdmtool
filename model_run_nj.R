@@ -71,7 +71,6 @@ if(input$input_type == "Single"){
 #for (x in 1:1){
 future::plan(future::multisession)
 get_predictions_out<- function(x){
-  # x = 1:2
   
   
   print(x)
