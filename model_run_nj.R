@@ -12,9 +12,9 @@ predictions = list()
 # p_star_scup_NJ_variable<- 0.045
 
 #### p_stars new ######
-p_star_sf_NJ_variable<- 0.72
-p_star_bsb_NJ_variable<- 0.72
-p_star_scup_NJ_variable<- -0.11
+# p_star_sf_NJ_variable<- 0.72
+# p_star_bsb_NJ_variable<- 0.72
+# p_star_scup_NJ_variable<- -0.11
 # p_star_sf<- 0.89
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045
@@ -159,7 +159,7 @@ get_predictions_out<- function(x){
   
   prediction_output_by_period1 <- data.frame(test)
  
-  
+  #prediction_output_by_period1<- trip_level_output
   
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     #print("prediction_output_by_period1 is not numeric")
