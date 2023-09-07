@@ -297,12 +297,9 @@ predict_rec_catch <- function(state1,
       .[,lapply(.SD, mean), by = c("period2","tripid","mode1"), .SDcols = all_vars]
 
 
-    keep_release_data<- mean_k_total_sf %>%
-      dplyr::left_join(mean_r_total_sf, by = c("period2", "tripid", "mode1")) 
-    
-    keep_release_sf <- dplyr::bind_rows(keep_release_data, sf_zero_catch) %>% 
-      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-      dplyr::select(!c(state, day, day_i, draw, month ))
+    keep_release_sf<- mean_k_total_sf %>%
+      dplyr::left_join(mean_r_total_sf, by = c("period2", "tripid", "mode1"))  %>% 
+      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) 
       
 
     
@@ -447,12 +444,9 @@ predict_rec_catch <- function(state1,
       .[,lapply(.SD, mean), by = c("period2","tripid","mode1"), .SDcols = all_vars]
     
     
-    keep_release_data<- mean_k_total_bsb %>%
-      dplyr::left_join(mean_r_total_bsb, by = c("period2", "tripid", "mode1")) 
-      
-    keep_release_bsb <- dplyr::bind_rows(keep_release_data, bsb_zero_catch) %>% 
-      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-      dplyr::select(!c(state, day, day_i, draw, month ))
+    keep_release_bsb<- mean_k_total_bsb %>%
+      dplyr::left_join(mean_r_total_bsb, by = c("period2", "tripid", "mode1"))  %>% 
+      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) 
     
     
     summed_catch_data <- catch_size_data %>%
@@ -644,12 +638,9 @@ predict_rec_catch <- function(state1,
         .[,lapply(.SD, mean), by = c("period2","tripid","mode1"), .SDcols = all_vars]
       
       
-      keep_release_data<- mean_k_total_scup %>%
-        dplyr::left_join(mean_r_total_scup, by = c("period2","tripid", "mode1")) 
-        
-      keep_release_scup <- dplyr::bind_rows(keep_release_data, scup_zero_catch) %>% 
-        dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-        dplyr::select(!c(state, day, day_i, draw, month ))
+      keep_release_scup<- mean_k_total_scup %>%
+        dplyr::left_join(mean_r_total_scup, by = c("period2", "tripid", "mode1"))  %>% 
+        dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) 
 
       summed_catch_data <- catch_size_data %>%
         data.table::as.data.table() %>%
@@ -1020,10 +1011,7 @@ predict_rec_catch <- function(state1,
   ######### 
   length_data2<- mean_trip_data %>%
     dplyr::select(period2, tripid, probA) %>%
-    dplyr::left_join(length_data, by = c("period2", "tripid")) %>% 
-    dplyr::select(!c("month.y", "month.x",
-                     "tot_scup_catch", "tot_bsb_catch", "tot_sf_catch", 
-                     "catch_draw"))
+    dplyr::left_join(length_data, by = c("period2", "tripid"))
     
     all_vars<-c()
     all_vars <- names(length_data2)[!names(length_data2) %in% c("period2","tripid", "mode1" )]
@@ -1076,8 +1064,8 @@ predict_rec_catch <- function(state1,
   
  
   length_expand <- sims %>%
-    dplyr::select(period2, expand) %>%
-    dplyr::left_join(length_data3, relationship = "many-to-many") 
+    dplyr::select(period2, tripid, expand) %>%
+    dplyr::left_join(length_data3, by = c("period2", "tripid")) 
   
   
   all_vars<-c()
@@ -1087,20 +1075,11 @@ predict_rec_catch <- function(state1,
                                                               "day_i","draw","month.x", "catch_draw" )]
   
   ## Move to outside function 
-  length_data4 <- length_expand %>% 
+  length_expand <- length_expand %>% 
     data.table::as.data.table() %>%
     .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
     .[]
-  
-  length_test <- length_data4  %>% 
-    data.table::as.data.table() %>%
-    .[,lapply(.SD, sum, na.rm=TRUE), .SDcols = all_vars]
-  
-  lennn<- length_test %>% 
-    tidyr::pivot_longer(cols = colnames(length_test), names_to = "Var", values_to = "Value") %>% 
-    tidyr::separate(Var, into = c("KR", "a", "Species", "length"), sep = "_") %>% 
-    dplyr::group_by(KR, Species) %>% 
-    dplyr::summarise(Value = sum(Value))
+
     
   #length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then
@@ -1119,6 +1098,7 @@ predict_rec_catch <- function(state1,
       
   ### Keep all sp_length_mode columns and multiple by expand outside function -
   ##### Should be same number of rows - merge on (period2, tripid)
+  
   trip_level_output <- sims%>%
     dplyr::mutate(state=state1)   %>%
     dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
@@ -1126,29 +1106,15 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) 
-    #cbind(length_expand)
-  mean(trip_level_output$change_CS)
-  
-  
-  help<- trip_level_output %>%
-    tidyr::separate("period2", into = c("month_help", "day_help", "mode_help"), sep = "_") %>%
-    dplyr::group_by( mode_help) %>%
-    dplyr::summarise(sum(tot_keep_sf, tot_keep_bsb, tot_keep_scup))
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
+    cbind(length_expand)
+
   # 
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
-  
-  if (state1 %in% c("DE", "MD", "VA")){
-    rm(trip_data, trip_data_bsb, sf_zero_catch, bsb_zero_catch, sf_catch_data, bsb_catch_data)
-  }
-  
-  if (state1 %in% c("MA", "RI", "CT", "NY", "NJ")){
-    rm(trip_data, trip_data_bsb, trip_data_scup, sf_zero_catch, scup_zero_catch, bsb_zero_catch, sf_catch_data, bsb_catch_data, scup_catch_data)
-  }
 
   return(trip_level_output)
-  print(head(trip_level_output))
+ 
   #end function
 }
 

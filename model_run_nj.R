@@ -209,12 +209,6 @@ get_predictions_out<- function(x){
     prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
     
-    testing_predictions<- prediction_output_by_period1 %>% 
-      dplyr::group_by(mode) %>% 
-      dplyr::summarise(sf_keep_sum = sum(sf_keep_sum), 
-                       sf_rel_sum= sum(sf_rel_sum))
-    mean(prediction_output_by_period2$cv_sum)
-    
     #Metrics at the state level
       assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
       assign("cv_sum_pr_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
