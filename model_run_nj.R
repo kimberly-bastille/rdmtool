@@ -123,7 +123,7 @@ get_predictions_out<- function(x){
   
   
   ##Run the catch function
-  #source(here::here("R/predict_rec_catch.R"))
+  source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6
@@ -179,32 +179,32 @@ get_predictions_out<- function(x){
       .[, scup_keep_sum := expand*tot_keep_scup] %>%
       .[, scup_rel_sum := expand*tot_rel_scup] %>%
       .[, ntrips_alt := expand*probA] %>%
-      .[mode=="pr", cv_sum_pr := expand*change_CS] %>%
-      .[mode=="fh", cv_sum_fh := expand*change_CS] %>%
-      .[mode=="sh", cv_sum_sh := expand*change_CS] %>%
-      .[mode=="pr", sf_keep_sum_pr := expand*tot_keep_sf] %>%
-      .[mode=="fh", sf_keep_sum_fh := expand*tot_keep_sf] %>%
-      .[mode=="sh", sf_keep_sum_sh := expand*tot_keep_sf] %>%
-      .[mode=="pr", sf_rel_sum_pr := expand*tot_rel_sf] %>%
-      .[mode=="fh", sf_rel_sum_fh := expand*tot_rel_sf] %>%
-      .[mode=="sh", sf_rel_sum_sh := expand*tot_rel_sf] %>%
-      .[mode=="pr", bsb_keep_sum_pr := expand*tot_keep_bsb] %>%
-      .[mode=="fh", bsb_keep_sum_fh := expand*tot_keep_bsb] %>%
-      .[mode=="sh", bsb_keep_sum_sh := expand*tot_keep_bsb] %>%
-      .[mode=="pr", bsb_rel_sum_pr := expand*tot_rel_bsb] %>%
-      .[mode=="fh", bsb_rel_sum_fh := expand*tot_rel_bsb] %>%
-      .[mode=="sh", bsb_rel_sum_sh := expand*tot_rel_bsb] %>%
+      .[mode1=="pr", cv_sum_pr := expand*change_CS] %>%
+      .[mode1=="fh", cv_sum_fh := expand*change_CS] %>%
+      .[mode1=="sh", cv_sum_sh := expand*change_CS] %>%
+      .[mode1=="pr", sf_keep_sum_pr := expand*tot_keep_sf] %>%
+      .[mode1=="fh", sf_keep_sum_fh := expand*tot_keep_sf] %>%
+      .[mode1=="sh", sf_keep_sum_sh := expand*tot_keep_sf] %>%
+      .[mode1=="pr", sf_rel_sum_pr := expand*tot_rel_sf] %>%
+      .[mode1=="fh", sf_rel_sum_fh := expand*tot_rel_sf] %>%
+      .[mode1=="sh", sf_rel_sum_sh := expand*tot_rel_sf] %>%
+      .[mode1=="pr", bsb_keep_sum_pr := expand*tot_keep_bsb] %>%
+      .[mode1=="fh", bsb_keep_sum_fh := expand*tot_keep_bsb] %>%
+      .[mode1=="sh", bsb_keep_sum_sh := expand*tot_keep_bsb] %>%
+      .[mode1=="pr", bsb_rel_sum_pr := expand*tot_rel_bsb] %>%
+      .[mode1=="fh", bsb_rel_sum_fh := expand*tot_rel_bsb] %>%
+      .[mode1=="sh", bsb_rel_sum_sh := expand*tot_rel_bsb] %>%
       
-      .[mode=="pr", scup_keep_sum_pr := expand*tot_keep_scup] %>%
-      .[mode=="fh", scup_keep_sum_fh := expand*tot_keep_scup] %>%
-      .[mode=="sh", scup_keep_sum_sh := expand*tot_keep_scup] %>%
-      .[mode=="pr", scup_rel_sum_pr := expand*tot_rel_scup] %>%
-      .[mode=="fh", scup_rel_sum_fh := expand*tot_rel_scup] %>%
-      .[mode=="sh", scup_rel_sum_sh := expand*tot_rel_scup] %>%
+      .[mode1=="pr", scup_keep_sum_pr := expand*tot_keep_scup] %>%
+      .[mode1=="fh", scup_keep_sum_fh := expand*tot_keep_scup] %>%
+      .[mode1=="sh", scup_keep_sum_sh := expand*tot_keep_scup] %>%
+      .[mode1=="pr", scup_rel_sum_pr := expand*tot_rel_scup] %>%
+      .[mode1=="fh", scup_rel_sum_fh := expand*tot_rel_scup] %>%
+      .[mode1=="sh", scup_rel_sum_sh := expand*tot_rel_scup] %>%
       
-      .[mode=="pr", ntrips_pr := expand*probA] %>%
-      .[mode=="fh", ntrips_fh := expand*probA] %>%
-      .[mode=="sh", ntrips_sh := expand*probA]
+      .[mode1=="pr", ntrips_pr := expand*probA] %>%
+      .[mode1=="fh", ntrips_fh := expand*probA] %>%
+      .[mode1=="sh", ntrips_sh := expand*probA]
     
     prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)

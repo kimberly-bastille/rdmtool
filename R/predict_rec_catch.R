@@ -1,16 +1,16 @@
 
-state1 = c("NJ")
-calibration_data_table = c(list(calibration_data_table_base[[1]]))
-directed_trips_table = directed_trips2
-sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
-bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
-scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
-costs_new_all = c(list(cost_files_all_base[[1]]))
-
-sf_catch_data_all = c(list(catch_files_NJ))
-n_drawz = 50
-n_catch_draws = 30
-eff_seed=190
+# state1 = c("NJ")
+# calibration_data_table = c(list(calibration_data_table_base[[1]]))
+# directed_trips_table = directed_trips2
+# sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
+# bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
+# scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
+# costs_new_all = c(list(cost_files_all_base[[1]]))
+# 
+# sf_catch_data_all = c(list(catch_files_NJ))
+# n_drawz = 50
+# n_catch_draws = 30
+# eff_seed=190
 
 
 predict_rec_catch <- function(state1,
@@ -319,7 +319,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch"))
+    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
   
 
   #######Black Sea Bass
@@ -464,14 +464,14 @@ predict_rec_catch <- function(state1,
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
       dplyr::mutate(state = state1,
                     tot_bsb_catch = tot_keep_bsb + tot_rel_bsb)  %>%
-      dplyr::select(-c("tot_sf_catch", "tot_scup_catch"))
+      dplyr::select(-c("tot_sf_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
     
     
     # merge the bsb trip data with the rest of the trip data
     #trip_data <-  merge(trip_data,trip_data_bsb,by=c("period2", "catch_draw", "tripid", "state", "mode", "month" ))
     
     trip_data <- trip_data %>%
-      dplyr::left_join(trip_data_bsb, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month" )) #%>%  select(-decade.x, -decade.y)
+      dplyr::left_join(trip_data_bsb, by = c("period2", "catch_draw", "tripid", "state", "mode1")) #%>%  select(-decade.x, -decade.y)
     
     # %>%
     
@@ -656,8 +656,8 @@ predict_rec_catch <- function(state1,
         #arrange(period, catch_draw, tripid) %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
         dplyr::mutate(state = state1,
-                      tot_scup_catch = tot_keep_scup + tot_rel_scup) #%>% 
-        #dplyr::select(-("month_day"))
+                      tot_scup_catch = tot_keep_scup + tot_rel_scup) %>% 
+        dplyr::select(-c("day", "day_i", "draw", "month"))
       
       
       
@@ -665,8 +665,7 @@ predict_rec_catch <- function(state1,
       #trip_data <-  merge(trip_data,trip_data_scup,by=c("period2", "catch_draw", "tripid", "state", "mode", "month"))
       
       trip_data <- trip_data %>%
-        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1", "month")) %>% 
-        dplyr::select(!c("day.x","day_i.x","day.y","day_i.y" ))
+        dplyr::left_join(trip_data_scup, by = c("period2", "catch_draw", "tripid", "state", "mode1"))
       
       # trip_data  <- setcolorder(trip_data,c("state", "period2", "mode1", "month1", "tripid", "catch_draw",
       #                                       "tot_sf_catch", "tot_keep_sf", "tot_rel_sf","tot_bsb_catch", "tot_keep_bsb",
@@ -720,10 +719,10 @@ predict_rec_catch <- function(state1,
   
   # merge the trip data (summer flounder catch + lengths) with the other species data (numbers kept and released))
   trip_data <- trip_data %>%
-    dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state", "day", "month")) %>%  
+    dplyr::left_join(costs_new_all2, by = c("period2","catch_draw","tripid", "state")) #%>%  
     #dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
-    dplyr::filter(!day == 0, 
-                  ! cost == "NA")
+    # dplyr::filter(!day == 0, 
+    #               !cost == "NA")
   
   period_vec1 <- period_vec %>%
     dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
@@ -1005,6 +1004,7 @@ predict_rec_catch <- function(state1,
   
   mean_trip_data <- mean_trip_data %>% ## ADD mean_kr_total for each species by tripid and perdiod2
     data.table::as.data.table() %>%
+    na.omit() %>% 
     .[,as.vector(list_names) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = list_names] %>%
     .[]
   
@@ -1053,26 +1053,16 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(ndraws = c(50),
       period = as.character(period2)) %>%
     dplyr::mutate(expand = n_choice_occasions/ndraws)
- 
-  testing_sims<- sims %>% 
-    dplyr::group_by(mode) %>% 
-    dplyr::summarise(tot_keep_sf = sum(tot_keep_sf), 
-                     tot_rel_sf = sum(tot_rel_sf), 
-                     tot_sf_catch= sum(tot_sf_catch), 
-                     tot_keep_bsb = sum(tot_keep_bsb), 
-                     tot_rel_bsb = sum(tot_rel_bsb))
   
  
   length_expand <- sims %>%
     dplyr::select(period2, tripid, expand) %>%
-    dplyr::left_join(length_data3, by = c("period2", "tripid")) 
+    dplyr::left_join(length_data3, by = c("period2", "tripid")) %>% 
+    dplyr::select(-probA)
   
   
   all_vars<-c()
-  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", 
-                                                              "month.y", "month", "tot_sf_catch",
-                                                              "tot_bsb_catch" ,"tot_scup_catch","day",
-                                                              "day_i","draw","month.x", "catch_draw" )]
+  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
   
   ## Move to outside function 
   length_expand <- length_expand %>% 
@@ -1107,9 +1097,11 @@ predict_rec_catch <- function(state1,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
                     tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
-    cbind(length_expand)
+    dplyr::left_join(length_expand, by = c("period2", "tripid", "expand"))
 
-  # 
+  test<- trip_level_output %>% 
+    dplyr::filter(period2 == "9_7_fh", 
+                  tripid == 1)
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
