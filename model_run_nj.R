@@ -270,7 +270,16 @@ get_predictions_out<- function(x){
       #Sum of number of trips
       ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ))
   
+    length_testing <- data.table::data.table(test) %>% 
+      dplyr::select(dplyr::starts_with(c("keep", "release"))) %>%
+      tidyr::pivot_longer(col = dplyr::starts_with(c("keep", "release")),
+                          names_to = "Var", values_to = "Value") %>% 
+      dplyr::filter(stringr::str_detect(Var, "sf")) %>% 
+      tidyr::separate(Var, into = c("Keep_Release", "Species", "Mode","Lenght" ), sep = "_") 
     
+    Number2<- length_testing%>% 
+      dplyr::group_by(Keep_Release, Species, Mode) %>% 
+      dplyr::summarise(Sum_Value = sum(as.numeric(Value), na.rm = TRUE))
   }else{
     print("prediction_output_by_period1 is numeric")
   }
