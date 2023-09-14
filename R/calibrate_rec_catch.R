@@ -41,8 +41,7 @@ calibrate_rec_catch <- function(state1,
     dplyr::filter(draw == k, 
                   mode == select_mode)
   
-  
-  
+
   ######################################
   ##   Begin simulating trip outcomes ##
   ######################################
@@ -159,6 +158,7 @@ calibrate_rec_catch <- function(state1,
   scup_catch_check<-sum(sf_catch_data$scup_tot_cat)
   
   
+  
   #remove trips with zero summer flounder catch
   sf_catch_data <- dplyr::filter(sf_catch_data, sf_tot_cat > 0)
   
@@ -172,9 +172,9 @@ calibrate_rec_catch <- function(state1,
     dplyr::mutate(fishid=dplyr::row_number())
   
   
-  sf_catch_data <- sf_catch_data %>%
-    dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
-                  period2 = paste0(month, "_", day, "_", mode)) %>% 
+  sf_catch_data2 <- sf_catch_data %>%
+    #dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
+    #              period2 = paste0(month, "_", day, "_", mode)) %>% 
     dplyr::left_join(regs, by = "period2") %>%
     dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
     dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%
@@ -863,7 +863,7 @@ calibrate_rec_catch <- function(state1,
   output<-list(pds_new_all, costs_new_all)
   #
   return(output)
-
+}
   # return(pds_new_all)
   # return(costs_new_all)
   
