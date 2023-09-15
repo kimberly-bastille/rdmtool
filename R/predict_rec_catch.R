@@ -281,11 +281,11 @@ predict_rec_catch <- function(state1,
   keep_release_sf <- keep_size_data %>% 
     dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
   
-  sf_zero_catch2<- sf_zero_catch %>% ## ADD back zero catches
+  sf_zero_catch<- sf_zero_catch %>% ## ADD back zero catches
     dplyr::select(period2, tripid, catch_draw)
   
   keep_release_sf <- keep_release_sf %>% 
-    dplyr::full_join(sf_zero_catch2, by = c("period2", "catch_draw", "tripid")) %>% 
+    dplyr::full_join(sf_zero_catch, by = c("period2", "catch_draw", "tripid")) %>% 
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
   
   
