@@ -19,7 +19,14 @@ predictions = list()
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045
 
+sf_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+  dplyr::filter(state=="NJ")
 
+bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+  dplyr::filter(state=="NJ")
+
+scup_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+  dplyr::filter(state=="NJ")
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
   dplyr::mutate(fluke_bag1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas1[1]) & day_i <= lubridate::yday(input$SFnjFH_seas1[2]) ~ as.numeric(input$SFnjFH_1_smbag), TRUE ~ fluke_bag1), 
@@ -107,6 +114,14 @@ get_predictions_out<- function(x){
     dplyr::mutate(day = stringr::str_extract(day, "^\\d{2}"), 
                   #month = as.numeric(month), 
                   period2 = paste0(month24, "-", day, "-", mode))
+  
+  ######### Setup ##########################################
+  sf_size_data <- sf_size_dat %>% 
+    dplyr::filter(draw == x) %>%
+    dplyr::select(c(state, fitted_length, prob_star))%>%
+    dplyr::rename(fitted_prob = prob_star)
+  
+
   #print(directed_trips2)
   #2) Run the prediction model
   

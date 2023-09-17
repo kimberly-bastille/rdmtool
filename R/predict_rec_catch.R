@@ -2,9 +2,9 @@
 state1 = c("NJ")
 calibration_data_table = c(list(calibration_data_table_base[[1]]))
 directed_trips_table = directed_trips2
-sf_size_data_read = c(list(sf_size_data_read_base[[5]]))
-bsb_size_data_read = c(list(bsb_size_data_read_base[[5]]))
-scup_size_data_read = c(list(scup_size_data_read_base[[5]]))
+sf_size_data_read = sf_size_data
+bsb_size_data_read = bsb_size_data
+scup_size_data_read = scup_size_data
 costs_new_all = c(list(cost_files_all_base[[1]]))
 
 sf_catch_data_all = c(list(catch_files_NJ))
@@ -36,9 +36,9 @@ predict_rec_catch <- function(state1,
   print("pre-rename")
   # Input regul
   #directed_trips <- directed_trips_table[[1]] %>% tibble::tibble() %>% dplyr::filter(state == state1) 
-  sf_size_data <- sf_size_data_read[[1]] #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
-  bsb_size_data <- bsb_size_data_read[[1]]  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
-  scup_size_data <- scup_size_data_read[[1]]  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  sf_size_data <- sf_size_data_read #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  bsb_size_data <- bsb_size_data_read  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
+  scup_size_data <- scup_size_data_read  #%>%  dplyr::rename(fitted_prob = prob_star) %>% dplyr::filter(state == state1)
   
   print("out of rename")
   ######################################
