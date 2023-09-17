@@ -159,13 +159,13 @@ get_predictions_out<- function(x){
   
   prediction_output_by_period1 <- data.frame(test)
  
-  #prediction_output_by_period1<- trip_level_output
+  prediction_output_by_period1<- trip_level_output
   
   if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
     #print("prediction_output_by_period1 is not numeric")
     #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
     
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode"), "_")
+    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode1"), "_")
     
     
     #Metrics at the choice occasion level

@@ -91,8 +91,8 @@ for(k in 1:5){
   pds_new_all_sh<- data.table::data.table(calibration_sh[1][[1]])
   costs_new_all_sh<-  data.table::data.table(calibration_sh[2][[1]])
   
-  pds_new_all <- rbind(pds_new_all_fh, pds_new_all_pr, pds_new_all_sh)
-  costs_new_all <- rbind(costs_new_all_fh, costs_new_all_pr, costs_new_all_sh)
+  pds_new_all <- rbind(pds_new_all_fh, pds_new_all_pr, pds_new_all_sh, fill = TRUE)
+  costs_new_all <- rbind(costs_new_all_fh, costs_new_all_pr, costs_new_all_sh, fill = TRUE)
   
   saveRDS(pds_new_all, file = paste0("data-raw/calibration/pds_NJ_",k,"_test.rds"))
   saveRDS(costs_new_all, file = paste0("data-raw/calibration/costs_NJ_",k,"_test.rds"))

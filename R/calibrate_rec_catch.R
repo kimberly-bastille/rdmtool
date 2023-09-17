@@ -174,7 +174,8 @@ calibrate_rec_catch <- function(state1,
     dplyr::slice(rep(row_inds,tot_sf_catch))   %>%
     dplyr::mutate(fishid=dplyr::row_number())
   
-  
+  sf_size_data<- sf_size_data %>% 
+    dplyr::filter(state == state1)
   # generate lengths for each fish
   catch_size_data <- sf_catch_data %>%
     dplyr::mutate(fitted_length = sample(sf_size_data$fitted_length,
@@ -379,6 +380,9 @@ calibrate_rec_catch <- function(state1,
     
     # 
     # # generate lengths for each fish
+    bsb_size_data<- bsb_size_data %>% 
+      dplyr::filter(state == state1)
+    
     catch_size_data <- bsb_catch_data %>%
       dplyr::mutate(fitted_length = sample(bsb_size_data$fitted_length,
                                            nrow(.),
@@ -519,6 +523,9 @@ calibrate_rec_catch <- function(state1,
       
       
       # generate lengths for each fish
+      scup_size_data<- scup_size_data %>% 
+        dplyr::filter(state == state1)
+      
       catch_size_data <- scup_catch_data %>%
         dplyr::mutate(fitted_length = sample(scup_size_data$fitted_length,
                                              nrow(.),
@@ -678,8 +685,6 @@ calibrate_rec_catch <- function(state1,
   }
   
   
-  
-  
   length_data <- keep_release_sf %>% 
     dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>% 
     dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
@@ -811,12 +816,16 @@ calibrate_rec_catch <- function(state1,
   trip_data <- trip_data %>%
     dplyr::mutate(period = as.numeric(as.factor(period2)))
   
+  trip_test<- trip_data %>% 
+    dplyr::filter(period2 == "6_6_fh", 
+                  tripid == 1)
+  
   period_names<-subset(trip_data, select=c("period", "period2"))
   period_names <- period_names[!duplicated(period_names), ]
   
   
   mean_trip_data <- trip_data %>%
-    dplyr::select(-c("state", "period2", "mode1")) %>% data.table::data.table() #%>% dplyr::arrange(period, tripid, catch_draw)
+    dplyr::select(-c("state", "mode1")) %>% data.table::data.table() #%>% dplyr::arrange(period, tripid, catch_draw)
   
   #mean_trip_data<-mean_trip_data %>% dplyr::arrange(period, tripid, catch_draw)
   
@@ -873,12 +882,12 @@ calibrate_rec_catch <- function(state1,
   
   
   all_vars<-c()
-  all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period","tripid")]
+  all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2","tripid")]
   
   
   
   mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
-    .[,lapply(.SD, mean), by = c("period","tripid"), .SDcols = all_vars]
+    .[,lapply(.SD, mean), by = c("period2","tripid"), .SDcols = all_vars]
   
   
   
@@ -889,7 +898,7 @@ calibrate_rec_catch <- function(state1,
   
   # Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
   list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
-                                         & colnames(mean_trip_data) !="period"
+                                         & colnames(mean_trip_data) !="period2"
                                          & colnames(mean_trip_data) !="probA"]
   
   # for (l in list_names){
@@ -904,16 +913,36 @@ calibrate_rec_catch <- function(state1,
     .[,as.vector(list_names) := lapply(.SD, function(x) x * probA), .SDcols = list_names] %>%
     .[]
   
+  all_vars<-c()
+  all_vars <- names(length_data)[!names(length_data) %in% c("period2","tripid", "catch_draw" )]
+  length_data<- length_data %>% 
+    data.table::data.table() %>% 
+    .[,lapply(.SD, base::mean), by = c("period2","tripid"), .SDcols = all_vars]
+  
+  length_data[is.na(length_data)] <- 0
+  
+  length_data2<- mean_trip_data %>%
+    dplyr::select(period2, tripid, probA) %>%
+    dplyr::full_join(length_data, by = c("period2", "tripid")) #%>% 
+  #dplyr::select(!c(month.x.x, month.y.x, month.x.y, month.y.y)) 
+  length_data2[is.na(length_data2)] <- 0
+  all_vars<-c()
+  all_vars <- names(length_data2)[!names(length_data2) %in% c("period2","tripid", "mode1" )]
+  
+  length_data3 <- length_data2 %>% ## ADD mean_kr_total for each species by tripid and perdiod2
+    data.table::as.data.table()  %>% 
+    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = all_vars] %>%
+    .[]
   
   
   
   mean_trip_data <- mean_trip_data %>%
     dplyr::mutate( n_choice_occasions = rep(1,nrow(.))) %>%
-    dplyr::left_join(period_names, by = c("period"))
+    dplyr::left_join(period_names, by = c("period2"))
   
-  mean_trip_data <- mean_trip_data %>%
-    dplyr::select(-c("period"))
-  
+  # mean_trip_data <- mean_trip_data %>%
+  #   dplyr::select(-c("period"))
+  # 
   
   #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
   #mean_trip_pool by the expansion factor (expand), so that  each choice occasion represents a certain number of choice occasions
@@ -954,7 +983,27 @@ calibrate_rec_catch <- function(state1,
     .[,as.vector(list_names) := lapply(.SD, function(x) x * expand), .SDcols = list_names] %>%
     .[]
   
+  length_expand <- mean_trip_data %>%
+    dplyr::select(period2, tripid, expand) %>%
+    dplyr::full_join(length_data3, by = c("period2", "tripid")) %>% 
+    dplyr::select(-probA)
   
+  
+  all_vars<-c()
+  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
+  
+  ## Move to outside function 
+  length_expand <- length_expand %>% 
+    data.table::as.data.table() %>%
+    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
+    .[]
+  
+  
+  list_names = names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
+  
+  aggragate_length_data<- length_expand %>% ### Sum across tirpid
+    data.table::as.data.table() %>%
+    .[,lapply(.SD, sum), by =c("period2"), .SDcols = list_names]
   
   list_names = c("n_choice_occasions", "probA", "tot_bsb_catch","tot_keep_bsb", "tot_keep_scup" , "tot_keep_sf",
                  "tot_rel_bsb" ,   "tot_rel_scup","tot_rel_sf","tot_scup_catch","tot_sf_catch")
@@ -965,6 +1014,7 @@ calibrate_rec_catch <- function(state1,
   
   names(aggregate_trip_data)[names(aggregate_trip_data) == "probA"] = "estimated_trips"
   pds_new_all<-aggregate_trip_data %>%
+    dplyr::left_join(aggragate_length_data, by = "period2") %>% 
     dplyr::mutate(state=state1, 
                   n_cal_draw = k)
   

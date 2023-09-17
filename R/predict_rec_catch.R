@@ -302,8 +302,8 @@ predict_rec_catch <- function(state1,
     #arrange(period, catch_draw, tripid) %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
-                  tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
-    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
+                  tot_sf_catch = tot_keep_sf + tot_rel_sf) #%>%
+   # dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
   
   
   trip2_test<- trip_data %>% 
@@ -741,7 +741,7 @@ predict_rec_catch <- function(state1,
   costs_new_all2 <- data.frame(  costs_new_all[[1]]) %>% #tibble() %>%
     #dplyr::filter(catch_draw<=n_catch_draws) %>% #%>%select(all_of(names)) %>%
     dplyr::filter(catch_draw<=n_drawz) %>% 
-    dplyr::select(-beta_cost) %>%
+    #dplyr::select(-beta_cost) %>%
     dplyr::rename(beta_sqrt_sf_keep_base=beta_sqrt_sf_keep,
                   beta_sqrt_sf_release_base=beta_sqrt_sf_release,
                   beta_sqrt_bsb_keep_base=beta_sqrt_bsb_keep,
@@ -757,8 +757,8 @@ predict_rec_catch <- function(state1,
   print(setdiff(costs_new_all2$period2, trip_data$period2))
   print(setdiff(trip_data$period2, costs_new_all2$period2))
   
-  testing1<- trip_data %>% dplyr::filter(period2 == "11_11_fh")
- testing2<- costs_new_all2 %>% dplyr::filter(period2 == "11_11_fh")
+  testing1<- trip_data %>% dplyr::filter(period2 == "6_6_fh")
+ testing2<- costs_new_all2 %>% dplyr::filter(period2 == "6_6_fh")
   # names<- c(grep("*length*", names(trip_data), value=TRUE, invert=TRUE))
   # trip_data<-trip_data %>%
   #   select(all_of(names))
@@ -773,13 +773,13 @@ predict_rec_catch <- function(state1,
     #               !cost == "NA")
   
   period_vec1 <- period_vec %>%
-    # dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
+     dplyr::mutate(#beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
     #        beta_sqrt_sf_release = rnorm(nrow(period_vec), mean = 0.065 , sd = 0.325) , 
     #        beta_sqrt_bsb_keep = rnorm(nrow(period_vec), mean = 0.353, sd = 0.129), 
     #        beta_sqrt_bsb_release = rnorm(nrow(period_vec), mean = 0.074 , sd = 0), 
     #        beta_sqrt_sf_bsb_keep = rnorm(nrow(period_vec), mean=-0.056  , sd = 0.196 ), 
     #        beta_sqrt_scup_catch = rnorm(nrow(period_vec), mean = 0.018 , sd = 0), 
-    #        beta_opt_out = rnorm(nrow(period_vec), mean =-2.056 , sd = 1.977), 
+            beta_opt_out = rnorm(nrow(period_vec), mean =-2.056 , sd = 1.977)) %>% #, 
     #        beta_opt_out_avidity = rnorm(nrow(period_vec), mean =-0.010 , sd = 0), 
     #        beta_opt_out_age = rnorm(nrow(period_vec), mean =0.010 , sd = 0), 
     #        beta_cost = -0.012) %>%  
@@ -788,10 +788,10 @@ predict_rec_catch <- function(state1,
                   month = as.numeric(month)) %>% 
     dplyr::ungroup()
   
-  trip_data2 <- trip_data %>%
+  trip_data <- trip_data %>%
     dplyr::left_join(period_vec1, by = c("period2","month", "tripid")) #,  #"draw", 
                                          #"beta_opt_out_age", "beta_opt_out_avidity"))
-   trip_data3 <- trip_data2 %>%
+   trip_data_test <- trip_data %>%
      dplyr::filter(period2 == "6_6_fh", 
                    tripid == 1)
   
@@ -1191,12 +1191,132 @@ predict_rec_catch <- function(state1,
                     tot_keep_bsb, tot_rel_bsb,
                     tot_keep_scup, tot_rel_scup,
                     tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>% 
-    dplyr::full_join(length_expand, by = c("period2", "tripid", "expand"))
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
+    #dplyr::full_join(length_expand, by = c("period2", "tripid", "expand"))
 
-  test<- trip_level_output %>% 
-    dplyr::filter(period2 == "9_7_fh", 
-                  tripid == 1)
+  length_out<- length_expand %>% 
+    ## ADD LW Conversion Here
+    dplyr::select(dplyr::starts_with(c("keep","release"))) %>% 
+    dplyr::summarise_all(sum) %>% 
+    tidyr::pivot_longer(cols = everything(), names_to = "Var", 
+                        values_to = "Number") %>% 
+    tidyr::separate(Var, into = c("Keep_Release", "Species", "Length")) %>% 
+    dplyr::group_by(Keep_Release, Species) %>% 
+    dplyr::summarise(Total_Number = sum(Number)) 
+  
+  rowSums(test)
+  
+  prediction_output_by_period1 <- trip_level_output %>%  tidyr::separate(period2, c("month","day", "mode1"), "_")
+  
+  #Metrics at the choice occasion level
+  prediction_output_by_period2 <- prediction_output_by_period1 %>%
+    data.table::as.data.table() %>%
+    .[, cv_sum := expand*change_CS] %>%
+    .[, sf_keep_sum := expand*tot_keep_sf] %>%
+    .[, sf_rel_sum := expand*tot_rel_sf] %>%
+    .[, bsb_keep_sum := expand*tot_keep_bsb] %>%
+    .[, bsb_rel_sum := expand*tot_rel_bsb] %>%
+    .[, scup_keep_sum := expand*tot_keep_scup] %>%
+    .[, scup_rel_sum := expand*tot_rel_scup] %>%
+    .[, ntrips_alt := expand*probA] %>%
+    .[mode1=="pr", cv_sum_pr := expand*change_CS] %>%
+    .[mode1=="fh", cv_sum_fh := expand*change_CS] %>%
+    .[mode1=="sh", cv_sum_sh := expand*change_CS] %>%
+    .[mode1=="pr", sf_keep_sum_pr := expand*tot_keep_sf] %>%
+    .[mode1=="fh", sf_keep_sum_fh := expand*tot_keep_sf] %>%
+    .[mode1=="sh", sf_keep_sum_sh := expand*tot_keep_sf] %>%
+    .[mode1=="pr", sf_rel_sum_pr := expand*tot_rel_sf] %>%
+    .[mode1=="fh", sf_rel_sum_fh := expand*tot_rel_sf] %>%
+    .[mode1=="sh", sf_rel_sum_sh := expand*tot_rel_sf] %>%
+    .[mode1=="pr", bsb_keep_sum_pr := expand*tot_keep_bsb] %>%
+    .[mode1=="fh", bsb_keep_sum_fh := expand*tot_keep_bsb] %>%
+    .[mode1=="sh", bsb_keep_sum_sh := expand*tot_keep_bsb] %>%
+    .[mode1=="pr", bsb_rel_sum_pr := expand*tot_rel_bsb] %>%
+    .[mode1=="fh", bsb_rel_sum_fh := expand*tot_rel_bsb] %>%
+    .[mode1=="sh", bsb_rel_sum_sh := expand*tot_rel_bsb] %>%
+    
+    .[mode1=="pr", scup_keep_sum_pr := expand*tot_keep_scup] %>%
+    .[mode1=="fh", scup_keep_sum_fh := expand*tot_keep_scup] %>%
+    .[mode1=="sh", scup_keep_sum_sh := expand*tot_keep_scup] %>%
+    .[mode1=="pr", scup_rel_sum_pr := expand*tot_rel_scup] %>%
+    .[mode1=="fh", scup_rel_sum_fh := expand*tot_rel_scup] %>%
+    .[mode1=="sh", scup_rel_sum_sh := expand*tot_rel_scup] %>%
+    
+    .[mode1=="pr", ntrips_pr := expand*probA] %>%
+    .[mode1=="fh", ntrips_fh := expand*probA] %>%
+    .[mode1=="sh", ntrips_sh := expand*probA]
+  
+  prediction_output_by_period1 <- prediction_output_by_period2 %>%
+    dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+  
+  #Metrics at the state level
+  assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("cv_sum_pr_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("cv_sum_fh_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("cv_sum_shore_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("sf_keep_sum_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("sf_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("sf_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("sf_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("sf_rel_sum_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("sf_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("sf_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("sf_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("bsb_keep_sum_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("bsb_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("bsb_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("bsb_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("bsb_rel_sum_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("bsb_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("bsb_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("bsb_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("scup_keep_sum_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("scup_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("scup_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("scup_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("scup_rel_sum_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ"]))
+  assign("scup_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("scup_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("scup_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  assign("ntrips_sum_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ"]))
+  assign("ntrips_sum_pr_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
+  assign("ntrips_sum_fh_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
+  assign("ntrips_sum_shore_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  
+  
+  predictions[[x]]<- data.frame(cbind(
+    
+    #Sum CV
+    cv_sum_NJ, cv_sum_shore_NJ, cv_sum_pr_NJ, cv_sum_fh_NJ, 
+    #SF keep
+    sf_keep_sum_NJ, sf_keep_sum_pr_NJ, sf_keep_sum_fh_NJ,sf_keep_sum_shore_NJ,
+    #SF release
+    sf_rel_sum_NJ, sf_rel_sum_pr_NJ, sf_rel_sum_fh_NJ,sf_rel_sum_shore_NJ,
+    #BSB keep
+    bsb_keep_sum_NJ, bsb_keep_sum_pr_NJ, bsb_keep_sum_fh_NJ, bsb_keep_sum_shore_NJ, 
+    #BSB release
+    bsb_rel_sum_NJ, bsb_rel_sum_pr_NJ, bsb_rel_sum_fh_NJ, bsb_rel_sum_shore_NJ, 
+    #Scup keep
+    scup_keep_sum_NJ, scup_keep_sum_pr_NJ, scup_keep_sum_fh_NJ, scup_keep_sum_shore_NJ, 
+    #Scup release
+    scup_rel_sum_NJ, scup_rel_sum_pr_NJ, scup_rel_sum_fh_NJ, scup_rel_sum_shore_NJ, 
+    #Sum of number of trips
+    ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ))
+  
+  
+  
+  
+  
+  
+  
+  
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
