@@ -19,13 +19,13 @@ predictions = list()
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045
 
-sf_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
 
-bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
 
-scup_size_data <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
+scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
@@ -117,9 +117,7 @@ get_predictions_out<- function(x){
   
   ######### Setup ##########################################
   sf_size_data <- sf_size_dat %>% 
-    dplyr::filter(draw == x) %>%
-    dplyr::select(c(state, fitted_length, prob_star))%>%
-    dplyr::rename(fitted_prob = prob_star)
+    dplyr::filter(draw == x)
   
 
   #print(directed_trips2)

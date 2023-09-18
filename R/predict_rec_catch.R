@@ -171,9 +171,9 @@ predict_rec_catch <- function(state1,
   
   # generate lengths for each fish
   catch_size_data <- sf_catch_data %>%
-    dplyr::mutate(fitted_length = sample(sf_size_data$fitted_length,
+    dplyr::mutate(fitted_length = sample(sf_size_data$length,
                                          nrow(.),
-                                         prob = sf_size_data$fitted_prob,
+                                         #prob = sf_size_data$fitted_prob,
                                          replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
   
   ##I()
@@ -416,9 +416,9 @@ predict_rec_catch <- function(state1,
     # 
     # # generate lengths for each fish
     catch_size_data <- bsb_catch_data %>%
-      dplyr::mutate(fitted_length = sample(bsb_size_data$fitted_length,
+      dplyr::mutate(fitted_length = sample(bsb_size_data$length,
                                            nrow(.),
-                                           prob = bsb_size_data$fitted_prob,
+                                           #prob = bsb_size_data$fitted_prob,
                                            replace = TRUE)) #%>%
 
 
@@ -556,9 +556,9 @@ predict_rec_catch <- function(state1,
       
       # generate lengths for each fish
       catch_size_data <- scup_catch_data %>%
-        dplyr::mutate(fitted_length = sample(scup_size_data$fitted_length,
+        dplyr::mutate(fitted_length = sample(scup_size_data$length,
                                              nrow(.),
-                                             prob = scup_size_data$fitted_prob,
+                                             #prob = scup_size_data$fitted_prob,
                                              replace = TRUE)) #%>%
 
       # catch_size_data <- catch_size_data %>%
