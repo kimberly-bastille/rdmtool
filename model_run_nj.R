@@ -119,6 +119,11 @@ get_predictions_out<- function(x){
   sf_size_data <- sf_size_dat %>% 
     dplyr::filter(draw == x)
   
+  bsb_size_data <- bsb_size_dat %>% 
+    dplyr::filter(draw == x)
+  
+  scup_size_data <- scup_size_dat %>% 
+    dplyr::filter(draw == x)
 
   #print(directed_trips2)
   #2) Run the prediction model

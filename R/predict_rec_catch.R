@@ -1,16 +1,16 @@
 
-state1 = c("NJ")
-calibration_data_table = c(list(calibration_data_table_base[[1]]))
-directed_trips_table = directed_trips2
-sf_size_data_read = sf_size_data
-bsb_size_data_read = bsb_size_data
-scup_size_data_read = scup_size_data
-costs_new_all = c(list(cost_files_all_base[[1]]))
-
-sf_catch_data_all = c(list(catch_files_NJ))
-n_drawz = 50
-n_catch_draws = 30
-eff_seed=190
+# state1 = c("NJ")
+# calibration_data_table = c(list(calibration_data_table_base[[1]]))
+# directed_trips_table = directed_trips2
+# sf_size_data_read = sf_size_data
+# bsb_size_data_read = bsb_size_data
+# scup_size_data_read = scup_size_data
+# costs_new_all = c(list(cost_files_all_base[[1]]))
+# 
+# sf_catch_data_all = c(list(catch_files_NJ))
+# n_drawz = 50
+# n_catch_draws = 30
+# eff_seed=190
 
 
 predict_rec_catch <- function(state1,
