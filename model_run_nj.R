@@ -4,7 +4,7 @@
 
 print("start model_NJ")
 state1 = "NJ"
-predictions = list()
+#predictions = list()
 
 #### p_stars old ####
 # p_star_sf_NJ_variable<- 0.89
@@ -27,6 +27,9 @@ bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_pro
 
 scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
+
+l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
+  dplyr::filter(State=="NJ")
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
   dplyr::mutate(fluke_bag1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas1[1]) & day_i <= lubridate::yday(input$SFnjFH_seas1[2]) ~ as.numeric(input$SFnjFH_1_smbag), TRUE ~ fluke_bag1), 
@@ -75,9 +78,9 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-#for (x in 1:1){
-future::plan(future::multisession)
-get_predictions_out<- function(x){
+for (x in 1:1){
+#future::plan(future::multisession)
+#get_predictions_out<- function(x){
   
   
   print(x)
@@ -159,198 +162,66 @@ get_predictions_out<- function(x){
   test<- predict_rec_catch(state1 = c("NJ"),
                            calibration_data_table = c(list(calibration_data_table_base[[1]])),
                            directed_trips_table = directed_trips2,
-                           sf_size_data_read = c(list(sf_size_data_read_base[[5]])),
-                           bsb_size_data_read = c(list(bsb_size_data_read_base[[5]])),
-                           scup_size_data_read = c(list(scup_size_data_read_base[[5]])),
+                           sf_size_data_read = sf_size_data,
+                           bsb_size_data_read = bsb_size_data,
+                           scup_size_data_read = scup_size_data,
                            costs_new_all = c(list(cost_files_all_base[[1]])),
+                           l_w = l_w_conversion,
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
   
-  # safe_predict_rec_catch <- purrr::safely(predict_rec_catch, otherwise = NA_real_)
-  # 
-  # #xx_check <-  furrr::future_pmap(params, safe_predict_rec_catch, .options = furrr::furrr_options(seed = 32190))
-  # xx_check <-  purrr::pmap(params, safe_predict_rec_catch)
-  # print(head(xx_check))
-  # #prediction_output_by_period1 <- furrr::future_map(xx_check, 1)
-  # prediction_output_by_period1 <- purrr::map(xx_check, 1)
-  print("made it through predict")
-  
-  prediction_output_by_period1 <- data.frame(test)
- 
-  prediction_output_by_period1<- trip_level_output
-  
-  if (class(prediction_output_by_period1[[1]])[1]!="numeric") {
-    #print("prediction_output_by_period1 is not numeric")
-    #prediction_output_by_period1<- rlist::list.stack(prediction_output_by_period1, fill=TRUE)
-    
-    prediction_output_by_period1 <- prediction_output_by_period1 %>%  tidyr::separate(period2, c("month","day", "mode1"), "_")
-    
-    
-    #Metrics at the choice occasion level
-    prediction_output_by_period2 <- prediction_output_by_period1 %>%
-      data.table::as.data.table() %>%
-      .[, cv_sum := expand*change_CS] %>%
-      .[, sf_keep_sum := expand*tot_keep_sf] %>%
-      .[, sf_rel_sum := expand*tot_rel_sf] %>%
-      .[, bsb_keep_sum := expand*tot_keep_bsb] %>%
-      .[, bsb_rel_sum := expand*tot_rel_bsb] %>%
-      .[, scup_keep_sum := expand*tot_keep_scup] %>%
-      .[, scup_rel_sum := expand*tot_rel_scup] %>%
-      .[, ntrips_alt := expand*probA] %>%
-      .[mode1=="pr", cv_sum_pr := expand*change_CS] %>%
-      .[mode1=="fh", cv_sum_fh := expand*change_CS] %>%
-      .[mode1=="sh", cv_sum_sh := expand*change_CS] %>%
-      .[mode1=="pr", sf_keep_sum_pr := expand*tot_keep_sf] %>%
-      .[mode1=="fh", sf_keep_sum_fh := expand*tot_keep_sf] %>%
-      .[mode1=="sh", sf_keep_sum_sh := expand*tot_keep_sf] %>%
-      .[mode1=="pr", sf_rel_sum_pr := expand*tot_rel_sf] %>%
-      .[mode1=="fh", sf_rel_sum_fh := expand*tot_rel_sf] %>%
-      .[mode1=="sh", sf_rel_sum_sh := expand*tot_rel_sf] %>%
-      .[mode1=="pr", bsb_keep_sum_pr := expand*tot_keep_bsb] %>%
-      .[mode1=="fh", bsb_keep_sum_fh := expand*tot_keep_bsb] %>%
-      .[mode1=="sh", bsb_keep_sum_sh := expand*tot_keep_bsb] %>%
-      .[mode1=="pr", bsb_rel_sum_pr := expand*tot_rel_bsb] %>%
-      .[mode1=="fh", bsb_rel_sum_fh := expand*tot_rel_bsb] %>%
-      .[mode1=="sh", bsb_rel_sum_sh := expand*tot_rel_bsb] %>%
-      
-      .[mode1=="pr", scup_keep_sum_pr := expand*tot_keep_scup] %>%
-      .[mode1=="fh", scup_keep_sum_fh := expand*tot_keep_scup] %>%
-      .[mode1=="sh", scup_keep_sum_sh := expand*tot_keep_scup] %>%
-      .[mode1=="pr", scup_rel_sum_pr := expand*tot_rel_scup] %>%
-      .[mode1=="fh", scup_rel_sum_fh := expand*tot_rel_scup] %>%
-      .[mode1=="sh", scup_rel_sum_sh := expand*tot_rel_scup] %>%
-      
-      .[mode1=="pr", ntrips_pr := expand*probA] %>%
-      .[mode1=="fh", ntrips_fh := expand*probA] %>%
-      .[mode1=="sh", ntrips_sh := expand*probA]
-    
-    prediction_output_by_period1 <- prediction_output_by_period2 %>%
-      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-    
-    #Metrics at the state level
-      assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("cv_sum_pr_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("cv_sum_fh_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("cv_sum_shore_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("sf_keep_sum_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("sf_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("sf_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("sf_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("sf_rel_sum_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("sf_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("sf_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("sf_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("bsb_keep_sum_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("bsb_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("bsb_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("bsb_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("bsb_rel_sum_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("bsb_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("bsb_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("bsb_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("scup_keep_sum_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("scup_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("scup_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("scup_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("scup_rel_sum_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ"]))
-      assign("scup_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("scup_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("scup_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
-      assign("ntrips_sum_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ"]))
-      assign("ntrips_sum_pr_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-      assign("ntrips_sum_fh_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-      assign("ntrips_sum_shore_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-      
 
-    predictions[[x]]<- data.frame(cbind(
-      
-      #Sum CV
-      cv_sum_NJ, cv_sum_shore_NJ, cv_sum_pr_NJ, cv_sum_fh_NJ, 
-      #SF keep
-      sf_keep_sum_NJ, sf_keep_sum_pr_NJ, sf_keep_sum_fh_NJ,sf_keep_sum_shore_NJ,
-      #SF release
-      sf_rel_sum_NJ, sf_rel_sum_pr_NJ, sf_rel_sum_fh_NJ,sf_rel_sum_shore_NJ,
-      #BSB keep
-      bsb_keep_sum_NJ, bsb_keep_sum_pr_NJ, bsb_keep_sum_fh_NJ, bsb_keep_sum_shore_NJ, 
-      #BSB release
-      bsb_rel_sum_NJ, bsb_rel_sum_pr_NJ, bsb_rel_sum_fh_NJ, bsb_rel_sum_shore_NJ, 
-      #Scup keep
-      scup_keep_sum_NJ, scup_keep_sum_pr_NJ, scup_keep_sum_fh_NJ, scup_keep_sum_shore_NJ, 
-      #Scup release
-      scup_rel_sum_NJ, scup_rel_sum_pr_NJ, scup_rel_sum_fh_NJ, scup_rel_sum_shore_NJ, 
-      #Sum of number of trips
-      ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ))
-  
-    length_testing <- data.table::data.table(test) %>% 
-      dplyr::select(dplyr::starts_with(c("keep", "release"))) %>%
-      tidyr::pivot_longer(col = dplyr::starts_with(c("keep", "release")),
-                          names_to = "Var", values_to = "Value") %>% 
-      dplyr::filter(stringr::str_detect(Var, "sf")) %>% 
-      tidyr::separate(Var, into = c("Keep_Release", "Species", "Mode","Lenght" ), sep = "_") 
-    
-    Number2<- length_testing%>% 
-      dplyr::group_by(Keep_Release, Species, Mode) %>% 
-      dplyr::summarise(Sum_Value = sum(as.numeric(Value), na.rm = TRUE))
-  }else{
-    print("prediction_output_by_period1 is numeric")
-  }
-  prediction_me<-predictions[[1]] 
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out<- furrr::future_map_dfr(1:2, ~get_predictions_out(.))
+#predictions_out<- furrr::future_map_dfr(1:2, ~get_predictions_out(.))
 
 # predictions_all<-list()
 # predictions_all<-rlist::list.rbind(predictions)
 
-predictions_all2<-as.data.frame(predictions_all) %>% 
-  tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
-  janitor::clean_names() %>% 
-  dplyr::group_by(colname) %>% 
-  dplyr::summarise(across(where(is.numeric), mean)) #%>% 
-  #dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
-#write.csv(predictions_all2, file = "output_NJ_test1.csv")
+predictions <- test
 
-
-# # #### Length #########
-# length_out<- prediction_output_by_period2 %>%
-#   dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
-#                    probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
-#                    tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
-#   dplyr::slice_head(n = 1) 
-#   
-# 
-# lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>%
-#   dplyr::mutate(Month = as.numeric(Month))
-# 
-# length_weight_conv<-length_out %>%
-#   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>%
-#   tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>%
-#   dplyr::filter(!Spp == "NA") %>%
-#   dplyr::mutate(Month = as.numeric(Month),
-#                 Lcm = as.numeric(Length) * 2.54) %>%
-#   dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>%
-#   dplyr::filter(State == "NJ") %>%
-#   dplyr::mutate(Wkg = dplyr::case_when(Spp == "SF" ~ (a * Lcm ^ b),
-#                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))),
-#                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))),
-#                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b),
-#                                 Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)),
-#                 Wlbs = Wkg * 2.20462,
-#                 Tot_W = NumInd * Wlbs) %>%
-#   dplyr::group_by(Spp, keep_rel, mode) %>%
-#   dplyr::summarise(NumInd = sum(NumInd),
-#                    Tot_W = sum(Tot_W))
+# predictions_all2<-as.data.frame(predictions_all) %>% 
+#   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
+#   janitor::clean_names() %>% 
+#   dplyr::group_by(colname) %>% 
+#   dplyr::summarise(across(where(is.numeric), mean)) #%>% 
+#   #dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
+# #write.csv(predictions_all2, file = "output_NJ_test1.csv")
 # 
 # 
+# # # #### Length #########
+# # length_out<- prediction_output_by_period2 %>%
+# #   dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
+# #                    probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
+# #                    tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
+# #   dplyr::slice_head(n = 1) 
+# #   
+# # 
+# # lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>%
+# #   dplyr::mutate(Month = as.numeric(Month))
+# # 
+# # length_weight_conv<-length_out %>%
+# #   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>%
+# #   tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>%
+# #   dplyr::filter(!Spp == "NA") %>%
+# #   dplyr::mutate(Month = as.numeric(Month),
+# #                 Lcm = as.numeric(Length) * 2.54) %>%
+# #   dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>%
+# #   dplyr::filter(State == "NJ") %>%
+# #   dplyr::mutate(Wkg = dplyr::case_when(Spp == "SF" ~ (a * Lcm ^ b),
+# #                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))),
+# #                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))),
+# #                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b),
+# #                                 Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)),
+# #                 Wlbs = Wkg * 2.20462,
+# #                 Tot_W = NumInd * Wlbs) %>%
+# #   dplyr::group_by(Spp, keep_rel, mode) %>%
+# #   dplyr::summarise(NumInd = sum(NumInd),
+# #                    Tot_W = sum(Tot_W))
+# # 
+# # 
 
 
 

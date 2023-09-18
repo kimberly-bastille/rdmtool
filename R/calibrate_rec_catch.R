@@ -29,7 +29,8 @@ calibrate_rec_catch <- function(state1,
                                 p_star_sf,
                                 p_star_bsb,
                                 p_star_scup,
-                                select_mode, k){
+                                select_mode, 
+                                k){
   
   print(k)
   

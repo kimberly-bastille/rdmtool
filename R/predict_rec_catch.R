@@ -1,16 +1,16 @@
 
-# state1 = c("NJ")
-# calibration_data_table = c(list(calibration_data_table_base[[1]]))
-# directed_trips_table = directed_trips2
-# sf_size_data_read = sf_size_data
-# bsb_size_data_read = bsb_size_data
-# scup_size_data_read = scup_size_data
-# costs_new_all = c(list(cost_files_all_base[[1]]))
-# 
-# sf_catch_data_all = c(list(catch_files_NJ))
-# n_drawz = 50
-# n_catch_draws = 30
-# eff_seed=190
+state1 = c("NJ")
+calibration_data_table = c(list(calibration_data_table_base[[1]]))
+directed_trips_table = directed_trips2
+sf_size_data_read = sf_size_data
+bsb_size_data_read = bsb_size_data
+scup_size_data_read = scup_size_data
+costs_new_all = c(list(cost_files_all_base[[1]]))
+
+sf_catch_data_all = c(list(catch_files_NJ))
+n_drawz = 50
+n_catch_draws = 30
+eff_seed=190
 
 
 predict_rec_catch <- function(state1,
@@ -21,6 +21,7 @@ predict_rec_catch <- function(state1,
                               scup_size_data_read,
                               costs_new_all,
                               sf_catch_data_all,
+                              l_w,
                               n_drawz = 50, 
                               n_catch_draws = 30, 
                               eff_seed=190){
@@ -1218,9 +1219,58 @@ predict_rec_catch <- function(state1,
                         values_to = "Number") %>% 
     tidyr::separate(Var, into = c("Keep_Release", "Species", "Length")) %>% 
     dplyr::group_by(Keep_Release, Species) %>% 
-    dplyr::summarise(Total_Number = sum(Number)) 
+    dplyr::summarise(Total_Number = sum(Number))
   
-  rowSums(test)
+  
+  all_vars<-c()
+  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2")]
+  
+  ## Move to outside function 
+  length_expand <- length_expand %>% 
+    data.table::as.data.table() %>%
+    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
+    .[]
+  
+  length_weight<- length_expand %>%
+    dplyr::select(!c(tripid, expand)) %>% 
+    dplyr::group_by(period2) %>% 
+    dplyr::summarise(across(everything(), sum), .groups = 'drop') %>% 
+    tidyr::pivot_longer(cols = !period2, names_to = "Var", values_to = "Number_at_Length") %>% 
+    tidyr::separate(Var, into = c("keep_release", "Species", "length"), sep = "_") %>% 
+    dplyr::mutate(Month = as.numeric(stringr::str_extract(period2, "\\d+")), 
+                  Mode = stringr::str_extract(period2, "[a-z]+")) %>% 
+    dplyr::left_join(l_w_conversion, by = c("Month", "Species")) %>% 
+    dplyr::mutate(length_in = as.numeric(length), 
+                  length_cm = length_in*2.20462262185, #Convert to cm
+                  weight = dplyr::case_when(Species == "scup" ~ exp(ln_a+ ln_b*log(length_cm))), 
+                  weight = dplyr::case_when(Species == "sf" ~ a*length_cm^b, TRUE ~ weight), 
+                  weight = dplyr::case_when(Species == "bsb" ~ a*length_cm^b, TRUE ~ weight), 
+                  weight = weight*2.20462262185, #convert to lbs
+                  Total_weight = Number_at_Length * weight)  %>% 
+    dplyr::group_by(Species, Mode, keep_release) %>% 
+    dplyr::summarise(Total_Number = sum(Number_at_Length), 
+                     Total_Weight = sum(Total_weight)) %>% 
+    dplyr::rename(mode1 = Mode) %>% 
+    dplyr::ungroup()
+  
+  l_w_mode <- length_weight %>% 
+    dplyr::mutate(Var1 = paste0(Species, "_", mode1, "_", keep_release)) %>% 
+    dplyr::select(Var1, Total_Number, Total_Weight) %>% 
+    tidyr::pivot_longer(!Var1, names_to = "Var", values_to = "Value") %>% 
+    dplyr::mutate(Var = paste0(Var1,"_",Var)) %>% 
+    dplyr::select(!Var1)
+    
+  l_w_sum <- length_weight %>% 
+    dplyr::group_by(Species, keep_release) %>% 
+    dplyr::summarise(Total_Number = sum(Total_Number), 
+                     Total_Weight = sum(Total_Weight)) %>% 
+    dplyr::ungroup() %>% 
+    dplyr::mutate(Var1 = paste0(Species, "_", keep_release)) %>% 
+    dplyr::select(Var1, Total_Number, Total_Weight) %>% 
+    tidyr::pivot_longer(!Var1, names_to = "Var", values_to = "Value") %>% 
+    dplyr::mutate(Var = paste0(Var1,"_",Var)) %>% 
+    dplyr::select(!Var1)
+
   
   prediction_output_by_period1 <- trip_level_output %>%  tidyr::separate(period2, c("month","day", "mode1"), "_")
   
@@ -1263,127 +1313,30 @@ predict_rec_catch <- function(state1,
     .[mode1=="sh", ntrips_sh := expand*probA]
   
   prediction_output_by_period1 <- prediction_output_by_period2 %>%
-    dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+    dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>% 
+    dplyr::group_by(mode1) %>% 
+    dplyr::summarise(CV = sum(cv_sum), 
+                     ntrips = sum(ntrips_alt)) %>% 
+    dplyr::ungroup() 
   
-  #Metrics at the state level
-  assign("cv_sum_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("cv_sum_pr_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("cv_sum_fh_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("cv_sum_shore_NJ", base::sum(prediction_output_by_period1$cv_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
+  prediction_mode<- prediction_output_by_period1%>% 
+    tidyr::pivot_longer(!mode1, names_to = "Var", values_to = "Value") %>% 
+    dplyr::mutate(Var = paste0(Var, "_", mode1)) %>% 
+    dplyr::select(!mode1)
   
-  assign("sf_keep_sum_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("sf_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("sf_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("sf_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("sf_rel_sum_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("sf_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("sf_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("sf_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$sf_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("bsb_keep_sum_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("bsb_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("bsb_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("bsb_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("bsb_rel_sum_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("bsb_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("bsb_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("bsb_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$bsb_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("scup_keep_sum_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("scup_keep_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("scup_keep_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("scup_keep_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_keep_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("scup_rel_sum_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ"]))
-  assign("scup_rel_sum_pr_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("scup_rel_sum_fh_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("scup_rel_sum_shore_NJ", base::sum(prediction_output_by_period1$scup_rel_sum[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  assign("ntrips_sum_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ"]))
-  assign("ntrips_sum_pr_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="pr"]))
-  assign("ntrips_sum_fh_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="fh"]))
-  assign("ntrips_sum_shore_NJ", base::sum(prediction_output_by_period1$ntrips_alt[prediction_output_by_period1$state=="NJ" & prediction_output_by_period1$mode=="sh"]))
-  
-  
-  predictions[[x]]<- data.frame(cbind(
-    
-    #Sum CV
-    cv_sum_NJ, cv_sum_shore_NJ, cv_sum_pr_NJ, cv_sum_fh_NJ, 
-    #SF keep
-    sf_keep_sum_NJ, sf_keep_sum_pr_NJ, sf_keep_sum_fh_NJ,sf_keep_sum_shore_NJ,
-    #SF release
-    sf_rel_sum_NJ, sf_rel_sum_pr_NJ, sf_rel_sum_fh_NJ,sf_rel_sum_shore_NJ,
-    #BSB keep
-    bsb_keep_sum_NJ, bsb_keep_sum_pr_NJ, bsb_keep_sum_fh_NJ, bsb_keep_sum_shore_NJ, 
-    #BSB release
-    bsb_rel_sum_NJ, bsb_rel_sum_pr_NJ, bsb_rel_sum_fh_NJ, bsb_rel_sum_shore_NJ, 
-    #Scup keep
-    scup_keep_sum_NJ, scup_keep_sum_pr_NJ, scup_keep_sum_fh_NJ, scup_keep_sum_shore_NJ, 
-    #Scup release
-    scup_rel_sum_NJ, scup_rel_sum_pr_NJ, scup_rel_sum_fh_NJ, scup_rel_sum_shore_NJ, 
-    #Sum of number of trips
-    ntrips_sum_NJ, ntrips_sum_pr_NJ, ntrips_sum_fh_NJ, ntrips_sum_shore_NJ))
-  
-  
-  
-  
-  
-  
-  
-  
+  predictions <- prediction_output_by_period1 %>% 
+    dplyr::summarise(CV= sum(CV), 
+                     ntrips = sum(ntrips)) %>% 
+    tidyr::pivot_longer(cols = everything(.), names_to = "Var", values_to = "Value") %>% 
+    rbind(prediction_mode, l_w_mode, l_w_sum)
+
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
-  return(trip_level_output)
+  return(predictions)
  
   #end function
 }
 
-#sum probability weighted catch over all choice occasions
-#aggregate_trip_data <-aggregate(mean_trip_data, by=list(mean_trip_data$sim),FUN=sum, na.rm=TRUE)
-# aggregate_trip_data <- mean_trip_data %>%
-#   group_by(period2, sim) %>%
-#   summarize_all(sum, na.rm = TRUE) %>%
-#   ungroup() %>%
-#   left_join(sims , by = c("period2"))
-# # right_join(sims %>% mutate(period = as.numeric(period)) %>% dplyr::select(-n_choice_occasions),
-# #            by = c("period","sim"))
-#
-#
-# ls(aggregate_trip_data)
-# list_names = colnames(aggregate_trip_data)[ colnames(aggregate_trip_data) !="tripid"
-#                                             & colnames(aggregate_trip_data) !="catch_draw" & colnames(aggregate_trip_data) !="period2"
-#                                             & colnames(aggregate_trip_data) !="vA" & colnames(aggregate_trip_data) !="v0"
-#                                             & colnames(aggregate_trip_data) != "state" & colnames(aggregate_trip_data) !="period"
-#                                             & colnames(aggregate_trip_data) != "ndraws"
-#                                             & colnames(aggregate_trip_data) != "expand" & colnames(aggregate_trip_data) != "n_choice_occasions"
-#                                             & colnames(aggregate_trip_data) != "parameter_draw" ]
-#
-#
-# aggregate_trip_data <- aggregate_trip_data %>%
-#   mutate(across(.cols = all_of(list_names),.fns=function(x) expand*x)) %>%
-#   select(-c(tripid, sim, expand, n_choice_occasions)) %>%
-#   rename(projected_trips = probA,
-#           baseline_trips = prob0 )
-#
-#
-# projection_output <- aggregate_trip_data %>%  #list.stack(pds_new, fill=TRUE) %>%
-#   #mutate_at(vars(contains("length")), replace_na, replace = 0) %>%
-#   #pds_new_all_MA[is.na(pds_new_all_MA)] = 0
-#   mutate(state = state1) %>%
-#   select(baseline_trips, projected_trips, change_CS, CS_alt, CS_base, state) %>%
-#   group_by(state)  %>%
-#   summarise(across(everything(), sum),
-#             .groups = 'drop')  %>%
-#   as.data.frame()   #%>%   mutate(avg_cv=avg_cv)
-#
-# #sum(projection_output$change_CS)
-# #})
-# # write_xlsx(pds_new_all_MA,"MA_prediction_output_check.xlsx")
-# return(projection_output)
 
-#end function
-#}
 

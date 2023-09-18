@@ -493,7 +493,7 @@ if (interactive()) {
       ## Output Table 
       output$keep_release_tableout<- renderTable({
         output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions_all2, by = "colname") %>% 
+          dplyr::left_join(predictions, by = "colname") %>% 
           dplyr::filter(stringr::str_detect(colname, "bsb|scup|sf")) %>% 
           dplyr::mutate(Category = paste(Category, "(lbs)"), 
                         StatusQuo = round(StatusQuo, digits = 0), 
@@ -507,7 +507,7 @@ if (interactive()) {
       
       output$welfare_trips_tableout<- renderTable({
         output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions_all2, by = "colname") %>% 
+          dplyr::left_join(predictions, by = "colname") %>% 
           dplyr::filter(stringr::str_detect(colname, "cv|ntrips"))%>% 
           dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(colname, "cv") ~ paste(Category, "($)"), 
                                                     stringr::str_detect(colname, "ntrips") ~ Category),
