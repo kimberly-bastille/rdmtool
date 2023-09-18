@@ -117,13 +117,13 @@ get_predictions_out<- function(x){
   
   ######### Setup ##########################################
   sf_size_data <- sf_size_dat %>% 
-    dplyr::filter(draw == x)
+    dplyr::filter(draw == 0) #Change to X for model for sf and scup
   
   bsb_size_data <- bsb_size_dat %>% 
-    dplyr::filter(draw == x)
+    dplyr::filter(draw == 0)
   
   scup_size_data <- scup_size_dat %>% 
-    dplyr::filter(draw == x)
+    dplyr::filter(draw == 0)
 
   #print(directed_trips2)
   #2) Run the prediction model
@@ -306,7 +306,7 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out<- furrr::future_map_dfr(1, ~get_predictions_out(.))
+predictions_out<- furrr::future_map_dfr(1:2, ~get_predictions_out(.))
 
 # predictions_all<-list()
 # predictions_all<-rlist::list.rbind(predictions)

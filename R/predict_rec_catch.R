@@ -173,7 +173,7 @@ predict_rec_catch <- function(state1,
   catch_size_data <- sf_catch_data %>%
     dplyr::mutate(fitted_length = sample(sf_size_data$length,
                                          nrow(.),
-                                         #prob = sf_size_data$fitted_prob,
+                                         prob = sf_size_data$fitted_prob,
                                          replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
   
   ##I()
@@ -255,6 +255,22 @@ predict_rec_catch <- function(state1,
               release = sum(release), .groups = "drop") %>% 
     dplyr::ungroup()
   
+  new_size_data1<- new_size_data%>%
+    dplyr::mutate(uniform=runif(nrow(new_size_data)), 
+                  mode1 = stringr::str_extract(period2, "[a-z]+")) %>% 
+    dplyr::mutate(release = dplyr::case_when(uniform > .86 & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > .86 & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
+                  
+                  release = dplyr::case_when(uniform > .907 & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > .907 & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
+                  
+                  release = dplyr::case_when(uniform > .996 & mode1 == "pr" & release == 1 ~ 0, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > .996 & mode1 == "pr" & release == 1 ~ 1, TRUE ~ keep))
+  # for 17inch fish will eventually come from spreadsheet 
+ 
+
+    
+    
   summed_catch_data <- catch_size_data %>%
     dplyr::group_by(period2, catch_draw, tripid) %>%
     dplyr::summarize(tot_keep_sf = sum(keep),
@@ -418,7 +434,7 @@ predict_rec_catch <- function(state1,
     catch_size_data <- bsb_catch_data %>%
       dplyr::mutate(fitted_length = sample(bsb_size_data$length,
                                            nrow(.),
-                                           #prob = bsb_size_data$fitted_prob,
+                                           prob = bsb_size_data$fitted_prob,
                                            replace = TRUE)) #%>%
 
 
@@ -558,7 +574,7 @@ predict_rec_catch <- function(state1,
       catch_size_data <- scup_catch_data %>%
         dplyr::mutate(fitted_length = sample(scup_size_data$length,
                                              nrow(.),
-                                             #prob = scup_size_data$fitted_prob,
+                                             prob = scup_size_data$fitted_prob,
                                              replace = TRUE)) #%>%
 
       # catch_size_data <- catch_size_data %>%
