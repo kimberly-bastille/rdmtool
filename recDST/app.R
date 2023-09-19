@@ -3,7 +3,6 @@
 # the 'Run App' button above.
 
 
-if (interactive()) {
   library(shiny)
   library(shinyjs)
   library(dplyr)
@@ -502,7 +501,12 @@ if (interactive()) {
           dplyr::select(c(Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
           dplyr::rename("StatusQuo_Weight (lbs)" = StatusQuo_Weight, 
-                        "Alternative_Weight (lbs)" = Alternative_Weight)
+                        "Alternative_Weight (lbs)" = Alternative_Weight, 
+                        "Species" = Category) #%>% 
+          # dplyr::mutate(mode = recode(mode, "fh" = "For Hire", 
+          #                             "sh" = "Shore", 
+          #                             "pr" = "Private"), 
+          #               mode = replace(mode, "All"))
         
         outputtable<- output
       })
@@ -666,16 +670,14 @@ if (interactive()) {
                                             "% of runs that result in desired outcome", 
                                             "Catch by weight", "Incorporating Avidity and Angler Age"), 
                                 Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
-                                          "", "", "Done", "Done")
-        )
+                                          "", "", "Done", "Done"))
         
         
       })})#})
     
   }
-}
 
 #Message of where the model is in the run. Don't know where to put this
 #showNotification(strong(paste("Running model", x,"/100 for", state)),duration=NULL,id="running",type="message")
 
-shinyApp(ui = ui, server = server)
+shiny::shinyApp(ui = ui, server = server)
