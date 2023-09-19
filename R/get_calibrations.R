@@ -64,6 +64,16 @@ p_star_sf_NJ_variable_sh<-0.927
 p_star_bsb_NJ_variable_sh<-1
 p_star_scup_NJ_variable_sh<-1
 
+# ## Lous p_star
+# 1	SF		0.729		fh
+# 2	BSB		0.452		fh	
+# 3	SCUP	0.422		fh	
+# 4	SF		0.819		pr	
+# 5	BSB		0.72			pr	
+# 6	SCUP	0.488		pr	
+# 7	SF		0.927		sh	
+# 8	BSB		1				sh	
+# 9	SCUP	1		    sh
 
 for(k in 1:5){
   calibration_fh<- calibrate_rec_catch("NJ", 34, 

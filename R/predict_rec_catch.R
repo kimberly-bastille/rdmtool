@@ -1,16 +1,16 @@
 
-state1 = c("NJ")
-calibration_data_table = c(list(calibration_data_table_base[[1]]))
-directed_trips_table = directed_trips2
-sf_size_data_read = sf_size_data
-bsb_size_data_read = bsb_size_data
-scup_size_data_read = scup_size_data
-costs_new_all = c(list(cost_files_all_base[[1]]))
-
-sf_catch_data_all = c(list(catch_files_NJ))
-n_drawz = 50
-n_catch_draws = 30
-eff_seed=190
+# state1 = c("NJ")
+# calibration_data_table = c(list(calibration_data_table_base[[1]]))
+# directed_trips_table = directed_trips2
+# sf_size_data_read = sf_size_data
+# bsb_size_data_read = bsb_size_data
+# scup_size_data_read = scup_size_data
+# costs_new_all = c(list(cost_files_all_base[[1]]))
+# 
+# sf_catch_data_all = c(list(catch_files_NJ))
+# n_drawz = 50
+# n_catch_draws = 30
+# eff_seed=190
 
 
 predict_rec_catch <- function(state1,
@@ -22,6 +22,7 @@ predict_rec_catch <- function(state1,
                               costs_new_all,
                               sf_catch_data_all,
                               l_w,
+                              s_star,
                               n_drawz = 50, 
                               n_catch_draws = 30, 
                               eff_seed=190){
@@ -256,20 +257,29 @@ predict_rec_catch <- function(state1,
               release = sum(release), .groups = "drop") %>% 
     dplyr::ungroup()
   
-  new_size_data1<- new_size_data%>%
+  s_star <- s_star_data %>% 
+    dplyr::filter(species == "sf", 
+                  min_size  == 17) #input$SFnjFH_1_smlen)
+  s_star_sh <- s_star %>% dplyr::filter(mode == "sh")
+  s_star_sh <- s_star_sh$s_star
+  s_star_fh <- s_star %>% dplyr::filter(mode == "fh")
+  s_star_fh <- s_star_fh$s_star
+  s_star_pr <- s_star %>% dplyr::filter(mode == "pr")
+  s_star_pr <- s_star_pr$s_star
+  
+  new_size_data<- new_size_data%>%
     dplyr::mutate(uniform=runif(nrow(new_size_data)), 
                   mode1 = stringr::str_extract(period2, "[a-z]+")) %>% 
-    dplyr::mutate(release = dplyr::case_when(uniform > .86 & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
-                  keep = dplyr::case_when(uniform > .86 & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
+    dplyr::mutate(release = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
                   
-                  release = dplyr::case_when(uniform > .907 & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
-                  keep = dplyr::case_when(uniform > .907 & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
+                  release = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
                   
-                  release = dplyr::case_when(uniform > .996 & mode1 == "pr" & release == 1 ~ 0, TRUE ~ release),
-                  keep = dplyr::case_when(uniform > .996 & mode1 == "pr" & release == 1 ~ 1, TRUE ~ keep))
-  # for 17inch fish will eventually come from spreadsheet 
- 
-
+                  release = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 0, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 1, TRUE ~ keep)) %>% 
+    dplyr::select(!c("uniform", "mode1"))
+  
     
     
   summed_catch_data <- catch_size_data %>%
@@ -308,76 +318,12 @@ predict_rec_catch <- function(state1,
   
   trip_data <- summed_catch_data 
 
-  trip_test<- trip_data %>% 
-    dplyr::filter(period2 == "6_6_pr", 
-                  tripid == 1)
-  
-  sf_zero_test <- sf_zero_catch %>% 
-    dplyr::filter(period2 == "6_6_pr", 
-                  tripid == 1)
   trip_data <- dplyr::bind_rows(trip_data, sf_zero_catch) %>%
     #arrange(period, catch_draw, tripid) %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
                   tot_sf_catch = tot_keep_sf + tot_rel_sf) #%>%
    # dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
-  
-  
-  trip2_test<- trip_data %>% 
-    dplyr::filter(period2 == "6_6_pr", 
-                             tripid == 1)
-  
-  
-  
-  print(setdiff(trip_data$period2, keep_release_sf$period2))
-  print(setdiff(keep_release_sf$period2, trip_data$period2))
-  
-  
-  
-  
-  
-  
-  
-  # # all_vars<-c()
-  # # all_vars <- names(keep_size_data)[!names(keep_size_data) %in% c("period2","tripid", "mode1")]
-  # #   
-  # #   sum_k_total_sf<-keep_size_data  %>% data.table::as.data.table() %>% #Average number of fish by length
-  # #     .[,lapply(.SD, sum), by = c("period2","tripid","mode1"), .SDcols = all_vars]
-  # #   
-  #   release_size_data <- new_size_data %>%
-  #     dplyr::mutate(mode_length = paste0(mode1,"_", fitted_length)) %>% 
-  #     dplyr::select(-keep) %>%
-  #     tidyr::pivot_wider(names_from = mode_length, #_length,
-  #                 names_glue = "release_sf_{mode_length}",
-  #                 names_sort = TRUE,
-  #                 values_from = release,
-  #                 values_fill = 0) #%>% 
-  #     #dplyr::select(!c(catch_draw, fitted_length))
-  #   
-  #   # all_vars<-c()
-  #   # all_vars <- names(release_size_data)[!names(release_size_data) %in% c("period2","tripid", "mode1")]
-  #   # 
-  #   # sum_r_total_sf<-release_size_data  %>% data.table::as.data.table() %>% #Average number of fish by length
-  #   #   .[,lapply(.SD, sum), by = c("period2","tripid","mode1"), .SDcols = all_vars]
-  #   # 
-  #   # 
-  #   # keep_release_sf<- sum_k_total_sf %>%
-  #   #   dplyr::left_join(sum_r_total_sf, by = c("period2", "tripid", "mode1"))  %>% 
-  #   #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) 
-  #   #   
-  # 
-  #   
-  #   summed_catch_data <- catch_size_data %>%
-  #     data.table::as.data.table() %>%
-  #     .[,lapply(.SD, base::sum), by =c("period2", "catch_draw", "tripid", "mode1"), .SDcols = c("keep", "release")]
-  #   #print(head(summed_catch_data))
-  #   summed_catch_data <- summed_catch_data %>%
-  #     dplyr::rename(tot_keep_sf = keep,
-  #                   tot_rel_sf = release) %>% 
-  #     
-  
-  #trip_data<-summed_catch_data
-  #add the zero catch trips
 
 
   #######Black Sea Bass
@@ -467,6 +413,30 @@ predict_rec_catch <- function(state1,
       dplyr::summarize(keep = sum(keep),
                        release = sum(release), .groups = "drop") %>% 
       dplyr::ungroup()
+    
+    s_star <- s_star_data %>% 
+      dplyr::filter(species == "bsb", 
+                    min_size  == 13) #input$BSBnjFH_1_smlen)
+    s_star_sh <- s_star %>% dplyr::filter(mode == "sh")
+    s_star_sh <- s_star_sh$s_star
+    s_star_fh <- s_star %>% dplyr::filter(mode == "fh")
+    s_star_fh <- s_star_fh$s_star
+    s_star_pr <- s_star %>% dplyr::filter(mode == "pr")
+    s_star_pr <- s_star_pr$s_star
+    
+    new_size_data<- new_size_data%>%
+      dplyr::mutate(uniform=runif(nrow(new_size_data)), 
+                    mode1 = stringr::str_extract(period2, "[a-z]+")) %>% 
+      dplyr::mutate(release = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
+                    keep = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
+                    
+                    release = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
+                    keep = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
+                    
+                    release = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 0, TRUE ~ release),
+                    keep = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 1, TRUE ~ keep)) %>% 
+      dplyr::select(!c("uniform", "mode1"))
+    
     
     summed_catch_data <- catch_size_data %>%
       dplyr::group_by(period2, catch_draw, tripid) %>%
@@ -655,6 +625,30 @@ predict_rec_catch <- function(state1,
                          release = sum(release), .groups = "drop") %>% 
         dplyr::ungroup()
       
+      s_star <- s_star_data %>% 
+        dplyr::filter(species == "scup", 
+                      min_size  == 10) #input$SFnjFH_1_smlen)
+      s_star_sh <- s_star %>% dplyr::filter(mode == "sh")
+      s_star_sh <- s_star_sh$s_star
+      s_star_fh <- s_star %>% dplyr::filter(mode == "fh")
+      s_star_fh <- s_star_fh$s_star
+      s_star_pr <- s_star %>% dplyr::filter(mode == "pr")
+      s_star_pr <- s_star_pr$s_star
+      
+      new_size_data<- new_size_data%>%
+        dplyr::mutate(uniform=runif(nrow(new_size_data)), 
+                      mode1 = stringr::str_extract(period2, "[a-z]+")) %>% 
+        dplyr::mutate(release = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
+                      keep = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
+                      
+                      release = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
+                      keep = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
+                      
+                      release = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 0, TRUE ~ release),
+                      keep = dplyr::case_when(uniform > s_star_pr & mode1 == "pr" & release == 1 ~ 1, TRUE ~ keep)) %>% 
+        dplyr::select(!c("uniform", "mode1"))
+      
+      
       summed_catch_data <- catch_size_data %>%
         dplyr::group_by(period2, catch_draw, tripid) %>%
         dplyr::summarize(tot_keep_scup = sum(keep),
@@ -788,6 +782,11 @@ predict_rec_catch <- function(state1,
     #dplyr::select(!c(day.x, day.y, day_i.x, day_i.y, draw.x, draw.y)) %>% 
     # dplyr::filter(!day == 0, 
     #               !cost == "NA")
+  
+  td<-trip_data %>% 
+    dplyr::filter(stringr::str_detect(period2, "pr"))
+  mean(td$tot_keep_bsb) 
+  mean(td$tot_keep_bsb_base)
   
   period_vec1 <- period_vec %>%
      dplyr::mutate(#beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
@@ -1166,23 +1165,7 @@ predict_rec_catch <- function(state1,
       period = as.character(period2)) %>%
     dplyr::mutate(expand = n_choice_occasions/ndraws)
   
- 
-  length_expand <- sims %>%
-    dplyr::select(period2, tripid, expand) %>%
-    dplyr::full_join(length_data3, by = c("period2", "tripid")) %>% 
-    dplyr::select(-probA)
-  
-  
-  all_vars<-c()
-  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
-  
-  ## Move to outside function 
-  length_expand <- length_expand %>% 
-    data.table::as.data.table() %>%
-    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
-    .[]
 
-    
   #length_expand<- length_expand[rep(seq_len(nrow(length_expand)), each = nrow(sims)), ]
     #Multiply Expand by probNum then
     #Sum by fish length across all periods and modes = single value (total Number) of SF at 17in
@@ -1200,27 +1183,11 @@ predict_rec_catch <- function(state1,
       
   ### Keep all sp_length_mode columns and multiple by expand outside function -
   ##### Should be same number of rows - merge on (period2, tripid)
-  
-  trip_level_output <- sims%>%
-    dplyr::mutate(state=state1)   %>%
-    dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
-                    tot_keep_sf, tot_rel_sf, 
-                    tot_keep_bsb, tot_rel_bsb,
-                    tot_keep_scup, tot_rel_scup,
-                    tot_scup_catch, 
-                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) #%>% 
-    #dplyr::full_join(length_expand, by = c("period2", "tripid", "expand"))
-
-  length_out<- length_expand %>% 
-    ## ADD LW Conversion Here
-    dplyr::select(dplyr::starts_with(c("keep","release"))) %>% 
-    dplyr::summarise_all(sum) %>% 
-    tidyr::pivot_longer(cols = everything(), names_to = "Var", 
-                        values_to = "Number") %>% 
-    tidyr::separate(Var, into = c("Keep_Release", "Species", "Length")) %>% 
-    dplyr::group_by(Keep_Release, Species) %>% 
-    dplyr::summarise(Total_Number = sum(Number))
-  
+ 
+  length_expand <- sims %>%
+    dplyr::select(period2, tripid, expand) %>%
+    dplyr::full_join(length_data3, by = c("period2", "tripid")) %>% 
+    dplyr::select(-probA)
   
   all_vars<-c()
   all_vars <- names(length_expand)[!names(length_expand) %in% c("period2")]
@@ -1271,6 +1238,14 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(Var = paste0(Var1,"_",Var)) %>% 
     dplyr::select(!Var1)
 
+  trip_level_output <- sims%>%
+    dplyr::mutate(state=state1)   %>%
+    dplyr::select(c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
+                    tot_keep_sf, tot_rel_sf, 
+                    tot_keep_bsb, tot_rel_bsb,
+                    tot_keep_scup, tot_rel_scup,
+                    tot_scup_catch, 
+                    tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) 
   
   prediction_output_by_period1 <- trip_level_output %>%  tidyr::separate(period2, c("month","day", "mode1"), "_")
   
@@ -1334,7 +1309,7 @@ predict_rec_catch <- function(state1,
     dplyr::mutate(state = state1, 
                   mode = replace(mode, mode %in% "NA", NA)) 
 
-  #write.csv(predictions, file = "output_1.csv")
+  write.csv(predictions, file = "output_1.csv")
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 

@@ -31,6 +31,9 @@ scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_p
 l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(State=="NJ")
 
+s_star_data <- readr::read_csv(file.path(here::here("data-raw/size_data/s_star_data_test.csv")),  show_col_types = FALSE) %>%
+  dplyr::filter(state=="NJ")
+
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
   dplyr::mutate(fluke_bag1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas1[1]) & day_i <= lubridate::yday(input$SFnjFH_seas1[2]) ~ as.numeric(input$SFnjFH_1_smbag), TRUE ~ fluke_bag1), 
                 fluke_bag1=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SFnjPR_seas1[1]) & day_i <= lubridate::yday(input$SFnjPR_seas1[2]) ~ as.numeric(input$SFnjPR_1_smbag), TRUE ~ fluke_bag1), 
@@ -167,6 +170,7 @@ for (x in 1:1){
                            scup_size_data_read = scup_size_data,
                            costs_new_all = c(list(cost_files_all_base[[1]])),
                            l_w = l_w_conversion,
+                           s_star = s_star_data, 
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
   
