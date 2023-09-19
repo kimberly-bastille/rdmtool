@@ -209,9 +209,9 @@ if (interactive()) {
       
       tabPanel("Results", 
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                                tags$div("Calculating",id="loadmessage")),
+                                tags$div("Calculating...This may take a minute.",id="loadmessage")),
                fluidRow(
-                 column(4,
+                 column(8,
                         tableOutput(outputId = "keep_release_tableout")),
                  column(4, 
                         tableOutput(outputId = "welfare_trips_tableout")),
@@ -227,24 +227,24 @@ if (interactive()) {
     
     library(magrittr) 
     
-    ######### Setup ##########################################
-    sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-      dplyr::filter(state!="NC") %>% 
-      dplyr::select(c(state, fitted_length, prob_star))%>% 
-      dplyr::rename(fitted_prob = prob_star)
-    sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
-    
-    bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-      dplyr::filter(state!="NC") %>% 
-      dplyr::select(c(state, fitted_length, prob_star))%>% 
-      dplyr::rename(fitted_prob = prob_star)
-    bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
-    
-    scup_size_data <- readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-      dplyr::filter(state!="NC") %>% 
-      dplyr::select(c(state, fitted_length, prob_star))%>% 
-      dplyr::rename(fitted_prob = prob_star)
-    scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
+    # ######### Setup ##########################################
+    # sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    #   dplyr::filter(state!="NC") %>% 
+    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
+    #   dplyr::rename(fitted_prob = prob_star)
+    # sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
+    # 
+    # bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    #   dplyr::filter(state!="NC") %>% 
+    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
+    #   dplyr::rename(fitted_prob = prob_star)
+    # bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
+    # 
+    # scup_size_data <- readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
+    #   dplyr::filter(state!="NC") %>% 
+    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
+    #   dplyr::rename(fitted_prob = prob_star)
+    # scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
     ###############################################################
     
     
@@ -493,13 +493,16 @@ if (interactive()) {
       ## Output Table 
       output$keep_release_tableout<- renderTable({
         output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions, by = "colname") %>% 
-          dplyr::filter(stringr::str_detect(colname, "bsb|scup|sf")) %>% 
-          dplyr::mutate(Category = paste(Category, "(lbs)"), 
+          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
+          dplyr::filter(Category %in% c("bsb", "scup","sf")) %>% 
+          dplyr::mutate(#Category = paste(Category, "(lbs)"), 
                         StatusQuo = round(StatusQuo, digits = 0), 
-                        Alternative = round(value, digits = 0),
+                        Alternative = round(Value, digits = 0),
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(Species, Category, StatusQuo, Alternative, Percent_Change)) 
+          dplyr::select(c(Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
+          tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
+          dplyr::rename("StatusQuo_Weight (lbs)" = StatusQuo_Weight, 
+                        "Alternative_Weight (lbs)" = Alternative_Weight)
         
         outputtable<- output
       })
@@ -507,14 +510,14 @@ if (interactive()) {
       
       output$welfare_trips_tableout<- renderTable({
         output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions, by = "colname") %>% 
-          dplyr::filter(stringr::str_detect(colname, "cv|ntrips"))%>% 
-          dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(colname, "cv") ~ paste(Category, "($)"), 
-                                                    stringr::str_detect(colname, "ntrips") ~ Category),
+          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
+          dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
+          dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(Category, "CV") ~ paste(Category, "($)"), 
+                                                    stringr::str_detect(Category, "ntrips") ~ Category),
                         StatusQuo = round(StatusQuo, digits = 2), 
-                        Alternative = round(value, digits = 2),
+                        Alternative = round(Value, digits = 2),
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(Category, StatusQuo, Alternative, Percent_Change)) 
+          dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) 
         
         outputtable<- output
       })
@@ -663,7 +666,7 @@ if (interactive()) {
                                             "% of runs that result in desired outcome", 
                                             "Catch by weight", "Incorporating Avidity and Angler Age"), 
                                 Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
-                                          "", "", "", "")
+                                          "", "", "Done", "Done")
         )
         
         

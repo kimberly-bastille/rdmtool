@@ -1265,7 +1265,7 @@ predict_rec_catch <- function(state1,
     dplyr::summarise(Total_Number = sum(Total_Number), 
                      Total_Weight = sum(Total_Weight)) %>% 
     dplyr::ungroup() %>% 
-    dplyr::mutate(Var1 = paste0(Species, "_", keep_release)) %>% 
+    dplyr::mutate(Var1 = paste0(Species, "_",NA, "_", keep_release)) %>% 
     dplyr::select(Var1, Total_Number, Total_Weight) %>% 
     tidyr::pivot_longer(!Var1, names_to = "Var", values_to = "Value") %>% 
     dplyr::mutate(Var = paste0(Var1,"_",Var)) %>% 
@@ -1328,8 +1328,13 @@ predict_rec_catch <- function(state1,
     dplyr::summarise(CV= sum(CV), 
                      ntrips = sum(ntrips)) %>% 
     tidyr::pivot_longer(cols = everything(.), names_to = "Var", values_to = "Value") %>% 
-    rbind(prediction_mode, l_w_mode, l_w_sum)
+    rbind(prediction_mode, l_w_mode, l_w_sum) %>% 
+    tidyr::separate(Var, into = c("Category", "mode", "keep_release", "d", "number_weight")) %>% 
+    dplyr::select(!d) %>% 
+    dplyr::mutate(state = state1, 
+                  mode = replace(mode, mode %in% "NA", NA)) 
 
+  #write.csv(predictions, file = "output_1.csv")
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
