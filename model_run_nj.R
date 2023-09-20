@@ -111,8 +111,8 @@ for (x in 1:1){
                   period2 = paste0(month_day, "-", mode)) %>% 
     dplyr::select(-c(month, day, month_day, mode))
   
-  calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
-  cost_files_all_base <- split(costs_new_all, costs_new_all$state)
+  # calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
+  # cost_files_all_base <- split(costs_new_all, costs_new_all$state)
   
   
   directed_trips2 <- directed_trips %>% 
@@ -130,6 +130,8 @@ for (x in 1:1){
   
   scup_size_data <- scup_size_dat %>% 
     dplyr::filter(draw == 0)
+  
+  print("made it through data read in ")
 
   #print(directed_trips2)
   #2) Run the prediction model
@@ -163,12 +165,12 @@ for (x in 1:1){
   #                sf_catch_data_all = c(list(catch_files_NJ)))
   #print(head(params))
   test<- predict_rec_catch(state1 = c("NJ"),
-                           calibration_data_table = c(list(calibration_data_table_base[[1]])),
+                           calibration_data_table = calibration_output_by_period,
                            directed_trips_table = directed_trips2,
                            sf_size_data_read = sf_size_data,
                            bsb_size_data_read = bsb_size_data,
                            scup_size_data_read = scup_size_data,
-                           costs_new_all = c(list(cost_files_all_base[[1]])),
+                           costs_new_all = costs_new_all,
                            l_w = l_w_conversion,
                            s_star = s_star_data, 
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))

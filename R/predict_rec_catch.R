@@ -21,8 +21,8 @@ predict_rec_catch <- function(state1,
                               scup_size_data_read,
                               costs_new_all,
                               sf_catch_data_all,
-                              l_w,
-                              s_star,
+                              l_w_conversion,
+                              s_star_data,
                               n_drawz = 50, 
                               n_catch_draws = 30, 
                               eff_seed=190){
@@ -30,11 +30,11 @@ predict_rec_catch <- function(state1,
 
   set.seed(eff_seed)
   # Input the calibration output which contains the number of choice occasions needed to simulate
-  calibration_data <- calibration_data_table[[1]] %>% tibble::tibble() %>% 
+  calibration_data <- calibration_data_table %>% tibble::tibble() %>% 
     tidyr::separate(period2, into = c("month", "day", "mode")) %>% 
     dplyr::mutate(period2 = paste0(as.numeric(month), "_", as.numeric(day), "_", mode))
 
-  
+  print("first read in")
   print("pre-rename")
   # Input regul
   #directed_trips <- directed_trips_table[[1]] %>% tibble::tibble() %>% dplyr::filter(state == state1) 
@@ -749,7 +749,7 @@ predict_rec_catch <- function(state1,
   
   #names<- c(grep("*beta*", names(costs_new_all), value=TRUE, invert=TRUE))
 
-  costs_new_all2 <- data.frame(  costs_new_all[[1]]) %>% #tibble() %>%
+  costs_new_all2 <- data.frame(  costs_new_all) %>% #tibble() %>%
     #dplyr::filter(catch_draw<=n_catch_draws) %>% #%>%select(all_of(names)) %>%
     dplyr::filter(catch_draw<=n_drawz) %>% 
     #dplyr::select(-beta_cost) %>%
@@ -1213,16 +1213,24 @@ predict_rec_catch <- function(state1,
                   weight = dplyr::case_when(Species == "sf" ~ a*length_cm^b, TRUE ~ weight), 
                   weight = dplyr::case_when(Species == "bsb" ~ a*length_cm^b, TRUE ~ weight), 
                   weight = weight*2.20462262185, #convert to lbs
-                  Total_weight = Number_at_Length * weight)  %>% 
+                  Total_weight = Number_at_Length * weight, 
+                  Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "sf" ~ (.1 * Number_at_Length * weight)), 
+                  Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "scup" ~ (.15 * Number_at_Length * weight), TRUE ~ Mortality_weight),
+                  Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "bsb" ~ (.15 * Number_at_Length * weight), TRUE ~ Mortality_weight), 
+                  Mortality_Number = dplyr::case_when(keep_release == "release" & Species == "sf" ~ (.1 * Number_at_Length)), 
+                  Mortality_Number = dplyr::case_when(keep_release == "release" & Species == "scup" ~ (.15 * Number_at_Length), TRUE ~ Mortality_Number),
+                  Mortality_Number = dplyr::case_when(keep_release == "release" & Species == "bsb" ~ (.15 * Number_at_Length), TRUE ~ Mortality_Number))  %>% 
     dplyr::group_by(Species, Mode, keep_release) %>% 
     dplyr::summarise(Total_Number = sum(Number_at_Length), 
-                     Total_Weight = sum(Total_weight)) %>% 
+                     Total_Weight = sum(Total_weight), 
+                     Mortality_Weight = sum(Mortality_weight), 
+                     Mortality_Number = sum(Mortality_Number)) %>% 
     dplyr::rename(mode1 = Mode) %>% 
     dplyr::ungroup()
   
   l_w_mode <- length_weight %>% 
     dplyr::mutate(Var1 = paste0(Species, "_", mode1, "_", keep_release)) %>% 
-    dplyr::select(Var1, Total_Number, Total_Weight) %>% 
+    dplyr::select(Var1, Total_Number, Total_Weight, Mortality_Weight, Mortality_Number) %>% 
     tidyr::pivot_longer(!Var1, names_to = "Var", values_to = "Value") %>% 
     dplyr::mutate(Var = paste0(Var1,"_",Var)) %>% 
     dplyr::select(!Var1)
@@ -1230,7 +1238,9 @@ predict_rec_catch <- function(state1,
   l_w_sum <- length_weight %>% 
     dplyr::group_by(Species, keep_release) %>% 
     dplyr::summarise(Total_Number = sum(Total_Number), 
-                     Total_Weight = sum(Total_Weight)) %>% 
+                     Total_Weight = sum(Total_Weight), 
+                     Mortality_Weight = sum(Mortality_Weight), 
+                     Mortality_Weight = sum(Mortality_Weight)) %>% 
     dplyr::ungroup() %>% 
     dplyr::mutate(Var1 = paste0(Species, "_",NA, "_", keep_release)) %>% 
     dplyr::select(Var1, Total_Number, Total_Weight) %>% 
@@ -1304,12 +1314,12 @@ predict_rec_catch <- function(state1,
                      ntrips = sum(ntrips)) %>% 
     tidyr::pivot_longer(cols = everything(.), names_to = "Var", values_to = "Value") %>% 
     rbind(prediction_mode, l_w_mode, l_w_sum) %>% 
-    tidyr::separate(Var, into = c("Category", "mode", "keep_release", "d", "number_weight")) %>% 
-    dplyr::select(!d) %>% 
+    tidyr::separate(Var, into = c("Category", "mode", "keep_release", "param", "number_weight")) %>% 
     dplyr::mutate(state = state1, 
-                  mode = replace(mode, mode %in% "NA", NA)) 
+                  mode = replace(mode, mode %in% "NA", NA)) %>% 
+    dplyr::filter(!Value == "NA")
 
-  write.csv(predictions, file = "output_1.csv")
+  #write.csv(predictions, file = "output_NJ_1.csv")
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 

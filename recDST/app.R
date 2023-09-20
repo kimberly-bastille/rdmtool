@@ -210,11 +210,10 @@
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                fluidRow(
-                 column(8,
-                        tableOutput(outputId = "keep_release_tableout")),
-                 column(4, 
-                        tableOutput(outputId = "welfare_trips_tableout")),
-                 tableOutput(outputId = "regtableout"), 
+                 column(9, tableOutput(outputId = "keep_release_tableout")),
+                 column(3, tableOutput(outputId = "regtableout")),
+                 tableOutput(outputId = "welfare_trips_tableout"), 
+                 tableOutput(outputId = "mortalityout"),
                  tableOutput(outputId = "futureplansout"))), 
       
       
@@ -225,26 +224,6 @@
   server <- function(input, output, session) {
     
     library(magrittr) 
-    
-    # ######### Setup ##########################################
-    # sf_size_data <- readr::read_csv(file.path(here::here("data-raw/sf_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-    #   dplyr::filter(state!="NC") %>% 
-    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
-    #   dplyr::rename(fitted_prob = prob_star)
-    # sf_size_data_read_base <- split(sf_size_data, sf_size_data$state)
-    # 
-    # bsb_size_data <- readr::read_csv(file.path(here::here("data-raw/bsb_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-    #   dplyr::filter(state!="NC") %>% 
-    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
-    #   dplyr::rename(fitted_prob = prob_star)
-    # bsb_size_data_read_base <- split(bsb_size_data, bsb_size_data$state)
-    # 
-    # scup_size_data <- readr::read_csv(file.path(here::here("data-raw/scup_length_distn_2020.csv")),  show_col_types = FALSE) %>% 
-    #   dplyr::filter(state!="NC") %>% 
-    #   dplyr::select(c(state, fitted_length, prob_star))%>% 
-    #   dplyr::rename(fitted_prob = prob_star)
-    # scup_size_data_read_base <- split(scup_size_data, scup_size_data$state)
-    ###############################################################
     
     
     ############### Toggle extra seasons on front end #############
@@ -491,9 +470,10 @@
       
       ## Output Table 
       output$keep_release_tableout<- renderTable({
-        output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
-          dplyr::filter(Category %in% c("bsb", "scup","sf")) %>% 
+        output<- read.csv(here::here(paste0("output_", state, "_1.csv")))  %>% 
+          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
+          dplyr::filter(Category %in% c("bsb", "scup","sf"), 
+                        param == "Total") %>% 
           dplyr::mutate(#Category = paste(Category, "(lbs)"), 
                         StatusQuo = round(StatusQuo, digits = 0), 
                         Alternative = round(Value, digits = 0),
@@ -670,10 +650,34 @@
                                             "% of runs that result in desired outcome", 
                                             "Catch by weight", "Incorporating Avidity and Angler Age"), 
                                 Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
-                                          "", "", "Done", "Done"))
+                                          "Done", "", "Done", "Done"))
         
         
-      })})#})
+      })
+      
+      output$mortalityout <- renderTable({
+        output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
+          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
+          dplyr::filter(Category %in% c("bsb", "scup","sf"), 
+                        param == "Mortality") %>% 
+          dplyr::mutate(#Category = paste(Category, "(lbs)"), 
+            StatusQuo = round(StatusQuo, digits = 0), 
+            Alternative = round(Value, digits = 0),
+            Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
+          dplyr::select(c(Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
+          tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
+          dplyr::rename("StatusQuo_Mort_Weight (lbs)" = StatusQuo_Weight, 
+                        "Alternative_Mort_Weight (lbs)" = Alternative_Weight, 
+                        "StatusQuo_Mort_Number" = StatusQuo_Number, 
+                        "Alternative_Mort_Number" = Alternative_Number, 
+                        "Species" = Category)
+        outputtable<- output
+        
+      })
+      })#})
+    
+    
+    
     
   }
 
