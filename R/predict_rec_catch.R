@@ -1,16 +1,16 @@
 
-# state1 = c("NJ")
-# calibration_data_table = c(list(calibration_data_table_base[[1]]))
-# directed_trips_table = directed_trips2
-# sf_size_data_read = sf_size_data
-# bsb_size_data_read = bsb_size_data
-# scup_size_data_read = scup_size_data
-# costs_new_all = c(list(cost_files_all_base[[1]]))
-# 
-# sf_catch_data_all = c(list(catch_files_NJ))
-# n_drawz = 50
-# n_catch_draws = 30
-# eff_seed=190
+state1 = c("NJ")
+calibration_data_table = calibration_output_by_period
+directed_trips_table = directed_trips2
+sf_size_data_read = sf_size_data
+bsb_size_data_read = bsb_size_data
+scup_size_data_read = scup_size_data
+costs_new_all = costs_new_all
+
+sf_catch_data_all = c(list(catch_files_NJ))
+n_drawz = 50
+n_catch_draws = 30
+eff_seed=190
 
 
 predict_rec_catch <- function(state1,
@@ -930,7 +930,7 @@ predict_rec_catch <- function(state1,
     .[, probA :=expon_vA/vA_col_sum] %>%
     .[, prob0 :=expon_v0/v0_col_sum]
   
-  
+  sum(mean_trip_data$change_CS)
   mean_trip_data<- subset(mean_trip_data, alt==1)
   
   # mean_trip_data1<-mean_trip_data %>% group_by(period,tripid) %>% summarise(across(everything(), mean), .groups = 'drop') %>%
@@ -1319,7 +1319,7 @@ predict_rec_catch <- function(state1,
                   mode = replace(mode, mode %in% "NA", NA)) %>% 
     dplyr::filter(!Value == "NA")
 
-  #write.csv(predictions, file = "output_NJ_1.csv")
+  write.csv(predictions, file = "test_NJ_3.csv")
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
