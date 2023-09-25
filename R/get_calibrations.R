@@ -54,9 +54,19 @@ for(k in 1:100){
 
 #### New Jersey
 
+# p_star_sf_NJ_variable_fh<- 0.734
+# p_star_bsb_NJ_variable_fh<-0.442
+# p_star_scup_NJ_variable_fh<-0.427
+# p_star_sf_NJ_variable_pr<-0.819
+# p_star_bsb_NJ_variable_pr<-0.715
+# p_star_scup_NJ_variable_pr<-0.503
+# p_star_sf_NJ_variable_sh<-0.927
+# p_star_bsb_NJ_variable_sh<-1
+# p_star_scup_NJ_variable_sh<-1
+
 p_star_sf_NJ_variable_fh<- 0.734
-p_star_bsb_NJ_variable_fh<-0.442
-p_star_scup_NJ_variable_fh<-0.427
+p_star_bsb_NJ_variable_fh<-0.447
+p_star_scup_NJ_variable_fh<-0.417
 p_star_sf_NJ_variable_pr<-0.819
 p_star_bsb_NJ_variable_pr<-0.715
 p_star_scup_NJ_variable_pr<-0.503
@@ -75,7 +85,7 @@ p_star_scup_NJ_variable_sh<-1
 # 8	BSB		1				sh	
 # 9	SCUP	1		    sh
 
-for(k in 1:5){
+for(k in 1:10){
   calibration_fh<- calibrate_rec_catch("NJ", 34, 
                                        p_star_sf_NJ_variable_fh,
                                        p_star_bsb_NJ_variable_fh,

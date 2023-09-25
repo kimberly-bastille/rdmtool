@@ -1020,7 +1020,10 @@ calibrate_rec_catch <- function(state1,
                   n_cal_draw = k)
   
   output<-list(pds_new_all, costs_new_all)
-  #
+  
+  
+  print(pds_new_all$change_cs)
+  
   return(output)
 }
   # return(pds_new_all)

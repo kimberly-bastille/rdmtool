@@ -1,16 +1,16 @@
-
-state1 = c("NJ")
-calibration_data_table = calibration_output_by_period
-directed_trips_table = directed_trips2
-sf_size_data_read = sf_size_data
-bsb_size_data_read = bsb_size_data
-scup_size_data_read = scup_size_data
-costs_new_all = costs_new_all
-
-sf_catch_data_all = c(list(catch_files_NJ))
-n_drawz = 50
-n_catch_draws = 30
-eff_seed=190
+# 
+# state1 = c("NJ")
+# calibration_data_table = calibration_output_by_period
+# directed_trips_table = directed_trips2
+# sf_size_data_read = sf_size_data
+# bsb_size_data_read = bsb_size_data
+# scup_size_data_read = scup_size_data
+# costs_new_all = costs_new_all
+# 
+# sf_catch_data_all = c(list(catch_files_NJ))
+# n_drawz = 50
+# n_catch_draws = 30
+# eff_seed=190
 
 
 predict_rec_catch <- function(state1,
@@ -25,7 +25,8 @@ predict_rec_catch <- function(state1,
                               s_star_data,
                               n_drawz = 50, 
                               n_catch_draws = 30, 
-                              eff_seed=190){
+                              eff_seed=190, 
+                              run_number){
   
 
   set.seed(eff_seed)
@@ -270,8 +271,8 @@ predict_rec_catch <- function(state1,
   new_size_data<- new_size_data%>%
     dplyr::mutate(uniform=runif(nrow(new_size_data)), 
                   mode1 = stringr::str_extract(period2, "[a-z]+")) %>% 
-    dplyr::mutate(release = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ release),
-                  keep = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ keep),
+    dplyr::mutate(release = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 0, TRUE ~ release),
+                  keep = dplyr::case_when(uniform > s_star_sh & mode1 == "sh" & keep == 1 ~ 1, TRUE ~ keep),
                   
                   release = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 0, TRUE ~ release),
                   keep = dplyr::case_when(uniform > s_star_fh & mode1 == "fh" & release == 1 ~ 1, TRUE ~ keep),
@@ -1316,10 +1317,11 @@ predict_rec_catch <- function(state1,
     rbind(prediction_mode, l_w_mode, l_w_sum) %>% 
     tidyr::separate(Var, into = c("Category", "mode", "keep_release", "param", "number_weight")) %>% 
     dplyr::mutate(state = state1, 
-                  mode = replace(mode, mode %in% "NA", NA)) %>% 
+                  mode = replace(mode, mode %in% "NA", NA), 
+                  run_number = x) %>% 
     dplyr::filter(!Value == "NA")
 
-  write.csv(predictions, file = "test_NJ_3.csv")
+  #write.csv(predictions, file = "test_NJ_10.csv")
   ## Add Length_expand to trip_level_output
   #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
 
