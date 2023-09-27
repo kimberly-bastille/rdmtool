@@ -25,8 +25,9 @@ predict_rec_catch <- function(state1,
                               s_star_data,
                               n_drawz = 50, 
                               n_catch_draws = 30, 
-                              eff_seed=190, 
-                              run_number){
+                              eff_seed=190 
+                              #run_number
+                              ){
   
 
   set.seed(eff_seed)
@@ -1317,8 +1318,8 @@ predict_rec_catch <- function(state1,
     rbind(prediction_mode, l_w_mode, l_w_sum) %>% 
     tidyr::separate(Var, into = c("Category", "mode", "keep_release", "param", "number_weight")) %>% 
     dplyr::mutate(state = state1, 
-                  mode = replace(mode, mode %in% "NA", NA), 
-                  run_number = x) %>% 
+                  mode = replace(mode, mode %in% "NA", NA)) %>% 
+                  #run_number = x
     dplyr::filter(!Value == "NA")
 
   #write.csv(predictions, file = "test_NJ_10.csv")

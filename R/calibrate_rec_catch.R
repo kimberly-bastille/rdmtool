@@ -13,15 +13,15 @@
 # p_star_sf <- p_star_sf_VA_variable
 # p_star_bsb<-p_star_bsb_VA_variable
 # p_star_scup<-p_star_scup_VA_variable
- state1 <- "NJ"
- state_no<-34
- k = 1
- select_mode = "fh"
-# directed_trips_table <- directed_trips_table_base[[5]]
-# sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
-p_star_sf <- p_star_sf_NJ_variable_fh
-p_star_bsb<-p_star_bsb_NJ_variable_fh
-p_star_scup<-p_star_scup_NJ_variable_fh
+#  state1 <- "NJ"
+#  state_no<-34
+#  k = 1
+#  select_mode = "fh"
+# # directed_trips_table <- directed_trips_table_base[[5]]
+# # sf_catch_data_all <- readRDS(here::here("data-raw/catch/catch_files_NJ.rds"))
+# p_star_sf <- p_star_sf_NJ_variable_fh
+# p_star_bsb<-p_star_bsb_NJ_variable_fh
+# p_star_scup<-p_star_scup_NJ_variable_fh
 
 calibrate_rec_catch <- function(state1,
                                 state_no,
@@ -175,15 +175,17 @@ calibrate_rec_catch <- function(state1,
     dplyr::slice(rep(row_inds,tot_sf_catch))   %>%
     dplyr::mutate(fishid=dplyr::row_number())
   
-  sf_size_data<- sf_size_data %>% 
-    dplyr::filter(state == state1)
-  # generate lengths for each fish
-  catch_size_data <- sf_catch_data %>%
-    dplyr::mutate(fitted_length = sample(sf_size_data$length,
-                                         nrow(.),
-                                         prob = sf_size_data$fitted_prob,
-                                         replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
   
+  
+  # sf_size_data<- sf_size_data %>% 
+  #   dplyr::filter(state == state1)
+  # # generate lengths for each fish
+  # catch_size_data <- sf_catch_data %>%
+  #   dplyr::mutate(fitted_length = sample(sf_size_data$length,
+  #                                        nrow(.),
+  #                                        prob = sf_size_data$fitted_prob,
+  #                                        replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
+  # 
   ##I()
   
   # Impose regulations, calculate keep and release per trip
@@ -191,127 +193,141 @@ calibrate_rec_catch <- function(state1,
   ####### Start Here #################
   
   # ################### P_Star #############################
-  # catch_size_data2 <- catch_size_data %>%
-  #   dplyr::left_join(regs, by = "period2") %>%
-  #   dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
-  #   dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%
-  #   dplyr::group_by(tripid, period2, catch_draw)   %>%
-  #   # keep = case_when(
-  #   # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
-  #   # TRUE ~ 0),
-  #   dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
-  #   dplyr::ungroup() %>%
-  #   dplyr::mutate(
-  #     keep_adj =dplyr:: case_when(
-  #       fluke_bag1 > 0 ~ ifelse(csum_keep<=fluke_bag1 & posskeep==1,1,0),
-  #       TRUE ~ 0))
-  # #sf_catch_data <- sf_catch_data %>% dplyr::arrange(period2, tripid, catch_draw)
-  # #catch_size_data[is.na(catch_size_data)] <- 0
-  # catch_size_data2 <- catch_size_data2 %>%
-  #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-  # 
-  # catch_size_data <- catch_size_data2 %>%
-  #   dplyr::mutate(keep_tot = keep_adj,
-  #                 release = ifelse(keep_adj==0,1,0))
-  # 
-  #  catch_size_data<- catch_size_data %>% 
-  #    dplyr::select(c(fishid, tripid, keep_tot, release, period2, catch_draw, mode1, month)) %>%
-  #    dplyr::rename(keep = keep_tot)
-  
-  ############# Length #####################################
-  catch_size_data <- catch_size_data %>%
+  catch_data2 <- sf_catch_data %>%
     dplyr::left_join(regs, by = "period2") %>%
-    dplyr::mutate(posskeep = ifelse(fitted_length>=fluke_min1 & fitted_length<fluke_max1,1,0)) %>%
+    dplyr::mutate(uniform=runif(nrow(sf_catch_data))) %>%
+    dplyr::mutate(posskeep = ifelse(uniform>=p_star_sf, 1,0)) %>%
     dplyr::group_by(tripid, period2, catch_draw)   %>%
-    dplyr::mutate(csum_keep = cumsum(posskeep)) %>% #,
-    # keep = dplyr::case_when(
-    #   fitted_length>=minsize & fitted_length<=maxsize ~ 1,
-    #   TRUE ~ 0)) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(
-      keep_adj = dplyr::case_when(
-        fluke_bag1 > 0 ~ ifelse(csum_keep<=fluke_bag1 & posskeep==1,1,0),
-        TRUE ~ 0))  %>%
-    
-    dplyr::mutate(posskeep2 = ifelse(fitted_length>=fluke_min2 & fitted_length<fluke_max2,1,0)) %>%
-    dplyr::group_by(tripid, period2, catch_draw) %>%
+    dplyr::mutate(sf_bag_total = fluke_bag1+fluke_bag2) %>% 
     # keep = case_when(
     # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
     # TRUE ~ 0),
-    dplyr::mutate(csum_keep2 = cumsum(posskeep2)) %>%
+    dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
-      keep_adj2 = dplyr::case_when(
-        fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0),
-        TRUE ~ 0))
+      keep_adj =dplyr:: case_when(
+        sf_bag_total > 0 ~ ifelse(csum_keep<=sf_bag_total & posskeep==1,1,0),
+        TRUE ~ 0)) #%>%
+    #dplyr::mutate(posskeep2 = ifelse(uniform>=p_star_sf, 1,0)) %>%
+    #dplyr::group_by(tripid, period2, catch_draw) #%>%
+    # keep = case_when(
+    # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+    # TRUE ~ 0),
+    
   
+  #sf_catch_data <- sf_catch_data %>% dplyr::arrange(period2, tripid, catch_draw)
   #catch_size_data[is.na(catch_size_data)] <- 0
-  catch_size_data <- catch_size_data %>%
+  catch_data <- catch_data2 %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
   
-  catch_size_data <- catch_size_data %>%
-    dplyr::mutate(keep_tot = keep_adj+keep_adj2,
-                  release = ifelse(keep_adj==0 & keep_adj2==0,1,0))
+  catch_data <- catch_data %>%
+    dplyr::mutate(keep_tot = keep_adj,
+                  release = ifelse(keep_adj==0, 1,0))
+
+   catch_data<- catch_data %>%
+     dplyr::select(c(fishid, tripid, keep_tot, release, period2, catch_draw, mode1, month)) %>%
+     dplyr::rename(keep = keep_tot)
   
-  ###### ANDREWS CODE #@######
-  catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>% 
-    dplyr::rename(keep = keep_tot)
-  
-  new_size_data <- catch_size_data %>%
-    dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
-    dplyr::summarize(keep = sum(keep),
-                     release = sum(release), .groups = "drop") %>% 
-    dplyr::ungroup()
-  
-  summed_catch_data <- catch_size_data %>%
-    dplyr::group_by(period2, catch_draw, tripid) %>%
-    dplyr::summarize(tot_keep_sf = sum(keep),
-                     tot_rel_sf = sum(release),
-                     .groups = "drop") %>% 
-    dplyr::ungroup()
-  
-  keep_size_data <- new_size_data %>%
-    dplyr::select(-release) %>%
-    tidyr::pivot_wider(names_from = fitted_length, #_length,
-                       names_glue = "keep_sf_{fitted_length}",
-                       names_sort = TRUE,
-                       values_from = keep, 
-                       values_fill = 0) 
-  
-  release_size_data <- new_size_data %>%
-    dplyr::select(-keep) %>%
-    tidyr::pivot_wider(names_from = fitted_length, #_length,
-                       names_glue = "release_sf_{fitted_length}",
-                       names_sort = TRUE,
-                       values_from = release, 
-                       values_fill = 0) 
-  
-  keep_release_sf <- keep_size_data %>% 
-    dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
-  
-  sf_zero_catch<- sf_zero_catch %>% ## ADD back zero catches
-    dplyr::select(period2, tripid, catch_draw)
-  
-  keep_release_sf <- keep_release_sf %>% 
-    dplyr::full_join(sf_zero_catch, by = c("period2", "catch_draw", "tripid")) %>% 
-    dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-  
+   summed_catch_data <- catch_data %>%
+     dplyr::group_by(period2, catch_draw, tripid) %>%
+     dplyr::summarize(tot_keep_sf = sum(keep),
+                      tot_rel_sf = sum(release),
+                      .groups = "drop") %>%
+     dplyr::ungroup()
+  ############# Length #####################################
+  # catch_size_data <- catch_size_data %>%
+  #   dplyr::left_join(regs, by = "period2") %>%
+  #   dplyr::mutate(posskeep = ifelse(fitted_length>=fluke_min1 & fitted_length<fluke_max1,1,0)) %>%
+  #   dplyr::group_by(tripid, period2, catch_draw)   %>%
+  #   dplyr::mutate(csum_keep = cumsum(posskeep)) %>% #,
+  #   # keep = dplyr::case_when(
+  #   #   fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+  #   #   TRUE ~ 0)) %>%
+  #   dplyr::ungroup() %>%
+  #   dplyr::mutate(
+  #     keep_adj = dplyr::case_when(
+  #       fluke_bag1 > 0 ~ ifelse(csum_keep<=fluke_bag1 & posskeep==1,1,0),
+  #       TRUE ~ 0))  %>%
+  #   
+  #   dplyr::mutate(posskeep2 = ifelse(fitted_length>=fluke_min2 & fitted_length<fluke_max2,1,0)) %>%
+  #   dplyr::group_by(tripid, period2, catch_draw) %>%
+  #   # keep = case_when(
+  #   # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+  #   # TRUE ~ 0),
+  #   dplyr::mutate(csum_keep2 = cumsum(posskeep2)) %>%
+  #   dplyr::ungroup() %>%
+  #   dplyr::mutate(
+  #     keep_adj2 = dplyr::case_when(
+  #       fluke_bag2 > 0 ~ ifelse(csum_keep2<=fluke_bag2 & posskeep2==1,1,0),
+  #       TRUE ~ 0))
+  # 
+  # #catch_size_data[is.na(catch_size_data)] <- 0
+  # catch_size_data <- catch_size_data %>%
+  #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+  # 
+  # catch_size_data <- catch_size_data %>%
+  #   dplyr::mutate(keep_tot = keep_adj+keep_adj2,
+  #                 release = ifelse(keep_adj==0 & keep_adj2==0,1,0))
+  # 
+  # ###### ANDREWS CODE #@######
+  # catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>% 
+  #   dplyr::rename(keep = keep_tot)
+  # 
+  # new_size_data <- catch_size_data %>%
+  #   dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
+  #   dplyr::summarize(keep = sum(keep),
+  #                    release = sum(release), .groups = "drop") %>% 
+  #   dplyr::ungroup()
+  # 
+  # summed_catch_data <- catch_data %>%
+  #   dplyr::group_by(period2, catch_draw, tripid) %>%
+  #   dplyr::summarize(tot_keep_sf = sum(keep),
+  #                    tot_rel_sf = sum(release),
+  #                    .groups = "drop") %>%
+  #   dplyr::ungroup()
+  # 
+  # keep_size_data <- new_size_data %>%
+  #   dplyr::select(-release) %>%
+  #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+  #                      names_glue = "keep_sf_{fitted_length}",
+  #                      names_sort = TRUE,
+  #                      values_from = keep, 
+  #                      values_fill = 0) 
+  # 
+  # release_size_data <- new_size_data %>%
+  #   dplyr::select(-keep) %>%
+  #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+  #                      names_glue = "release_sf_{fitted_length}",
+  #                      names_sort = TRUE,
+  #                      values_from = release, 
+  #                      values_fill = 0) 
+  # 
+  # keep_release_sf <- keep_size_data %>% 
+  #   dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
+  # 
+  # sf_zero_catch<- sf_zero_catch %>% ## ADD back zero catches
+  #   dplyr::select(period2, tripid, catch_draw)
+  # 
+  # keep_release_sf <- keep_release_sf %>% 
+  #   dplyr::full_join(sf_zero_catch, by = c("period2", "catch_draw", "tripid")) %>% 
+  #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+  # 
   
   trip_data <- summed_catch_data 
   
-  trip_test<- trip_data %>% 
-    dplyr::filter(period2 == "6_6_fh", 
-                  tripid == 1)
-  
-  sf_zero_test <- sf_zero_catch %>% 
-    dplyr::filter(period2 == "6_6_fh", 
-                  tripid == 1)
+  # trip_test<- trip_data %>% 
+  #   dplyr::filter(period2 == "6_6_fh", 
+  #                 tripid == 1)
+  # 
+  # sf_zero_test <- sf_zero_catch %>% 
+  #   dplyr::filter(period2 == "6_6_fh", 
+  #                 tripid == 1)
   trip_data <- dplyr::bind_rows(trip_data, sf_zero_catch) %>%
     #arrange(period, catch_draw, tripid) %>%
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
     dplyr::mutate(state = state1,
-                  tot_sf_catch = tot_keep_sf + tot_rel_sf)# %>%
-    #dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
+                  tot_sf_catch = tot_keep_sf + tot_rel_sf) %>%
+    dplyr::select(-c("tot_bsb_catch", "tot_scup_catch", "tot_cat_bsb_new", "tot_cat_scup_new"))
   
   
   if (sf_catch_check==0){
@@ -381,79 +397,123 @@ calibrate_rec_catch <- function(state1,
     
     # 
     # # generate lengths for each fish
-    bsb_size_data<- bsb_size_data %>% 
+    bsb_data<- bsb_catch_data %>% 
       dplyr::filter(state == state1)
     
-    catch_size_data <- bsb_catch_data %>%
-      dplyr::mutate(fitted_length = sample(bsb_size_data$length,
-                                           nrow(.),
-                                           prob = bsb_size_data$fitted_prob,
-                                           replace = TRUE)) #%>%
-    
-    
-    catch_size_data <- catch_size_data %>%
+    # ################### P_Star #############################
+    catch_data2 <- bsb_data %>%
       dplyr::left_join(regs, by = "period2") %>%
-      dplyr::mutate(posskeep = ifelse(fitted_length>=bsb_min ,1,0)) %>%
-      dplyr::group_by(tripid, period2, catch_draw) %>%
+      dplyr::mutate(uniform=runif(nrow(bsb_catch_data))) %>%
+      dplyr::mutate(posskeep = ifelse(uniform>=p_star_bsb, 1,0)) %>%
+      dplyr::group_by(tripid, period2, catch_draw)   %>%
+      #dplyr::mutate(sf_bag_total = bsb_bag1+fluke_bag2) %>% 
       # keep = case_when(
       # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
       # TRUE ~ 0),
       dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
       dplyr::ungroup() %>%
       dplyr::mutate(
-        keep_adj = dplyr::case_when(
+        keep_adj =dplyr:: case_when(
           bsb_bag > 0 ~ ifelse(csum_keep<=bsb_bag & posskeep==1,1,0),
-          TRUE ~ 0))
-    catch_size_data <- catch_size_data %>%
+          TRUE ~ 0)) #%>%
+    #dplyr::mutate(posskeep2 = ifelse(uniform>=p_star_sf, 1,0)) %>%
+    #dplyr::group_by(tripid, period2, catch_draw) #%>%
+    # keep = case_when(
+    # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+    # TRUE ~ 0),
+    
+    
+    #sf_catch_data <- sf_catch_data %>% dplyr::arrange(period2, tripid, catch_draw)
+    #catch_size_data[is.na(catch_size_data)] <- 0
+    catch_data <- catch_data2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
     
-    catch_size_data <- catch_size_data %>%
+    catch_data <- catch_data %>%
       dplyr::mutate(keep_tot = keep_adj,
-                    release = ifelse(keep_adj==0,1,0))
+                    release = ifelse(keep_adj==0, 1,0))
     
-    catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>% 
+    catch_data<- catch_data %>%
+      dplyr::select(c(fishid, tripid, keep_tot, release, period2, catch_draw, mode1, month)) %>%
       dplyr::rename(keep = keep_tot)
     
-    new_size_data <- catch_size_data %>%
-      dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
-      dplyr::summarize(keep = sum(keep),
-                       release = sum(release), .groups = "drop") %>% 
-      dplyr::ungroup()
-    
-    summed_catch_data <- catch_size_data %>%
+    summed_catch_data <- catch_data %>%
       dplyr::group_by(period2, catch_draw, tripid) %>%
       dplyr::summarize(tot_keep_bsb = sum(keep),
                        tot_rel_bsb = sum(release),
-                       .groups = "drop") %>% 
+                       .groups = "drop") %>%
       dplyr::ungroup()
     
-    keep_size_data <- new_size_data %>%
-      dplyr::select(-release) %>%
-      tidyr::pivot_wider(names_from = fitted_length, #_length,
-                         names_glue = "keep_bsb_{fitted_length}",
-                         names_sort = TRUE,
-                         values_from = keep, 
-                         values_fill = 0) 
     
-    release_size_data <- new_size_data %>%
-      dplyr::select(-keep) %>%
-      tidyr::pivot_wider(names_from = fitted_length, #_length,
-                         names_glue = "release_bsb_{fitted_length}",
-                         names_sort = TRUE,
-                         values_from = release, 
-                         values_fill = 0) 
+    # catch_size_data <- bsb_catch_data %>%
+    #   dplyr::mutate(fitted_length = sample(bsb_size_data$length,
+    #                                        nrow(.),
+    #                                        prob = bsb_size_data$fitted_prob,
+    #                                        replace = TRUE)) #%>%
+    # 
+    # 
+    # catch_size_data <- catch_size_data %>%
+    #   dplyr::left_join(regs, by = "period2") %>%
+    #   dplyr::mutate(posskeep = ifelse(fitted_length>=bsb_min ,1,0)) %>%
+    #   dplyr::group_by(tripid, period2, catch_draw) %>%
+    #   # keep = case_when(
+    #   # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+    #   # TRUE ~ 0),
+    #   dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
+    #   dplyr::ungroup() %>%
+    #   dplyr::mutate(
+    #     keep_adj = dplyr::case_when(
+    #       bsb_bag > 0 ~ ifelse(csum_keep<=bsb_bag & posskeep==1,1,0),
+    #       TRUE ~ 0))
+    # catch_size_data <- catch_size_data %>%
+    #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+    # 
+    # catch_size_data <- catch_size_data %>%
+    #   dplyr::mutate(keep_tot = keep_adj,
+    #                 release = ifelse(keep_adj==0,1,0))
+    # 
+    # catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>% 
+    #   dplyr::rename(keep = keep_tot)
+    # 
+    # new_size_data <- catch_size_data %>%
+    #   dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
+    #   dplyr::summarize(keep = sum(keep),
+    #                    release = sum(release), .groups = "drop") %>% 
+    #   dplyr::ungroup()
+    # 
+    # summed_catch_data <- catch_size_data %>%
+    #   dplyr::group_by(period2, catch_draw, tripid) %>%
+    #   dplyr::summarize(tot_keep_bsb = sum(keep),
+    #                    tot_rel_bsb = sum(release),
+    #                    .groups = "drop") %>% 
+    #   dplyr::ungroup()
+    # 
+    # keep_size_data <- new_size_data %>%
+    #   dplyr::select(-release) %>%
+    #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+    #                      names_glue = "keep_bsb_{fitted_length}",
+    #                      names_sort = TRUE,
+    #                      values_from = keep, 
+    #                      values_fill = 0) 
+    # 
+    # release_size_data <- new_size_data %>%
+    #   dplyr::select(-keep) %>%
+    #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+    #                      names_glue = "release_bsb_{fitted_length}",
+    #                      names_sort = TRUE,
+    #                      values_from = release, 
+    #                      values_fill = 0) 
+    # 
+    # keep_release_bsb <- keep_size_data %>% 
+    #   dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
+    # 
     
-    keep_release_bsb <- keep_size_data %>% 
-      dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
-    
-    
-    bsb_zero_catch2<- bsb_zero_catch %>% ## ADD back zero catches
-      dplyr::select(period2, tripid, catch_draw)
-    
-    keep_release_bsb <- keep_release_bsb %>% 
-      dplyr::full_join(bsb_zero_catch2, by = c("period2", "catch_draw", "tripid")) %>% 
-      dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-    
+    # bsb_zero_catch2<- bsb_zero_catch %>% ## ADD back zero catches
+    #   dplyr::select(period2, tripid, catch_draw)
+    # 
+    # keep_release_bsb <- keep_release_bsb %>% 
+    #   dplyr::full_join(bsb_zero_catch2, by = c("period2", "catch_draw", "tripid")) %>% 
+    #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+    # 
     
     trip_data_bsb <- summed_catch_data 
     
@@ -463,18 +523,18 @@ calibrate_rec_catch <- function(state1,
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
       dplyr::mutate(state = state1,
                     tot_bsb_catch = tot_keep_bsb + tot_rel_bsb) %>%
-      dplyr::select(-c("tot_sf_catch", "tot_scup_catch", "day", "day_i", "draw", "month"))
+      dplyr::select(-c("tot_sf_catch", "tot_scup_catch", "tot_cat_scup_new", "tot_cat_bsb_new","day", "day_i", "draw", "month"))
     
     
-    print(setdiff(trip_data_bsb$period2, keep_release_bsb$period2))
-    print(setdiff(keep_release_bsb$period2, trip_data_bsb$period2))
-    
+    # print(setdiff(trip_data_bsb$period2, keep_release_bsb$period2))
+    # print(setdiff(keep_release_bsb$period2, trip_data_bsb$period2))
+    # 
     
     # merge the bsb trip data with the rest of the trip data
     #trip_data <-  merge(trip_data,trip_data_bsb,by=c("period2", "catch_draw", "tripid", "state", "mode", "month" ))
     
     trip_data <- trip_data %>%
-      dplyr::full_join(trip_data_bsb, by = c("period2", "catch_draw", "tripid", "state")) #%>%  select(-decade.x, -decade.y)
+      dplyr::left_join(trip_data_bsb, by = c("period2", "catch_draw", "tripid", "state")) #%>%  select(-decade.x, -decade.y)
     
     # %>%
     
@@ -524,15 +584,59 @@ calibrate_rec_catch <- function(state1,
       
       
       # generate lengths for each fish
-      scup_size_data<- scup_size_data %>% 
+      scup_data<- scup_catch_data %>% 
         dplyr::filter(state == state1)
       
-      catch_size_data <- scup_catch_data %>%
-        dplyr::mutate(fitted_length = sample(scup_size_data$length,
-                                             nrow(.),
-                                             prob = scup_size_data$fitted_prob,
-                                             replace = TRUE)) #%>%
+      # ################### P_Star #############################
+      catch_data2 <- scup_data %>%
+        dplyr::left_join(regs, by = "period2") %>%
+        dplyr::mutate(uniform=runif(nrow(scup_catch_data))) %>%
+        dplyr::mutate(posskeep = ifelse(uniform>=p_star_scup, 1,0)) %>%
+        dplyr::group_by(tripid, period2, catch_draw)   %>%
+        #dplyr::mutate(sf_bag_total = bsb_bag1+fluke_bag2) %>% 
+        # keep = case_when(
+        # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+        # TRUE ~ 0),
+        dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
+        dplyr::ungroup() %>%
+        dplyr::mutate(
+          keep_adj =dplyr:: case_when(
+            scup_bag > 0 ~ ifelse(csum_keep<=scup_bag & posskeep==1,1,0),
+            TRUE ~ 0)) #%>%
+      #dplyr::mutate(posskeep2 = ifelse(uniform>=p_star_sf, 1,0)) %>%
+      #dplyr::group_by(tripid, period2, catch_draw) #%>%
+      # keep = case_when(
+      # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+      # TRUE ~ 0),
       
+      
+      #sf_catch_data <- sf_catch_data %>% dplyr::arrange(period2, tripid, catch_draw)
+      #catch_size_data[is.na(catch_size_data)] <- 0
+      catch_data <- catch_data2 %>%
+        dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+      
+      catch_data <- catch_data %>%
+        dplyr::mutate(keep_tot = keep_adj,
+                      release = ifelse(keep_adj==0, 1,0))
+      
+      catch_data<- catch_data %>%
+        dplyr::select(c(fishid, tripid, keep_tot, release, period2, catch_draw, mode1, month)) %>%
+        dplyr::rename(keep = keep_tot)
+      
+      summed_catch_data <- catch_data %>%
+        dplyr::group_by(period2, catch_draw, tripid) %>%
+        dplyr::summarize(tot_keep_scup = sum(keep),
+                         tot_rel_scup = sum(release),
+                         .groups = "drop") %>%
+        dplyr::ungroup()
+      
+      
+      # catch_size_data <- scup_catch_data %>%
+      #   dplyr::mutate(fitted_length = sample(scup_size_data$length,
+      #                                        nrow(.),
+      #                                        prob = scup_size_data$fitted_prob,
+      #                                        replace = TRUE)) #%>%
+      # 
       # catch_size_data <- catch_size_data %>%
       #   dplyr::left_join(regs, by = "period2") %>%
       #   dplyr::mutate(uniform=runif(nrow(catch_size_data))) %>%
@@ -569,81 +673,81 @@ calibrate_rec_catch <- function(state1,
       
       
       
-      catch_size_data <- catch_size_data %>%
-        dplyr::left_join(regs, by = "period2") %>%
-        dplyr::mutate(posskeep = ifelse(fitted_length>=scup_min ,1,0)) %>%
-        dplyr::group_by(tripid, period2, catch_draw) %>%
-        # keep = case_when(
-        # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
-        # TRUE ~ 0),
-        dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(
-          keep_adj = dplyr::case_when(
-            scup_bag > 0 ~ ifelse(csum_keep<=scup_bag & posskeep==1,1,0),
-            TRUE ~ 0))
-      #,
-      # keep_adj = case_when(
-      #   csum_keep<=bag & keep==1 ~ 1,
-      #   TRUE ~ 0),
-      #release = case_when(
-      # scup_bag > 0 ~ ifelse(posskeep==0 | (posskeep==1 & csum_keep>scup_bag ), 1,0)))
-      
-      #catch_size_data[is.na(catch_size_data)] <- 0
-      catch_size_data <- catch_size_data %>%
-        dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-      
-      catch_size_data <- catch_size_data %>%
-        dplyr::mutate(keep_tot = keep_adj, 
-                      release = ifelse(keep_adj==0,1,0))
-      
-      #catch_size_data$release<-ifelse((catch_size_data$keep_adj==0), 1,0)
-      
-      catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>%
-        dplyr::rename(keep = keep_tot)
-      
-      
-      
-      new_size_data <- catch_size_data %>%
-        dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
-        dplyr::summarize(keep = sum(keep),
-                         release = sum(release), .groups = "drop") %>% 
-        dplyr::ungroup()
-      
-      summed_catch_data <- catch_size_data %>%
-        dplyr::group_by(period2, catch_draw, tripid) %>%
-        dplyr::summarize(tot_keep_scup = sum(keep),
-                         tot_rel_scup = sum(release),
-                         .groups = "drop") %>% 
-        dplyr::ungroup()
-      
-      keep_size_data <- new_size_data %>%
-        dplyr::select(-release) %>%
-        tidyr::pivot_wider(names_from = fitted_length, #_length,
-                           names_glue = "keep_scup_{fitted_length}",
-                           names_sort = TRUE,
-                           values_from = keep, 
-                           values_fill = 0) 
-      
-      release_size_data <- new_size_data %>%
-        dplyr::select(-keep) %>%
-        tidyr::pivot_wider(names_from = fitted_length, #_length,
-                           names_glue = "release_scup_{fitted_length}",
-                           names_sort = TRUE,
-                           values_from = release, 
-                           values_fill = 0) 
-      
-      keep_release_scup <- keep_size_data %>% 
-        dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
-      
-      
-      scup_zero_catch2<- scup_zero_catch %>% ## ADD back zero catches
-        dplyr::select(period2, tripid, catch_draw)
-      
-      keep_release_scup <- keep_release_scup %>% 
-        dplyr::full_join(scup_zero_catch2, by = c("period2", "catch_draw", "tripid")) %>% 
-        dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
-      
+      # catch_size_data <- catch_size_data %>%
+      #   dplyr::left_join(regs, by = "period2") %>%
+      #   dplyr::mutate(posskeep = ifelse(fitted_length>=scup_min ,1,0)) %>%
+      #   dplyr::group_by(tripid, period2, catch_draw) %>%
+      #   # keep = case_when(
+      #   # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
+      #   # TRUE ~ 0),
+      #   dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
+      #   dplyr::ungroup() %>%
+      #   dplyr::mutate(
+      #     keep_adj = dplyr::case_when(
+      #       scup_bag > 0 ~ ifelse(csum_keep<=scup_bag & posskeep==1,1,0),
+      #       TRUE ~ 0))
+      # #,
+      # # keep_adj = case_when(
+      # #   csum_keep<=bag & keep==1 ~ 1,
+      # #   TRUE ~ 0),
+      # #release = case_when(
+      # # scup_bag > 0 ~ ifelse(posskeep==0 | (posskeep==1 & csum_keep>scup_bag ), 1,0)))
+      # 
+      # #catch_size_data[is.na(catch_size_data)] <- 0
+      # catch_size_data <- catch_size_data %>%
+      #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+      # 
+      # catch_size_data <- catch_size_data %>%
+      #   dplyr::mutate(keep_tot = keep_adj, 
+      #                 release = ifelse(keep_adj==0,1,0))
+      # 
+      # #catch_size_data$release<-ifelse((catch_size_data$keep_adj==0), 1,0)
+      # 
+      # catch_size_data<- subset(catch_size_data, select=c(fishid, fitted_length, tripid, keep_tot, release, period2, catch_draw)) %>%
+      #   dplyr::rename(keep = keep_tot)
+      # 
+      # 
+      # 
+      # new_size_data <- catch_size_data %>%
+      #   dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
+      #   dplyr::summarize(keep = sum(keep),
+      #                    release = sum(release), .groups = "drop") %>% 
+      #   dplyr::ungroup()
+      # 
+      # summed_catch_data <- catch_size_data %>%
+      #   dplyr::group_by(period2, catch_draw, tripid) %>%
+      #   dplyr::summarize(tot_keep_scup = sum(keep),
+      #                    tot_rel_scup = sum(release),
+      #                    .groups = "drop") %>% 
+      #   dplyr::ungroup()
+      # 
+      # keep_size_data <- new_size_data %>%
+      #   dplyr::select(-release) %>%
+      #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+      #                      names_glue = "keep_scup_{fitted_length}",
+      #                      names_sort = TRUE,
+      #                      values_from = keep, 
+      #                      values_fill = 0) 
+      # 
+      # release_size_data <- new_size_data %>%
+      #   dplyr::select(-keep) %>%
+      #   tidyr::pivot_wider(names_from = fitted_length, #_length,
+      #                      names_glue = "release_scup_{fitted_length}",
+      #                      names_sort = TRUE,
+      #                      values_from = release, 
+      #                      values_fill = 0) 
+      # 
+      # keep_release_scup <- keep_size_data %>% 
+      #   dplyr::full_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
+      # 
+      # 
+      # scup_zero_catch2<- scup_zero_catch %>% ## ADD back zero catches
+      #   dplyr::select(period2, tripid, catch_draw)
+      # 
+      # keep_release_scup <- keep_release_scup %>% 
+      #   dplyr::full_join(scup_zero_catch2, by = c("period2", "catch_draw", "tripid")) %>% 
+      #   dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)
+      # 
       
       trip_data_scup <- summed_catch_data 
       
@@ -652,21 +756,26 @@ calibrate_rec_catch <- function(state1,
         #arrange(period, catch_draw, tripid) %>%
         dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
         dplyr::mutate(state = state1,
-                      tot_scup_catch = tot_keep_scup + tot_rel_scup) %>%
+                      tot_scup_catch = tot_keep_scup + tot_rel_scup) #%>%
         #dplyr::select(-c("tot_sf_catch", "tot_bsb_catch", "day", "day_i", "draw", "month"))
-        dplyr::select(-c("day", "day_i", "draw", "month"))
+        #dplyr::select(-c("day", "day_i", "draw", "month"))
       
       
-      print(setdiff(trip_data_scup$period2, keep_release_scup$period2))
-      print(setdiff(keep_release_scup$period2, trip_data_scup$period2))
-      
+     
       
       
       # merge the scup trip data with the rest of the trip data
       #trip_data <-  merge(trip_data,trip_data_scup,by=c("period2", "catch_draw", "tripid", "state", "mode", "month"))
       
       trip_data <- trip_data %>%
-        dplyr::full_join(trip_data_scup, by = c("period2","tripid",  "catch_draw", "state"))
+        dplyr::left_join(trip_data_scup, by = c("period2","tripid",  "catch_draw", "state")) %>% 
+        dplyr::select(!c(month.x, day.x, day_i.x, draw.x, 
+                         month.y, day.y, day_i.y, draw.y, 
+                         tot_cat_scup_new, tot_cat_bsb_new, 
+                         tot_sf_catch, tot_bsb_catch, tot_scup_catch)) %>% 
+        dplyr::mutate(tot_scup_catch = tot_keep_scup + tot_rel_scup, 
+                      tot_bsb_catch = tot_keep_bsb + tot_rel_bsb, 
+                      tot_sf_catch = tot_keep_sf + tot_rel_sf)
       
       # trip_data  <- setcolorder(trip_data,c("state", "period2", "mode1", "month1", "tripid", "catch_draw",
       #                                       "tot_sf_catch", "tot_keep_sf", "tot_rel_sf","tot_bsb_catch", "tot_keep_bsb",
@@ -686,10 +795,10 @@ calibrate_rec_catch <- function(state1,
   }
   
   
-  length_data <- keep_release_sf %>% 
-    dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>% 
-    dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
-  
+  # length_data <- keep_release_sf %>% 
+  #   dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>% 
+  #   dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
+  # 
   
   period_vec1 <- period_vec %>%
     dplyr::mutate(beta_sqrt_sf_keep= rnorm(nrow(period_vec), mean = 0.827, sd = 1.267), 
@@ -914,28 +1023,28 @@ calibrate_rec_catch <- function(state1,
     .[,as.vector(list_names) := lapply(.SD, function(x) x * probA), .SDcols = list_names] %>%
     .[]
   
-  all_vars<-c()
-  all_vars <- names(length_data)[!names(length_data) %in% c("period2","tripid", "catch_draw" )]
-  length_data<- length_data %>% 
-    data.table::data.table() %>% 
-    .[,lapply(.SD, base::mean), by = c("period2","tripid"), .SDcols = all_vars]
-  
-  length_data[is.na(length_data)] <- 0
-  
-  length_data2<- mean_trip_data %>%
-    dplyr::select(period2, tripid, probA) %>%
-    dplyr::full_join(length_data, by = c("period2", "tripid")) #%>% 
-  #dplyr::select(!c(month.x.x, month.y.x, month.x.y, month.y.y)) 
-  length_data2[is.na(length_data2)] <- 0
-  all_vars<-c()
-  all_vars <- names(length_data2)[!names(length_data2) %in% c("period2","tripid", "mode1" )]
-  
-  length_data3 <- length_data2 %>% ## ADD mean_kr_total for each species by tripid and perdiod2
-    data.table::as.data.table()  %>% 
-    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = all_vars] %>%
-    .[]
-  
-  
+  # all_vars<-c()
+  # all_vars <- names(length_data)[!names(length_data) %in% c("period2","tripid", "catch_draw" )]
+  # length_data<- length_data %>% 
+  #   data.table::data.table() %>% 
+  #   .[,lapply(.SD, base::mean), by = c("period2","tripid"), .SDcols = all_vars]
+  # 
+  # length_data[is.na(length_data)] <- 0
+  # 
+  # length_data2<- mean_trip_data %>%
+  #   dplyr::select(period2, tripid, probA) %>%
+  #   dplyr::full_join(length_data, by = c("period2", "tripid")) #%>% 
+  # #dplyr::select(!c(month.x.x, month.y.x, month.x.y, month.y.y)) 
+  # length_data2[is.na(length_data2)] <- 0
+  # all_vars<-c()
+  # all_vars <- names(length_data2)[!names(length_data2) %in% c("period2","tripid", "mode1" )]
+  # 
+  # length_data3 <- length_data2 %>% ## ADD mean_kr_total for each species by tripid and perdiod2
+  #   data.table::as.data.table()  %>% 
+  #   .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(probA)), .SDcols = all_vars] %>%
+  #   .[]
+  # 
+  # 
   
   mean_trip_data <- mean_trip_data %>%
     dplyr::mutate( n_choice_occasions = rep(1,nrow(.))) %>%
@@ -984,28 +1093,28 @@ calibrate_rec_catch <- function(state1,
     .[,as.vector(list_names) := lapply(.SD, function(x) x * expand), .SDcols = list_names] %>%
     .[]
   
-  length_expand <- mean_trip_data %>%
-    dplyr::select(period2, tripid, expand) %>%
-    dplyr::full_join(length_data3, by = c("period2", "tripid")) %>% 
-    dplyr::select(-probA)
+  # length_expand <- mean_trip_data %>%
+  #   dplyr::select(period2, tripid, expand) %>%
+  #   dplyr::full_join(length_data3, by = c("period2", "tripid")) %>% 
+  #   dplyr::select(-probA)
+  # 
+  # 
+  # all_vars<-c()
+  # all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
+  # 
+  # ## Move to outside function 
+  # length_expand <- length_expand %>% 
+  #   data.table::as.data.table() %>%
+  #   .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
+  #   .[]
   
   
-  all_vars<-c()
-  all_vars <- names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
-  
-  ## Move to outside function 
-  length_expand <- length_expand %>% 
-    data.table::as.data.table() %>%
-    .[,as.vector(all_vars) := lapply(.SD, function(x) x * as.numeric(expand)), .SDcols = all_vars] %>%
-    .[]
-  
-  
-  list_names = names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
-  
-  aggragate_length_data<- length_expand %>% ### Sum across tirpid
-    data.table::as.data.table() %>%
-    .[,lapply(.SD, sum), by =c("period2"), .SDcols = list_names]
-  
+  # list_names = names(length_expand)[!names(length_expand) %in% c("period2","tripid", "mode1", "expand")]
+  # 
+  # aggragate_length_data<- length_expand %>% ### Sum across tirpid
+  #   data.table::as.data.table() %>%
+  #   .[,lapply(.SD, sum), by =c("period2"), .SDcols = list_names]
+  # 
   list_names = c("n_choice_occasions", "probA", "tot_bsb_catch","tot_keep_bsb", "tot_keep_scup" , "tot_keep_sf",
                  "tot_rel_bsb" ,   "tot_rel_scup","tot_rel_sf","tot_scup_catch","tot_sf_catch")
   
@@ -1015,16 +1124,89 @@ calibrate_rec_catch <- function(state1,
   
   names(aggregate_trip_data)[names(aggregate_trip_data) == "probA"] = "estimated_trips"
   pds_new_all<-aggregate_trip_data %>%
-    dplyr::left_join(aggragate_length_data, by = "period2") %>% 
+    #dplyr::left_join(aggragate_length_data, by = "period2") %>% 
     dplyr::mutate(state=state1, 
                   n_cal_draw = k)
   
   output<-list(pds_new_all, costs_new_all)
+
+  
+  #return(output)
+  
+  ## Calucate_Pstars
+  MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>% 
+    dplyr::filter(state=="NJ", 
+                  mode == select_mode) 
   
   
-  print(pds_new_all$change_cs)
   
-  return(output)
+  
+  ##SF
+  sum(pds_new_all$tot_keep_sf)
+  sum(MRIP_data$sf_harvest)
+  sf_harvest_harv_diff<-((sum(MRIP_data$sf_harvest)-sum(pds_new_all$tot_keep_sf))/sum(MRIP_data$sf_harvest))*100
+  sf_harvest_harv_diff
+  
+  sum(pds_new_all$tot_rel_sf)
+  sum(MRIP_data$sf_releases)
+  sf_rel_diff<- ((sum(MRIP_data$sf_releases)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$sf_releases))*100
+  sf_rel_diff
+  
+  sum(pds_new_all$tot_sf_catch)
+  sum(MRIP_data$sf_tot_cat)
+  sf_tot_cat_diff<-((sum(MRIP_data$sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$sf_tot_cat))*100
+  sf_tot_cat_diff
+  
+  
+  
+  ##BSB
+  sum(pds_new_all$tot_keep_bsb)
+  sum(MRIP_data$bsb_harvest)
+  bsb_harvest_harv_diff<-((sum(MRIP_data$bsb_harvest)-sum(pds_new_all$tot_keep_bsb))/sum(MRIP_data$bsb_harvest))*100
+  bsb_harvest_harv_diff
+  
+  sum(pds_new_all$tot_rel_bsb)
+  sum(MRIP_data$bsb_releases)
+  bsb_rel_diff<- ((sum(MRIP_data$bsb_releases)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$bsb_releases))*100
+  bsb_rel_diff
+  
+  sum(pds_new_all$tot_bsb_catch)
+  sum(MRIP_data$bsb_tot_cat)
+  bsb_tot_cat_diff<-((sum(MRIP_data$bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$bsb_tot_cat))*100
+  bsb_tot_cat_diff
+  
+  
+  
+  
+  
+  ##scup
+  sum(pds_new_all$tot_keep_scup)
+  sum(MRIP_data$scup_harvest)
+  scup_harvest_harv_diff<-((sum(MRIP_data$scup_harvest)-sum(pds_new_all$tot_keep_scup))/sum(MRIP_data$scup_harvest))*100
+  scup_harvest_harv_diff
+  
+  sum(pds_new_all$tot_rel_scup)
+  sum(MRIP_data$scup_releases)
+  scup_rel_diff<- ((sum(MRIP_data$scup_releases)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$scup_releases))*100
+  
+  sum(pds_new_all$tot_scup_catch)
+  sum(MRIP_data$scup_tot_cat)
+  scup_tot_cat_diff<-((sum(MRIP_data$scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$scup_tot_cat))*100
+  
+  
+  p_stars <- data.frame(species = c("SF", "BSB", "SCUP"), 
+                        state = state1,
+                        p_star_value = c(p_star_sf,p_star_bsb,p_star_scup), 
+                        mode = c(select_mode, select_mode, select_mode), 
+                        tot_keep_model = c(sum(pds_new_all$tot_keep_sf), sum(pds_new_all$tot_keep_bsb), sum(pds_new_all$tot_keep_scup)),
+                        tot_rel_model = c(sum(pds_new_all$tot_rel_sf), sum(pds_new_all$tot_rel_bsb), sum(pds_new_all$tot_rel_scup)),
+                        tot_catch_model = c(sum(pds_new_all$tot_sf_catch), sum(pds_new_all$tot_bsb_catch), sum(pds_new_all$tot_scup_catch)),
+                        hervest_MRIP = c(sum(MRIP_data$sf_harvest), sum(MRIP_data$bsb_harvest), sum(MRIP_data$scup_harvest)),
+                        harvest_diff = c(sf_harvest_harv_diff, bsb_harvest_harv_diff, scup_harvest_harv_diff), 
+                        rel_diff = c(sf_rel_diff, bsb_rel_diff, scup_rel_diff), 
+                        tot_cat_diff = c(sf_tot_cat_diff,bsb_tot_cat_diff,scup_tot_cat_diff), 
+                        run_number = k)
+  return(p_stars)
 }
   # return(pds_new_all)
   # return(costs_new_all)
