@@ -342,7 +342,7 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 1:100){
+for(k in 15:100){
   repeat{
     
     #pstar <- calculate_pstar_NJ(m = "sh") 
@@ -396,7 +396,10 @@ for(k in 1:100){
     
     print(pstar)
     #print(bsb_harvest_harv_diff)
-    print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    if(p_star_sf < 0) break
+    if(p_star_bsb < 0) break
+    if(p_star_scup < 0) break
     if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2)) break
@@ -431,7 +434,7 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 1:2){
+for(k in 1:100){
   repeat{
     
     #pstar <- calculate_pstar_NJ(m = "sh") 
@@ -500,6 +503,16 @@ for(k in 1:2){
 pstar_out_pr <- pstar_out
 
 
+
+
+
+pstar_NJ <- rbind(pstar_out_sh,  pstar_out_pr) %>% 
+  dplyr::select(species, state, p_star_value, mode, run_number)
+
+# pstar_sh2<- pstar_out_sh %>% 
+  # dplyr::select(species, state, p_star_value, mode, run_number)
+
+write.csv(pstar_NJ, file = "pstar_NJ_test.csv")
 
 
 #fh_pstar <- pstar
