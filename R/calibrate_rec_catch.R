@@ -1151,7 +1151,8 @@ calibrate_rec_catch <- function(state1,
   ## Calucate_Pstars
   MRIP_data <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv")) %>%
     dplyr::filter(state=="NJ",
-                  mode == select_mode)
+                  mode == select_mode, 
+                  draw == k)
 
   ##SF
   sum(pds_new_all$tot_keep_sf)

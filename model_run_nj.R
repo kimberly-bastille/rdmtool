@@ -4,7 +4,7 @@
 
 print("start model_NJ")
 state1 = "NJ"
-#predictions = list()
+predictions_all = list()
 
 #### p_stars old ####
 # p_star_sf_NJ_variable<- 0.89
@@ -81,9 +81,9 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-for (x in 1:10){
-#future::plan(future::multisession)
-#get_predictions_out<- function(x){
+#for (x in 1:10){
+future::plan(future::multisession)
+get_predictions_out<- function(x){
   
   
   print(x)
@@ -173,20 +173,28 @@ for (x in 1:10){
                            costs_new_all = costs_new_all,
                            l_w = l_w_conversion,
                            s_star = s_star_data, 
+                           #run_number = x,
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
   
+  # predictions_all <- predictions_all %>% 
+  #   rbind(test)
 
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-#predictions_out<- furrr::future_map_dfr(1:10, ~get_predictions_out(.))
+predictions_out<- furrr::future_map_dfr(1:2, ~get_predictions_out(.), .id = "run_number")
 
-# predictions_all<-list()
-# predictions_all<-rlist::list.rbind(predictions)
 
-predictions <- test
+predictions <- predictions_all %>% 
+  dplyr::group_by(Category, 
+                  mode, 
+                  keep_release, 
+                  param, 
+                  number_weight,
+                  state) %>% 
+  dplyr::summarise(Value = sum(Value))
 #predictions <- predictions_out
 
 # predictions_all2<-as.data.frame(predictions_all) %>% 

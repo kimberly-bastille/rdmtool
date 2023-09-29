@@ -470,7 +470,7 @@
       
       ## Output Table 
       output$keep_release_tableout<- renderTable({
-        output<- read.csv(here::here(paste0("output_", state, "_1.csv")))  %>% 
+        keep_release_output<- read.csv(here::here(paste0("output_", state, "_1.csv")))  %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Total") %>% 
@@ -488,12 +488,12 @@
           #                             "pr" = "Private"), 
           #               mode = replace(mode, "All"))
         
-        outputtable<- output
+        outputtable<- keep_release_output
       })
       
       
       output$welfare_trips_tableout<- renderTable({
-        output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
+        welfare_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
           dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(Category, "CV") ~ paste(Category, "($)"), 
@@ -503,7 +503,7 @@
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) 
         
-        outputtable<- output
+        outputtable<- welfare_output
       })
       
       
@@ -637,7 +637,7 @@
         
         
         
-        regsout<- rbind(SFnjPRseason1, SFnjPRseason2, SFnjFHseason1, SFnjFHseason2, SFnjSHseason1, SFnjSHseason2,
+        regs_output<- rbind(SFnjPRseason1, SFnjPRseason2, SFnjFHseason1, SFnjFHseason2, SFnjSHseason1, SFnjSHseason2,
                         BSBnj, SCUPnjseason1) %>%
           dplyr::filter(!BagLimit == "0",
                         !BagLimit == "0 , 0") %>%
@@ -656,7 +656,7 @@
       })
       
       output$mortalityout <- renderTable({
-        output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
+        mortality_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Mortality") %>% 
@@ -671,7 +671,7 @@
                         "StatusQuo_Mort_Number" = StatusQuo_Number, 
                         "Alternative_Mort_Number" = Alternative_Number, 
                         "Species" = Category)
-        outputtable<- output
+        outputtable<- mortality_output
         
       })
       })#})
