@@ -85,19 +85,19 @@ p_star_scup_NJ_variable_sh<-1
 # 8	BSB		1				sh	
 # 9	SCUP	1		    sh
 
-for(k in 1:1){
+for(k in 20:100){
   calibration_fh<- calibrate_rec_catch("NJ", 34, 
-                                       p_star_sf_NJ_variable_fh,
-                                       p_star_bsb_NJ_variable_fh,
-                                       p_star_scup_NJ_variable_fh,
+                                       # p_star_sf,
+                                       # p_star_bsb,
+                                       # p_star_scup,
                                        "fh",  k)
   pds_new_all_fh<- data.table::data.table(calibration_fh[1][[1]])
   costs_new_all_fh<-  data.table::data.table(calibration_fh[2][[1]])
   
   calibration_pr<- calibrate_rec_catch("NJ", 34, 
-                                       p_star_sf_NJ_variable_pr,
-                                       p_star_bsb_NJ_variable_pr,
-                                       p_star_scup_NJ_variable_pr, 
+                                       # p_star_sf_NJ_variable_pr,
+                                       # p_star_bsb_NJ_variable_pr,
+                                       # p_star_scup_NJ_variable_pr, 
                                        "pr",  k)
   pds_new_all_pr<- data.table::data.table(calibration_pr[1][[1]])
   costs_new_all_pr<-  data.table::data.table(calibration_pr[2][[1]])
@@ -106,7 +106,7 @@ for(k in 1:1){
                                        # p_star_sf_NJ_variable_sh,
                                        # p_star_bsb_NJ_variable_sh,
                                        # p_star_scup_NJ_variable_sh, 
-                                       select_mode = "sh",  k = 1)
+                                       select_mode = "sh",  k)
   pds_new_all_sh<- data.table::data.table(calibration_sh[1][[1]])
   costs_new_all_sh<-  data.table::data.table(calibration_sh[2][[1]])
   
