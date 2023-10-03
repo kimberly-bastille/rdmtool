@@ -253,7 +253,7 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 91:100){
+for(k in 1:100){
 repeat{
   
   #pstar <- calculate_pstar_NJ(m = "sh") 
@@ -342,7 +342,7 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 15:100){
+for(k in 1:100){
   repeat{
     
     #pstar <- calculate_pstar_NJ(m = "sh") 
@@ -506,8 +506,8 @@ pstar_out_pr <- pstar_out
 
 
 
-pstar_NJ <- rbind(pstar_out_sh,  pstar_out_pr) %>% 
-  dplyr::select(species, state, p_star_value, mode, run_number)
+pstar_NJ <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) #%>% 
+  #dplyr::select(species, state, p_star_value, mode, run_number)
 
 # pstar_sh2<- pstar_out_sh %>% 
   # dplyr::select(species, state, p_star_value, mode, run_number)
