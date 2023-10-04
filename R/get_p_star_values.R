@@ -512,7 +512,7 @@ pstar_NJ <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) #%>%
 # pstar_sh2<- pstar_out_sh %>% 
   # dplyr::select(species, state, p_star_value, mode, run_number)
 
-write.csv(pstar_NJ, file = "pstar_NJ_test.csv")
+write.csv(pstar_NJ, file = "pstar_NJ_test1.csv")
 
 
 #fh_pstar <- pstar

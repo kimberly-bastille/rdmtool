@@ -31,7 +31,7 @@ scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_p
 l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(State=="NJ")
 
-s_star_data <- readr::read_csv(file.path(here::here("data-raw/size_data/s_star_data_test.csv")),  show_col_types = FALSE) %>%
+s_star_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/s_star_NJ.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
@@ -81,21 +81,24 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-#for (x in 1:10){
-future::plan(future::multisession)
-get_predictions_out<- function(x){
+for(x in 1:100){
+#future::plan(future::multisession, workers = 10)
+#get_predictions_out<- function(x){
   
   
   print(x)
   
-  catch_files_NJ<- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw ", x, ".csv")))) %>% 
+  catch_files_NJ<- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw4 ", x, ".csv")))) %>% 
     #dplyr::filter(mode1 == select_mode) %>% 
     dplyr::rename(tot_sf_catch = tot_cat_sf,
                   tot_bsb_catch = tot_cat_bsb,
-                  tot_scup_catch = tot_cat_scup)  %>%
+                  tot_scup_catch = tot_cat_scup, 
+                  keep_sf = landing_sf, 
+                  keep_bsb = landing_bsb, 
+                  keep_scup = landing_scup)  %>%
     dplyr::mutate(day = as.numeric(stringr::str_extract(day , "^\\d{2}")),
                   period2 = paste0(month, "_", day, "_", mode1)) %>% 
-    dplyr::select(!c("tot_cat_scup_new", "tot_cat_bsb_new"))
+    dplyr::select(!c("landing_sf_new","landing_scup_new","landing_bsb_new","tot_cat_bsb_new" ))
   
   calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test.rds"))) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
@@ -133,6 +136,8 @@ get_predictions_out<- function(x){
   
   print("made it through data read in ")
 
+  s_star_data <- s_star_dat %>% 
+    dplyr::filter(draw == x)
   #print(directed_trips2)
   #2) Run the prediction model
   
@@ -149,7 +154,7 @@ get_predictions_out<- function(x){
   
   
   ##Run the catch function
-  source(here::here("R/predict_rec_catch.R"))
+  #source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6
@@ -173,18 +178,17 @@ get_predictions_out<- function(x){
                            costs_new_all = costs_new_all,
                            l_w = l_w_conversion,
                            s_star = s_star_data, 
-                           #run_number = x,
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
   
-  # predictions_all <- predictions_all %>% 
-  #   rbind(test)
+    predictions_all <- predictions_all %>% 
+      rbind(test)
 
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out<- furrr::future_map_dfr(1:2, ~get_predictions_out(.), .id = "run_number")
+#predictions_out10<- furrr::future_map_dfr(1:10, ~get_predictions_out(.), .id = "run_number")
 
 
 predictions <- predictions_all %>% 
@@ -194,7 +198,7 @@ predictions <- predictions_all %>%
                   param, 
                   number_weight,
                   state) %>% 
-  dplyr::summarise(Value = sum(Value))
+  dplyr::summarise(Value = mean(Value))
 #predictions <- predictions_out
 
 # predictions_all2<-as.data.frame(predictions_all) %>% 
