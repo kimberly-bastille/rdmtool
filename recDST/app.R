@@ -218,7 +218,8 @@
                  tableOutput(outputId = "futureplansout"))), 
       
       
-      tabPanel("Documentation")
+      tabPanel("Documentation", 
+               htmlOutput("markdown"))
     ))
   
   # Define server logic required to draw a histogram
@@ -700,10 +701,11 @@
                           Angler_Welfare = welfare_ntrips(), Discard_Mortality = mortality())
           openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
         })
-      
-      })#})
+      })
     
-    
+    output$markdown <- renderUI({
+      HTML(markdown::markdownToHTML(knitr::knit('documentation.Rmd', quiet = TRUE)))
+    })
     
     
   }
