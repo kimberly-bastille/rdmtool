@@ -81,7 +81,7 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-for(x in 1:100){
+for(x in 1:1){
 #future::plan(future::multisession, workers = 10)
 #get_predictions_out<- function(x){
   
@@ -154,7 +154,7 @@ for(x in 1:100){
   
   
   ##Run the catch function
-  #source(here::here("R/predict_rec_catch.R"))
+  source(here::here("R/predict_rec_catch.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6
@@ -190,6 +190,8 @@ for(x in 1:100){
 # This will spit out a dataframe with 100 predictions 
 #predictions_out10<- furrr::future_map_dfr(1:10, ~get_predictions_out(.), .id = "run_number")
 
+
+#write.csv(predictions_all, file = "predictions_10_4.csv")
 
 predictions <- predictions_all %>% 
   dplyr::group_by(Category, 

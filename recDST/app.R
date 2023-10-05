@@ -207,6 +207,7 @@
                 actionButton("runmeplease", "Run Me")),
       
       tabPanel("Results", 
+               downloadButton(outputId = "downloadData", "Download"),
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                fluidRow(
@@ -468,31 +469,25 @@
       ######################################################################
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
-      ## Output Table 
-      output$keep_release_tableout<- renderTable({
+      keep_release <- reactive({
         keep_release_output<- read.csv(here::here(paste0("output_", state, "_1.csv")))  %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Total") %>% 
           dplyr::mutate(#Category = paste(Category, "(lbs)"), 
-                        StatusQuo = round(StatusQuo, digits = 0), 
-                        Alternative = round(Value, digits = 0),
-                        Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
+            StatusQuo = round(StatusQuo, digits = 0), 
+            Alternative = round(Value, digits = 0),
+            Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
           dplyr::rename("StatusQuo_Weight (lbs)" = StatusQuo_Weight, 
                         "Alternative_Weight (lbs)" = Alternative_Weight, 
-                        "Species" = Category) #%>% 
-          # dplyr::mutate(mode = recode(mode, "fh" = "For Hire", 
-          #                             "sh" = "Shore", 
-          #                             "pr" = "Private"), 
-          #               mode = replace(mode, "All"))
-        
-        outputtable<- keep_release_output
+                        "Species" = Category)
+        return(keep_release_output)
       })
       
       
-      output$welfare_trips_tableout<- renderTable({
+      welfare_ntrips<- reactive({
         welfare_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
@@ -502,14 +497,10 @@
                         Alternative = round(Value, digits = 2),
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) 
-        
-        outputtable<- welfare_output
+        return(welfare_output)
       })
       
-      
-      output$regtableout <- renderTable({
-        
-        #source(here::here("R/regsout.R"))
+      regulations <- reactive({
         SFnjFHseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("For Hire"),
                                     Season = paste(input$SFnjFH_seas1[1], "-", input$SFnjFH_seas1[2]),
                                     BagLimit = paste(input$SFnjFH_1_smbag,",", input$SFnjFH_1_lgbag),
@@ -638,24 +629,15 @@
         
         
         regs_output<- rbind(SFnjPRseason1, SFnjPRseason2, SFnjFHseason1, SFnjFHseason2, SFnjSHseason1, SFnjSHseason2,
-                        BSBnj, SCUPnjseason1) %>%
+                            BSBnj, SCUPnjseason1) %>%
           dplyr::filter(!BagLimit == "0",
                         !BagLimit == "0 , 0") %>%
           dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"),
                         Season = stringr::str_remove(Season, pattern = "2023-"))
+        return(regs_output)
       })
       
-      output$futureplansout <- renderTable({
-        futureout <- data.frame(Variable =c("Total Mortality", "Discard Mortality", 
-                                            "% of runs that result in desired outcome", 
-                                            "Catch by weight", "Incorporating Avidity and Angler Age"), 
-                                Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
-                                          "Done", "", "Done", "Done"))
-        
-        
-      })
-      
-      output$mortalityout <- renderTable({
+      mortality<- reactive({
         mortality_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
@@ -671,9 +653,54 @@
                         "StatusQuo_Mort_Number" = StatusQuo_Number, 
                         "Alternative_Mort_Number" = Alternative_Number, 
                         "Species" = Category)
-        outputtable<- mortality_output
+        return(mortality_output)
+      })
+     
+      
+      ## Output Tables 
+      output$keep_release_tableout<- renderTable({
+       keep_release()
+      })
+      
+      
+      output$welfare_trips_tableout<- renderTable({
+       welfare_ntrips()
+      })
+      
+      
+      output$regtableout <- renderTable({
+        regulations()
+       
+      })
+      
+      output$mortalityout <- renderTable({
+        mortality()
+      })
+      
+      output$futureplansout <- renderTable({
+        futureout <- data.frame(Variable =c("Total Mortality", "Discard Mortality", 
+                                            "% of runs that result in desired outcome", 
+                                            "Catch by weight", "Incorporating Avidity and Angler Age"), 
+                                Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
+                                          "Done", "", "Done", "Done"))
+        
         
       })
+      
+      
+      
+      
+     
+      
+      output$downloadData <- downloadHandler(
+        filename = function(){"RecDSToutput.xlsx"},
+        content = function(filename) {
+          
+          df_list <- list(Regulations=regulations(), Keep_Release=keep_release(), 
+                          Angler_Welfare = welfare_ntrips(), Discard_Mortality = mortality())
+          openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
+        })
+      
       })#})
     
     
