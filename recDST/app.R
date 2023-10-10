@@ -210,12 +210,12 @@
                downloadButton(outputId = "downloadData", "Download"),
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
-               fluidRow(
-                 column(9, tableOutput(outputId = "keep_release_tableout")),
-                 column(3, tableOutput(outputId = "regtableout")),
+               
+                 tableOutput(outputId = "keep_release_tableout"),
+                 tableOutput(outputId = "regtableout"),
                  tableOutput(outputId = "welfare_trips_tableout"), 
                  tableOutput(outputId = "mortalityout"),
-                 tableOutput(outputId = "futureplansout"))), 
+                 tableOutput(outputId = "futureplansout")), 
       
       
       tabPanel("Documentation", 
@@ -481,9 +481,22 @@
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
-          dplyr::rename("StatusQuo_Weight (lbs)" = StatusQuo_Weight, 
-                        "Alternative_Weight (lbs)" = Alternative_Weight, 
-                        "Species" = Category)
+          tidyr::replace_na(list(mode = "All")) %>% 
+          dplyr::select(Category, mode, keep_release, 
+                        StatusQuo_Number, Alternative_Number, Percent_Change_Number,
+                        StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
+          dplyr::rename("StatusQuo Weight (lbs)" = StatusQuo_Weight, 
+                        "Alternative Weight (lbs)" = Alternative_Weight, 
+                        "StatusQuo Number" = StatusQuo_Number, 
+                        "Alternative Number" = Alternative_Number,
+                        "Percent Change Number" = Percent_Change_Number, 
+                        "Percent Change Weight" = Percent_Change_Weight,
+                        "Species" = Category, 
+                        "Mode" = mode, 
+                        "Keep/Release" = keep_release) %>% 
+          dplyr::arrange(factor(Species, levels = c("sf", "bsb", "scup")))
+          
+          
         return(keep_release_output)
       })
       
@@ -492,12 +505,19 @@
         welfare_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
           dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
-          dplyr::mutate(Category = dplyr::case_when(stringr::str_detect(Category, "CV") ~ paste(Category, "($)"), 
-                                                    stringr::str_detect(Category, "ntrips") ~ Category),
+          dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
+          dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
+                        Category = dplyr::recode(Category, "ntrips" = "Estimated Trips"),
+                        Category = dplyr::case_when(stringr::str_detect(Category, "Angler Welfare") ~ paste(Category, "($)"), 
+                                                    stringr::str_detect(Category, "Estimated Trips") ~ Category),
                         StatusQuo = round(StatusQuo, digits = 2), 
                         Alternative = round(Value, digits = 2),
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) 
+          tidyr::replace_na(list(mode = "All")) %>% 
+          dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) %>% 
+          dplyr::rename("Percent Change" = Percent_Change, 
+                        "Mode" = mode) 
+          
         return(welfare_output)
       })
       
@@ -648,12 +668,19 @@
             Alternative = round(Value, digits = 0),
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
-          tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
-          dplyr::rename("StatusQuo_Mort_Weight (lbs)" = StatusQuo_Weight, 
-                        "Alternative_Mort_Weight (lbs)" = Alternative_Weight, 
-                        "StatusQuo_Mort_Number" = StatusQuo_Number, 
-                        "Alternative_Mort_Number" = Alternative_Number, 
-                        "Species" = Category)
+          tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>%
+          dplyr::select(Category, mode, 
+                        StatusQuo_Number, Alternative_Number, Percent_Change_Number, 
+                        StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
+          dplyr::arrange(factor(Category, levels = c("sf", "bsb", "scup"))) %>% 
+          dplyr::rename("StatusQuo Discard Mortality Weight (lbs)" = StatusQuo_Weight, 
+                        "Alternative Discard Mortality Weight (lbs)" = Alternative_Weight, 
+                        "StatusQuo Discard Mortality Number" = StatusQuo_Number, 
+                        "Alternative Discard Mortality Number" = Alternative_Number, 
+                        "Percent Change Number" = Percent_Change_Number, 
+                        "Percent Change Weight" = Percent_Change_Weight, 
+                        "Species" = Category, 
+                        "Mode" = mode)
         return(mortality_output)
       })
      
