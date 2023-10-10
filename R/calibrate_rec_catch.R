@@ -913,14 +913,17 @@ calibrate_rec_catch <- function(state1,
   costs_new_all <- trip_data %>%
     dplyr::select(c(tripid, cost, catch_draw, tot_keep_sf, tot_rel_sf,
                     age, days_fished, beta_opt_out_age, beta_opt_out_avidity,
-                    tot_keep_bsb,tot_rel_bsb,tot_scup_catch, beta_cost, beta_opt_out, beta_sqrt_bsb_keep,
-                    beta_sqrt_bsb_release, beta_sqrt_scup_catch, beta_sqrt_sf_bsb_keep,
+                    tot_keep_bsb,tot_rel_bsb,tot_scup_catch, tot_keep_scup, tot_rel_scup,
+                    beta_cost, beta_opt_out, beta_sqrt_bsb_keep,
+                    beta_sqrt_bsb_release, beta_sqrt_scup_catch,  beta_sqrt_sf_bsb_keep,
                     beta_sqrt_sf_keep, beta_sqrt_sf_release, state, period2)) %>%
     dplyr::rename(tot_keep_sf_base = tot_keep_sf,
                   tot_rel_sf_base = tot_rel_sf,
                   tot_keep_bsb_base = tot_keep_bsb,
                   tot_rel_bsb_base = tot_rel_bsb,
-                  tot_cat_scup_base = tot_scup_catch)%>% 
+                  tot_cat_scup_base = tot_scup_catch, 
+                  tot_keep_scup_base = tot_keep_scup, 
+                  tot_rel_scup_base = tot_rel_scup)%>% 
     dplyr::mutate(n_cal_draw = k)
   
   

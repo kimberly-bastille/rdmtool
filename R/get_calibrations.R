@@ -85,7 +85,7 @@ p_star_scup_NJ_variable_sh<-1
 # 8	BSB		1				sh	
 # 9	SCUP	1		    sh
 
-for(k in 20:100){
+for(k in 1:1){
   calibration_fh<- calibrate_rec_catch("NJ", 34, 
                                        # p_star_sf,
                                        # p_star_bsb,
@@ -113,8 +113,8 @@ for(k in 20:100){
   pds_new_all <- rbind(pds_new_all_fh, pds_new_all_pr, pds_new_all_sh, fill = TRUE)
   costs_new_all <- rbind(costs_new_all_fh, costs_new_all_pr, costs_new_all_sh, fill = TRUE)
   
-  saveRDS(pds_new_all, file = paste0("data-raw/calibration/pds_NJ_",k,"_test.rds"))
-  saveRDS(costs_new_all, file = paste0("data-raw/calibration/costs_NJ_",k,"_test.rds"))
+  saveRDS(pds_new_all, file = paste0("data-raw/calibration/pds_NJ_",k,"_test1.rds"))
+  saveRDS(costs_new_all, file = paste0("data-raw/calibration/costs_NJ_",k,"_test1.rds"))
 }
 
 #### New York
