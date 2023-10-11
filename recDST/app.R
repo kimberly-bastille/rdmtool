@@ -211,8 +211,9 @@
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                
-                 tableOutput(outputId = "keep_release_tableout"),
+                 
                  tableOutput(outputId = "regtableout"),
+                 tableOutput(outputId = "keep_release_tableout"),
                  tableOutput(outputId = "welfare_trips_tableout"), 
                  tableOutput(outputId = "mortalityout"),
                  tableOutput(outputId = "futureplansout")), 
