@@ -465,15 +465,43 @@
     
     observeEvent(input$runmeplease, {
       
-      state <- input$state
+      
+     print("Whattttt")
+      
+      predictions_1 <- reactive({
+        
+        predictions_1 <- NULL
+      for(i in 1:length(input$state)){
+      state <- input$state[i]
       
       ################ Summary Outputs ######################################
       ######################################################################
+      
       source(here::here(paste0("model_run_",state,".R")), local = TRUE)
       
+      predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      })
+       
+      print(predictions_1())
+      print("past pred")
+      
+      output_compare <- reactive({
+        output_compare <- NULL
+        for(i in 1:length(input$state)){
+          state <- input$state[i]
+          output<- read.csv(here::here(paste0("output_", state, "_1.csv")))
+          
+          output_compare <- output_compare %>% rbind(output)
+        }
+      })
+      
+      print(output_compare())
+      print("past output")
+
       keep_release <- reactive({
-        keep_release_output<- read.csv(here::here(paste0("output_", state, "_1.csv")))  %>% 
-          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
+        keep_release_output<- output_compare()  %>% 
+          dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Total") %>% 
           dplyr::mutate(#Category = paste(Category, "(lbs)"), 
@@ -503,8 +531,8 @@
       
       
       welfare_ntrips<- reactive({
-        welfare_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
+        welfare_output<- output_compare() %>% 
+          dplyr::left_join(predictions(), by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
           dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
           dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
@@ -660,8 +688,8 @@
       })
       
       mortality<- reactive({
-        mortality_output<- read.csv(here::here(paste0("output_", state, "_1.csv"))) %>% 
-          dplyr::left_join(predictions, by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
+        mortality_output<- output_compare() %>% 
+          dplyr::left_join(predictions(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Mortality") %>% 
           dplyr::mutate(#Category = paste(Category, "(lbs)"), 
@@ -732,7 +760,7 @@
       })
     
     output$markdown <- renderUI({
-      HTML(markdown::markdownToHTML(knitr::knit('documentation.Rmd', quiet = TRUE)))
+      HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
     })
     
     
