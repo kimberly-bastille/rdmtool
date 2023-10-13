@@ -472,14 +472,15 @@
         
         predictions_1 <- NULL
       for(i in 1:length(input$state)){
-      state <- input$state[i]
+      state_name <- input$state[i]
       
       ################ Summary Outputs ######################################
       ######################################################################
       
-      source(here::here(paste0("model_run_",state,".R")), local = TRUE)
+      source(here::here(paste0("model_run_",state_name,".R")), local = TRUE)
       
       predictions_1 <- predictions_1 %>% rbind(predictions)
+      return(predictions_1)
       }
       })
        
@@ -489,10 +490,11 @@
       output_compare <- reactive({
         output_compare <- NULL
         for(i in 1:length(input$state)){
-          state <- input$state[i]
-          output<- read.csv(here::here(paste0("output_", state, "_1.csv")))
+          state_name <- input$state[i]
+          output<- read.csv(here::here(paste0("output_", state_name, "_1.csv")))
           
           output_compare <- output_compare %>% rbind(output)
+          return(output_compare)
         }
       })
       
@@ -508,7 +510,7 @@
             StatusQuo = round(StatusQuo, digits = 0), 
             Alternative = round(Value, digits = 0),
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
+          dplyr::select(c(State, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
           tidyr::replace_na(list(mode = "All")) %>% 
           dplyr::select(Category, mode, keep_release, 
@@ -532,7 +534,7 @@
       
       welfare_ntrips<- reactive({
         welfare_output<- output_compare() %>% 
-          dplyr::left_join(predictions(), by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
+          dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
           dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
           dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
@@ -689,7 +691,7 @@
       
       mortality<- reactive({
         mortality_output<- output_compare() %>% 
-          dplyr::left_join(predictions(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
+          dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state")) %>% 
           dplyr::filter(Category %in% c("bsb", "scup","sf"), 
                         param == "Mortality") %>% 
           dplyr::mutate(#Category = paste(Category, "(lbs)"), 
@@ -698,7 +700,7 @@
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           dplyr::select(c(Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>%
-          dplyr::select(Category, mode, 
+          dplyr::select(State, Category, mode, 
                         StatusQuo_Number, Alternative_Number, Percent_Change_Number, 
                         StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
           dplyr::arrange(factor(Category, levels = c("sf", "bsb", "scup"))) %>% 

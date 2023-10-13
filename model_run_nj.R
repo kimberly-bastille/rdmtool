@@ -128,9 +128,9 @@ if(input$input_type == "Single"){
 
 #print(directed_trips_test)
 
-for(x in 1:1){
-#future::plan(future::multisession, workers = 10)
-#get_predictions_out<- function(x){
+#for(x in 1:1){
+future::plan(future::multisession, workers = 10)
+get_predictions_out<- function(x){
   
   
   print(x)
@@ -235,20 +235,22 @@ for(x in 1:1){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-#predictions_out10<- furrr::future_map_dfr(1:10, ~get_predictions_out(.), .id = "run_number")
+predictions_out10<- furrr::future_map_dfr(1:8, ~get_predictions_out(.), .id = "run_number")
 
 
 #write.csv(predictions_all, file = "predictions_10_4.csv")
 
-predictions <- predictions_all %>% 
-  dplyr::group_by(Category, 
-                  mode, 
-                  keep_release, 
-                  param, 
-                  number_weight,
-                  state) %>% 
+# predictions <- predictions_all %>% 
+#   dplyr::group_by(Category, 
+#                   mode, 
+#                   keep_release, 
+#                   param, 
+#                   number_weight,
+#                   state) %>% 
+#   dplyr::summarise(Value = mean(Value))
+predictions <- predictions_out10 %>% 
+  dplyr::group_by(Category,mode,keep_release,param,number_weight,state ) %>% 
   dplyr::summarise(Value = mean(Value))
-#predictions <- predictions_out
 
 # predictions_all2<-as.data.frame(predictions_all) %>% 
 #   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
