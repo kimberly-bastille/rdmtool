@@ -235,7 +235,7 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out10<- furrr::future_map_dfr(1:8, ~get_predictions_out(.), .id = "run_number")
+predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "run_number")
 
 
 #write.csv(predictions_all, file = "predictions_10_4.csv")

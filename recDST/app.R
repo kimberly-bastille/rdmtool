@@ -510,10 +510,10 @@
             StatusQuo = round(StatusQuo, digits = 0), 
             Alternative = round(Value, digits = 0),
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(State, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
+          dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
           tidyr::replace_na(list(mode = "All")) %>% 
-          dplyr::select(Category, mode, keep_release, 
+          dplyr::select(state, Category, mode, keep_release, 
                         StatusQuo_Number, Alternative_Number, Percent_Change_Number,
                         StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
           dplyr::rename("StatusQuo Weight (lbs)" = StatusQuo_Weight, 
@@ -545,7 +545,7 @@
                         Alternative = round(Value, digits = 2),
                         Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
           tidyr::replace_na(list(mode = "All")) %>% 
-          dplyr::select(c(Category, mode, StatusQuo, Alternative, Percent_Change)) %>% 
+          dplyr::select(c(state, Category, mode, StatusQuo, Alternative, Percent_Change)) %>% 
           dplyr::rename("Percent Change" = Percent_Change, 
                         "Mode" = mode) 
           
@@ -698,9 +698,9 @@
             StatusQuo = round(StatusQuo, digits = 0), 
             Alternative = round(Value, digits = 0),
             Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-          dplyr::select(c(Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
+          dplyr::select(c(state, Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
           tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>%
-          dplyr::select(State, Category, mode, 
+          dplyr::select(state, Category, mode, 
                         StatusQuo_Number, Alternative_Number, Percent_Change_Number, 
                         StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
           dplyr::arrange(factor(Category, levels = c("sf", "bsb", "scup"))) %>% 
