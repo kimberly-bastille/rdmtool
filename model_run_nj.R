@@ -126,17 +126,14 @@ if(input$input_type == "Single"){
 }
 
 
-#print(directed_trips_test)
-
 #for(x in 1:1){
-future::plan(future::multisession, workers = 10)
+future::plan(future::multisession, workers = 8)
 get_predictions_out<- function(x){
   
   
   print(x)
   
   catch_files_NJ<- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw4 ", x, ".csv")))) %>% 
-    #dplyr::filter(mode1 == select_mode) %>% 
     dplyr::rename(tot_sf_catch = tot_cat_sf,
                   tot_bsb_catch = tot_cat_bsb,
                   tot_scup_catch = tot_cat_scup, 
@@ -180,8 +177,7 @@ get_predictions_out<- function(x){
   
   scup_size_data <- scup_size_dat %>% 
     dplyr::filter(draw == 0)
-  
-  print("made it through data read in ")
+
 
   s_star_data <- s_star_dat %>% 
     dplyr::filter(draw == x)
@@ -235,7 +231,7 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "run_number")
+predictions_out10<- furrr::future_map_dfr(1:10, ~get_predictions_out(.), .id = "run_number")
 
 
 #write.csv(predictions_all, file = "predictions_10_4.csv")
@@ -250,7 +246,7 @@ predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "r
 #   dplyr::summarise(Value = mean(Value))
 predictions <- predictions_out10 %>% 
   dplyr::group_by(Category,mode,keep_release,param,number_weight,state ) %>% 
-  dplyr::summarise(Value = mean(Value))
+  dplyr::summarise(Value = median(Value))
 
 # predictions_all2<-as.data.frame(predictions_all) %>% 
 #   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 

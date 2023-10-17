@@ -27,11 +27,11 @@
                          sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
                                      min = as.Date("01-01","%m-%d"),
                                      max = as.Date("12-31","%m-%d"),
-                                     value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), ###########Testing
+                                     value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
                                      timeFormat = "%m-%d", ticks = FALSE),
                          fluidRow(
                            column(5, 
-                                  numericInput(inputId = "SFnjFH_1_smbag", label ="Small Bag Limit", ###### Testing
+                                  numericInput(inputId = "SFnjFH_1_smbag", label ="Small Bag Limit", 
                                                min = 0, max = 7, value = 2), 
                                   sliderInput(inputId = "SFnjFH_1_smlen", label ="Small Min Length",
                                               min = 5, max = 50, value = c(17,18), step = .5)),
@@ -207,11 +207,11 @@
                 actionButton("runmeplease", "Run Me")),
       
       tabPanel("Results", 
-               downloadButton(outputId = "downloadData", "Download"),
+               
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                
-                 
+                 downloadButton(outputId = "downloadData", "Download"),
                  tableOutput(outputId = "regtableout"),
                  tableOutput(outputId = "keep_release_tableout"),
                  tableOutput(outputId = "welfare_trips_tableout"), 
@@ -465,9 +465,6 @@
     
     observeEvent(input$runmeplease, {
       
-      
-     print("Whattttt")
-      
       predictions_1 <- reactive({
         
         predictions_1 <- NULL
@@ -483,23 +480,18 @@
       return(predictions_1)
       }
       })
-       
-      print(predictions_1())
-      print("past pred")
       
       output_compare <- reactive({
         output_compare <- NULL
         for(i in 1:length(input$state)){
           state_name <- input$state[i]
-          output<- read.csv(here::here(paste0("output_", state_name, "_1.csv")))
+          output<- read.csv(here::here(paste0("data-raw/StatusQuo/baseline_", state_name, "_1.csv")))
           
           output_compare <- output_compare %>% rbind(output)
           return(output_compare)
         }
       })
-      
-      print(output_compare())
-      print("past output")
+
 
       keep_release <- reactive({
         keep_release_output<- output_compare()  %>% 
