@@ -910,6 +910,8 @@ for (d in 1:1){
   mean_trip_data <- mean_trip_data %>%
     data.table::as.data.table() %>%
     .[, change_CS := (1/beta_cost)*(log(vA_col_sum)-log(v0_col_sum))] %>%
+    .[, CS_base := (1/beta_cost)*log(v0_col_sum)] %>%
+    .[, CS_alt := (1/beta_cost)*log(vA_col_sum)] %>%
     .[, probA :=expon_vA/vA_col_sum] %>%
     .[, prob0 :=expon_v0/v0_col_sum]
   
@@ -1295,7 +1297,7 @@ for (d in 1:1){
   
   trip_level_output <- sims %>%
     dplyr::mutate(state=state1)   %>%
-    dplyr::select(c(period2,  n_choice_occasions, tripid, expand, change_CS, state, probA, prob0, 
+    dplyr::select(c(period2,  n_choice_occasions, tripid, expand, change_CS, CS_base, CS_alt, state, probA, prob0, 
                     tot_keep_sf_new, tot_rel_sf_new, 
                     tot_keep_bsb_new, tot_rel_bsb_new,
                     tot_keep_scup_new, tot_rel_scup_new,
@@ -1314,6 +1316,8 @@ for (d in 1:1){
   prediction_output_by_period2 <- prediction_output_by_period1 %>%
     data.table::as.data.table() %>%
     .[, cv_sum := expand*change_CS] %>%
+    .[, cs_base_sum := expand*CS_base] %>%
+    .[, cs_alt_sum := expand*CS_alt] %>%
     .[, sf_keep_sum := expand*tot_keep_sf_new] %>%
     .[, sf_rel_sum := expand*tot_rel_sf_new] %>%
     .[, bsb_keep_sum := expand*tot_keep_bsb_new] %>%
@@ -1324,6 +1328,12 @@ for (d in 1:1){
     .[mode1=="pr", cv_sum_pr := expand*change_CS] %>%
     .[mode1=="fh", cv_sum_fh := expand*change_CS] %>%
     .[mode1=="sh", cv_sum_sh := expand*change_CS] %>%
+    .[mode1=="pr", cs_base_pr := expand*CS_base] %>%
+    .[mode1=="fh", cs_base_fh := expand*CS_base] %>%
+    .[mode1=="sh", cs_base_sh := expand*CS_base] %>%
+    .[mode1=="pr", cs_alt_pr := expand*CS_alt] %>%
+    .[mode1=="fh", cs_alt_fh := expand*CS_alt] %>%
+    .[mode1=="sh", cs_alt_sh := expand*CS_alt] %>%
     .[mode1=="pr", sf_keep_sum_pr := expand*tot_keep_sf_new] %>%
     .[mode1=="fh", sf_keep_sum_fh := expand*tot_keep_sf_new] %>%
     .[mode1=="sh", sf_keep_sum_sh := expand*tot_keep_sf_new] %>%
@@ -1350,7 +1360,9 @@ for (d in 1:1){
     dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>% 
     dplyr::group_by(mode1) %>% 
     dplyr::summarise(CV = sum(cv_sum), 
-                     ntrips = sum(ntrips_alt)) %>% 
+                     ntrips = sum(ntrips_alt), 
+                     CS_base=sum(cs_base_sum),
+                     CS_alt=sum(cs_alt_sum)) %>% 
     dplyr::ungroup() 
   
   # prediction_output_by_period_check <- prediction_output_by_period2 %>%
