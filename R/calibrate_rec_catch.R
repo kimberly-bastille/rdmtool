@@ -25,9 +25,9 @@
 
 calibrate_rec_catch <- function(state1,
                                 state_no,
-                                # p_star_sf,
-                                # p_star_bsb,
-                                # p_star_scup,
+                                p_star_sf,
+                                p_star_bsb,
+                                p_star_scup,
                                 select_mode, 
                                 k){
   
@@ -36,7 +36,7 @@ calibrate_rec_catch <- function(state1,
   n_drawz = 50
   n_catch_draws = 30
   
-  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) %>% 
+  directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,".rds")))) %>% 
     tibble::tibble() %>% 
     dplyr::filter(draw == k, 
                   mode == select_mode)
@@ -98,20 +98,21 @@ calibrate_rec_catch <- function(state1,
     dplyr::ungroup()
   print("postmutate")
   
-  pstar<- read.csv(file.path(here::here(paste0("pstar_NJ_test.csv")))) %>%
-    dplyr::filter(mode == select_mode,
-                  run_number == k)
-  p_star_sf <- pstar %>%
-    dplyr::filter(species == "SF")
-  p_star_sf <- p_star_sf$p_star_value
-
-  p_star_bsb <- pstar %>%
-    dplyr::filter(species == "BSB")
-  p_star_bsb <- p_star_bsb$p_star_value
-
-  p_star_scup <- pstar %>%
-    dplyr::filter(species == "SCUP")
-  p_star_scup <- p_star_scup$p_star_value
+  # pstar<- read.csv(file.path(here::here(paste0("pstar_NJ_test.csv")))) %>%
+  #   dplyr::filter(mode == select_mode,
+  #                 run_number == k)
+  # p_star_sf <- pstar %>%
+  #   dplyr::filter(species == "SF")
+  # p_star_sf <- p_star_sf$p_star_value
+  # 
+  # p_star_bsb <- pstar %>%
+  #   dplyr::filter(species == "BSB")
+  # p_star_bsb <- p_star_bsb$p_star_value
+  # 
+  # p_star_scup <- pstar %>%
+  #   dplyr::filter(species == "SCUP")
+  # p_star_scup <- p_star_scup$p_star_value
+  
   
   
   #Need 1,000xn_catch_draws(per trip) random draws of catch for each period, with catch-per-trip rates that vary by month.
@@ -177,15 +178,16 @@ calibrate_rec_catch <- function(state1,
   sf_zero_catch <- dplyr::filter(sf_catch_data, tot_sf_catch == 0) %>% 
     dplyr::select(!mode1)
   
+  
   #Check to see if there is no catch for either species and if so, pipe code around keep/release determination
   sf_catch_check<-base::sum(sf_catch_data$tot_sf_catch)
   bsb_catch_check<-base::sum(sf_catch_data$tot_bsb_catch)
   scup_catch_check<-base::sum(sf_catch_data$tot_scup_catch)
   
-  
+  if(sf_catch_check !=0){
   #remove trips with zero summer flounder catch
   sf_catch_data <- dplyr::filter(sf_catch_data, tot_sf_catch > 0)
-  
+
   
   #expand the sf_catch_data so that each row represents a fish
   row_inds <- seq_len(nrow(sf_catch_data))
@@ -349,13 +351,13 @@ calibrate_rec_catch <- function(state1,
     dplyr::select(c("period2", "catch_draw","tripid","state",
                     "tot_keep_sf","tot_rel_sf", "tot_sf_catch"))
   
-  
+  }
   if (sf_catch_check==0){
     trip_data<-sf_catch_data %>%
       dplyr::mutate(tot_keep_sf=0,
                     tot_rel_sf=0,
                     tot_sf_catch = tot_keep_sf+tot_rel_sf)
-    subset(dplyr::select(-c(tot_bsb_catch, tot_scup_catch)))
+    #subset(dplyr::select(-c(tot_bsb_catch, tot_scup_catch)))
     
   }
   
@@ -573,7 +575,7 @@ calibrate_rec_catch <- function(state1,
   ##############Scup
   
   
-  if (state1 %in% c("DE", "MD", "VA")){
+  if (state1 %in% c("DE", "MD", "VA", "NC")){
     trip_data$tot_scup_catch<-0
     trip_data$tot_keep_scup<-0
     trip_data$tot_rel_scup<-0
@@ -834,10 +836,9 @@ calibrate_rec_catch <- function(state1,
   trip_data<- trip_data %>%
     dplyr::left_join(period_vec1, by = c("period2","tripid"))
   
-  trip_costs<-data.frame(readr::read_csv(file.path(here::here("data-raw/trip_costs_state_summary.csv")), show_col_types = FALSE)) %>% 
+  trip_costs<-data.frame(readr::read_csv(file.path(here::here("data-raw/survey_trip_costs1.csv")), show_col_types = FALSE)) %>% 
     dplyr::filter(state==state1, 
-                  mode == select_mode) %>% 
-    dplyr::rename(mode1 = mode)
+                  mode1 == select_mode)
   
   trip_data <- trip_data %>%
     dplyr::left_join(trip_costs)
@@ -845,6 +846,9 @@ calibrate_rec_catch <- function(state1,
   trip_data <- trip_data %>%
     dplyr::mutate(cost=rnorm(nrow(trip_data), mean=trip_data$mean, sd=trip_data$st_error))
   
+  trip_data <- trip_data %>%
+    dplyr::mutate(cost=max(0,cost))
+                  
   # trip_data <- trip_data %>%
   #   dplyr::select(-state.x, -state.y)
   
@@ -864,7 +868,7 @@ calibrate_rec_catch <- function(state1,
     
     #Ages 
     age_distn <- data.frame(read.csv(file.path(here::here("data-raw/age_distribution_by_state.csv")))) %>%
-      dplyr::filter(state == "NJ")  
+      dplyr::filter(state == state1)  
     
     #next two commands ensure there are enough observations  per period
     expand_rows=round((n_drawz/nrow(age_distn)))+1
@@ -879,7 +883,7 @@ calibrate_rec_catch <- function(state1,
     
     #Avidities
     avid_distn <- data.frame(read.csv(file.path(here::here("data-raw/avidity_distribution_by_state.csv")))) %>%
-      dplyr::filter(state == "NJ")  
+      dplyr::filter(state == state1)  
     
     #next two commands ensure there are enough observations per period
     expand_rows=round(n_drawz/nrow(avid_distn))+1
@@ -1156,78 +1160,79 @@ calibrate_rec_catch <- function(state1,
   output<-list(pds_new_all, costs_new_all)
 
   
-  return(output)
+  #return(output)
   
-  # ## Calucate_Pstars
-  # MRIP_data <-  read.csv(here::here("data-raw/calibration_MRIP_comparison.csv")) %>%
-  #   dplyr::filter(state=="NJ",
-  #                 mode1 == select_mode, 
-  #                 draw == k)
-  # 
-  # ##SF
-  # sum(pds_new_all$tot_keep_sf)
-  # sum(MRIP_data$MRIP_sf_harvest)
-  # sf_harvest_harv_diff<-((sum(MRIP_data$MRIP_sf_harvest)-sum(pds_new_all$tot_keep_sf))/sum(MRIP_data$MRIP_sf_harvest))*100
-  # sf_harvest_harv_diff
-  # 
-  # sum(pds_new_all$tot_rel_sf)
-  # sum(MRIP_data$MRIP_sf_release)
-  # sf_rel_diff<- ((sum(MRIP_data$MRIP_sf_release)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$MRIP_sf_release))*100
-  # sf_rel_diff
-  # 
-  # sum(pds_new_all$tot_sf_catch)
-  # sum(MRIP_data$MRIP_sf_tot_cat)
-  # sf_tot_cat_diff<-((sum(MRIP_data$MRIP_sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$MRIP_sf_tot_cat))*100
-  # sf_tot_cat_diff
-  # 
-  # ##BSB
-  # sum(pds_new_all$tot_keep_bsb)
-  # sum(MRIP_data$MRIP_bsb_harvest)
-  # bsb_harvest_harv_diff<-((sum(MRIP_data$MRIP_bsb_harvest)-sum(pds_new_all$tot_keep_bsb))/sum(MRIP_data$MRIP_bsb_harvest))*100
-  # bsb_harvest_harv_diff
-  # 
-  # sum(pds_new_all$tot_rel_bsb)
-  # sum(MRIP_data$MRIP_bsb_release)
-  # bsb_rel_diff<- ((sum(MRIP_data$MRIP_bsb_release)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$MRIP_bsb_release))*100
-  # bsb_rel_diff
-  # 
-  # sum(pds_new_all$tot_bsb_catch)
-  # sum(MRIP_data$MRIP_bsb_tot_cat)
-  # bsb_tot_cat_diff<-((sum(MRIP_data$MRIP_bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$MRIP_bsb_tot_cat))*100
-  # bsb_tot_cat_diff
-  # 
-  # ##scup
-  # sum(pds_new_all$tot_keep_scup)
-  # sum(MRIP_data$MRIP_scup_harvest)
-  # scup_harvest_harv_diff<-((sum(MRIP_data$MRIP_scup_harvest)-sum(pds_new_all$tot_keep_scup))/sum(MRIP_data$MRIP_scup_harvest))*100
-  # scup_harvest_harv_diff
-  # 
-  # sum(pds_new_all$tot_rel_scup)
-  # sum(MRIP_data$MRIP_scup_release)
-  # scup_rel_diff<- ((sum(MRIP_data$MRIP_scup_release)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$MRIP_scup_release))*100
-  # 
-  # sum(pds_new_all$tot_scup_catch)
-  # sum(MRIP_data$MRIP_scup_tot_cat)
-  # scup_tot_cat_diff<-((sum(MRIP_data$MRIP_scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$MRIP_scup_tot_cat))*100
-  # 
-  # 
-  # 
-  # p_stars <- data.frame(species = c("SF", "BSB", "SCUP"),
-  #                       state = state1,
-  #                       p_star_value = c(p_star_sf,p_star_bsb,p_star_scup),
-  #                       mode = c(select_mode, select_mode, select_mode),
-  #                       tot_keep_model = c(sum(pds_new_all$tot_keep_sf), sum(pds_new_all$tot_keep_bsb), sum(pds_new_all$tot_keep_scup)),
-  #                       tot_rel_model = c(sum(pds_new_all$tot_rel_sf), sum(pds_new_all$tot_rel_bsb), sum(pds_new_all$tot_rel_scup)),
-  #                       tot_catch_model = c(sum(pds_new_all$tot_sf_catch), sum(pds_new_all$tot_bsb_catch), sum(pds_new_all$tot_scup_catch)),
-  #                       harvest_MRIP = c(sum(MRIP_data$MRIP_sf_harvest), sum(MRIP_data$MRIP_bsb_harvest), sum(MRIP_data$MRIP_scup_harvest)),
-  #                       harvest_diff = c(sf_harvest_harv_diff, bsb_harvest_harv_diff, scup_harvest_harv_diff),
-  #                       rel_diff = c(sf_rel_diff, bsb_rel_diff, scup_rel_diff),
-  #                       tot_cat_diff = c(sf_tot_cat_diff,bsb_tot_cat_diff,scup_tot_cat_diff),
-  #                       run_number = k, 
-  #                       release_MRIP = c(MRIP_data$MRIP_sf_release, MRIP_data$MRIP_bsb_release, MRIP_data$MRIP_scup_release), 
-  #                       catch_MRIP = c(MRIP_data$MRIP_sf_tot_cat, MRIP_data$MRIP_bsb_tot_cat, MRIP_data$MRIP_scup_tot_cat), 
-  #                       Total_estimated_trips = c(sum(pds_new_all$estimated_trips)))
-  # return(p_stars)
+  ## Calucate_Pstars
+  MRIP_data <-  read.csv(here::here("data-raw/calibration_MRIP_comparison_all_states.csv")) %>%
+    dplyr::filter(state==state1,
+                  mode1 == select_mode,
+                  draw == k)
+
+  ##SF
+  sum(pds_new_all$tot_keep_sf)
+  sum(MRIP_data$MRIP_sf_harvest)
+  sf_harvest_harv_diff<-((sum(MRIP_data$MRIP_sf_harvest)-sum(pds_new_all$tot_keep_sf))/sum(MRIP_data$MRIP_sf_harvest))*100
+  sf_harvest_harv_diff
+
+  sum(pds_new_all$tot_rel_sf)
+  sum(MRIP_data$MRIP_sf_release)
+  sf_rel_diff<- ((sum(MRIP_data$MRIP_sf_release)-sum(pds_new_all$tot_rel_sf))/sum(MRIP_data$MRIP_sf_release))*100
+  sf_rel_diff
+
+  sum(pds_new_all$tot_sf_catch)
+  sum(MRIP_data$MRIP_sf_tot_cat)
+  sf_tot_cat_diff<-((sum(MRIP_data$MRIP_sf_tot_cat)-sum(pds_new_all$tot_sf_catch))/sum(MRIP_data$MRIP_sf_tot_cat))*100
+  sf_tot_cat_diff
+
+  ##BSB
+  sum(pds_new_all$tot_keep_bsb)
+  sum(MRIP_data$MRIP_bsb_harvest)
+  bsb_harvest_harv_diff<-((sum(MRIP_data$MRIP_bsb_harvest)-sum(pds_new_all$tot_keep_bsb))/sum(MRIP_data$MRIP_bsb_harvest))*100
+  bsb_harvest_harv_diff
+
+  sum(pds_new_all$tot_rel_bsb)
+  sum(MRIP_data$MRIP_bsb_release)
+  bsb_rel_diff<- ((sum(MRIP_data$MRIP_bsb_release)-sum(pds_new_all$tot_rel_bsb))/sum(MRIP_data$MRIP_bsb_release))*100
+  bsb_rel_diff
+
+  sum(pds_new_all$tot_bsb_catch)
+  sum(MRIP_data$MRIP_bsb_tot_cat)
+  bsb_tot_cat_diff<-((sum(MRIP_data$MRIP_bsb_tot_cat)-sum(pds_new_all$tot_bsb_catch))/sum(MRIP_data$MRIP_bsb_tot_cat))*100
+  bsb_tot_cat_diff
+
+  ##scup
+  sum(pds_new_all$tot_keep_scup)
+  sum(MRIP_data$MRIP_scup_harvest)
+  scup_harvest_harv_diff<-((sum(MRIP_data$MRIP_scup_harvest)-sum(pds_new_all$tot_keep_scup))/sum(MRIP_data$MRIP_scup_harvest))*100
+  scup_harvest_harv_diff
+
+  sum(pds_new_all$tot_rel_scup)
+  sum(MRIP_data$MRIP_scup_release)
+  scup_rel_diff<- ((sum(MRIP_data$MRIP_scup_release)-sum(pds_new_all$tot_rel_scup))/sum(MRIP_data$MRIP_scup_release))*100
+
+  sum(pds_new_all$tot_scup_catch)
+  sum(MRIP_data$MRIP_scup_tot_cat)
+  scup_tot_cat_diff<-((sum(MRIP_data$MRIP_scup_tot_cat)-sum(pds_new_all$tot_scup_catch))/sum(MRIP_data$MRIP_scup_tot_cat))*100
+
+
+
+  p_stars <- data.frame(species = c("SF", "BSB", "SCUP"),
+                        state = c(state1),
+                        p_star_value = c(p_star_sf,p_star_bsb,p_star_scup),
+                        mode = c(select_mode, select_mode, select_mode),
+                        tot_keep_model = c(sum(pds_new_all$tot_keep_sf), sum(pds_new_all$tot_keep_bsb), sum(pds_new_all$tot_keep_scup)),
+                        tot_rel_model = c(sum(pds_new_all$tot_rel_sf), sum(pds_new_all$tot_rel_bsb), sum(pds_new_all$tot_rel_scup)),
+                        tot_catch_model = c(sum(pds_new_all$tot_sf_catch), sum(pds_new_all$tot_bsb_catch), sum(pds_new_all$tot_scup_catch)),
+                        harvest_MRIP = c(sum(MRIP_data$MRIP_sf_harvest), sum(MRIP_data$MRIP_bsb_harvest), sum(MRIP_data$MRIP_scup_harvest)),
+                        release_MRIP = c(MRIP_data$MRIP_sf_release, MRIP_data$MRIP_bsb_release, MRIP_data$MRIP_scup_release),
+                        catch_MRIP = c(MRIP_data$MRIP_sf_tot_cat, MRIP_data$MRIP_bsb_tot_cat, MRIP_data$MRIP_scup_tot_cat),
+                        harvest_diff = c(sf_harvest_harv_diff, bsb_harvest_harv_diff, scup_harvest_harv_diff),
+                        rel_diff = c(sf_rel_diff, bsb_rel_diff, scup_rel_diff),
+                        tot_cat_diff = c(sf_tot_cat_diff,bsb_tot_cat_diff,scup_tot_cat_diff),
+                        run_number = k,
+                        n_choice_occasions = c(sum(pds_new_all$n_choice_occasions)), 
+                        Total_estimated_trips = c(sum(pds_new_all$estimated_trips)))
+  return(p_stars)
 }
 
   
