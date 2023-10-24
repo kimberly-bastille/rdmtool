@@ -10,137 +10,326 @@ start_est <-  read.csv(here::here("data-raw/total AB1B2 by state mode_pstar.csv"
 
 ### Massachusetts
 
+# ### Values from draw8 estimate
+# p_star_sf_MA_variable_fh<- 0.71466680
+# p_star_bsb_MA_variable_fh<-0.8812922
+# p_star_scup_MA_variable_fh<-0.26348051
+# p_star_sf_MA_variable_pr<-0.78951940
+# p_star_bsb_MA_variable_pr<-0.8725747
+# p_star_scup_MA_variable_pr<-0.64309893
+# p_star_sf_MA_variable_sh<-1
+# p_star_bsb_MA_variable_sh<-1
+# p_star_scup_MA_variable_sh<-0.55955308
+# 
+# 
+# select_mode = "sh"
+# 
+# if(select_mode == "sh"){
+#   p_star_bsb <- p_star_bsb_MA_variable_sh
+#   p_star_sf <- p_star_sf_MA_variable_sh
+#   p_star_scup <- p_star_scup_MA_variable_sh
+# } 
+# if(select_mode == "fh"){
+#   p_star_bsb <- p_star_bsb_MA_variable_fh
+#   p_star_sf <- p_star_sf_MA_variable_fh
+#   p_star_scup <- p_star_scup_MA_variable_fh
+# } 
+# if(select_mode == "pr"){
+#   p_star_bsb <- p_star_bsb_MA_variable_pr
+#   p_star_sf <- p_star_sf_MA_variable_pr
+#   p_star_scup <- p_star_scup_MA_variable_pr
+# }
+# 
+# pstar_out <- data.frame()
+# 
+# for(k in 1:100){
+#   repeat{
+#   
+#     pstar <- calibrate_rec_catch(state1 = "MA",
+#                                  state_no = 25,
+#                                  #sf_catch_data_all,
+#                                  p_star_sf,
+#                                  p_star_bsb,
+#                                  p_star_scup,
+#                                  select_mode = "sh", 
+#                                  k = k) 
+#     
+#     sf <- pstar %>% 
+#       dplyr::filter(species == "SF") 
+#     p_star_sf <- sf[[3]]
+#     sf_harvest_harv_diff <- sf[[11]]
+#     
+#     bsb <- pstar %>% 
+#       dplyr::filter(species == "BSB") 
+#     p_star_bsb <- bsb[[3]]
+#     bsb_harvest_harv_diff <- bsb[[11]]
+#     
+#     scup <- pstar %>% 
+#       dplyr::filter(species == "SCUP") 
+#     p_star_scup <- scup[[3]]
+#     scup_harvest_harv_diff <- scup[[11]]
+#     
+#     # if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+#     #   p_star_sf<-p_star_sf +.005
+#     # }
+#     # 
+#     # if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+#     #   p_star_sf<-p_star_sf -.005
+#     # }
+#     
+#     # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+#     #   p_star_bsb<-p_star_bsb +.005
+#     # }
+#     # 
+#     # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+#     #   p_star_bsb<-p_star_bsb -.005
+#     # }
+#     
+#     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup +.005
+#     }
+# 
+#     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup -.005
+#     }
+#     
+#     print(pstar)
+#     #print(bsb_harvest_harv_diff)
+#     print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+#     if ((abs(scup_harvest_harv_diff)<2)) break
+#     
+#   }
+#   pstar_out <- pstar_out %>% 
+#     rbind(pstar)
+# }  
+# 
+# 
+# pstar_out_sh<- pstar_out
+# 
+# 
+# ### FH #########
+# select_mode = "fh"
+# 
+# if(select_mode == "sh"){
+#   p_star_bsb <- p_star_bsb_MA_variable_sh
+#   p_star_sf <- p_star_sf_MA_variable_sh
+#   p_star_scup <- p_star_scup_MA_variable_sh
+# } 
+# if(select_mode == "fh"){
+#   p_star_bsb <- p_star_bsb_MA_variable_fh
+#   p_star_sf <- p_star_sf_MA_variable_fh
+#   p_star_scup <- p_star_scup_MA_variable_fh
+# } 
+# if(select_mode == "pr"){
+#   p_star_bsb <- p_star_bsb_MA_variable_pr
+#   p_star_sf <- p_star_sf_MA_variable_pr
+#   p_star_scup <- p_star_scup_MA_variable_pr
+# }
+# 
+# pstar_out <- data.frame()
+# 
+# for(k in 1:100){
+#   repeat{
+#     
+#     #pstar <- calculate_pstar_NJ(m = "sh") 
+#     pstar <- calibrate_rec_catch(state1 = "MA",
+#                                  state_no = 25,
+#                                  #sf_catch_data_all,
+#                                  p_star_sf,
+#                                  p_star_bsb,
+#                                  p_star_scup,
+#                                  select_mode = "fh", 
+#                                  k = k) 
+#     
+#     sf <- pstar %>% 
+#       dplyr::filter(species == "SF") 
+#     p_star_sf <- sf[[3]]
+#     sf_harvest_harv_diff <- sf[[11]]
+#     
+#     bsb <- pstar %>% 
+#       dplyr::filter(species == "BSB") 
+#     p_star_bsb <- bsb[[3]]
+#     bsb_harvest_harv_diff <- bsb[[11]]
+#     
+#     scup <- pstar %>% 
+#       dplyr::filter(species == "SCUP") 
+#     p_star_scup <- scup[[3]]
+#     scup_harvest_harv_diff <- scup[[11]]
+#     
+#     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+#       p_star_sf<-p_star_sf +.005
+#     }
+#     
+#     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+#       p_star_sf<-p_star_sf -.005
+#     }
+#     
+#     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+#       p_star_bsb<-p_star_bsb +.005
+#     }
+#     
+#     if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+#       p_star_bsb<-p_star_bsb -.005
+#     }
+#     
+#     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup +.005
+#     }
+#     
+#     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup -.005
+#     }
+#     
+#     print(pstar)
+#     #print(bsb_harvest_harv_diff)
+#     #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+#     if(p_star_sf < 0) break
+#     if(p_star_bsb < 0) break
+#     if(p_star_scup < 0) break
+#     if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+#     #if ((abs(sf_harvest_harv_diff)<2)) break
+#     
+#   }
+#   pstar_out <- pstar_out %>% 
+#     rbind(pstar)
+# }  
+# 
+# pstar_out_fh <- pstar_out
+# 
+# 
+# 
+# ### PR #########
+# select_mode = "pr"
+# 
+# if(select_mode == "pr"){
+#   p_star_bsb <- p_star_bsb_MA_variable_pr
+#   p_star_sf <- p_star_sf_MA_variable_pr
+#   p_star_scup <- p_star_scup_MA_variable_pr
+# }
+# 
+# pstar_out <- data.frame()
+# 
+# for(k in 1:100){
+#   repeat{
+#     pstar <- calibrate_rec_catch(state1 = "MA",
+#                                  state_no = 25,
+#                                  #sf_catch_data_all,
+#                                  p_star_sf,
+#                                  p_star_bsb,
+#                                  p_star_scup,
+#                                  select_mode = "pr", 
+#                                  k = k) 
+#     
+#     sf <- pstar %>% 
+#       dplyr::filter(species == "SF") 
+#     p_star_sf <- sf[[3]]
+#     sf_harvest_harv_diff <- sf[[11]]
+#     
+#     bsb <- pstar %>% 
+#       dplyr::filter(species == "BSB") 
+#     p_star_bsb <- bsb[[3]]
+#     bsb_harvest_harv_diff <- bsb[[11]]
+#     
+#     scup <- pstar %>% 
+#       dplyr::filter(species == "SCUP") 
+#     p_star_scup <- scup[[3]]
+#     scup_harvest_harv_diff <- scup[[11]]
+#     
+#     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+#       p_star_sf<-p_star_sf +.005
+#     }
+#     
+#     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+#       p_star_sf<-p_star_sf -.005
+#     }
+#     
+#     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+#       p_star_bsb<-p_star_bsb +.005
+#     }
+#     
+#     if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+#       p_star_bsb<-p_star_bsb -.005
+#     }
+#     
+#     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup +.005
+#     }
+#     
+#     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+#       p_star_scup<-p_star_scup -.005
+#     }
+#     
+#     #print(pstar)
+#     #print(bsb_harvest_harv_diff)
+#     #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+#     if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+#     #if ((abs(sf_harvest_harv_diff)<2)) break
+#     
+#   }
+#   pstar_out <- pstar_out %>% 
+#     rbind(pstar)
+# }  
+# 
+# 
+# 
+# pstar_out_pr <- pstar_out
+# 
+# 
+# pstar_MA <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) 
+# 
+# write.csv(pstar_MA, file = "pstar_MA_test1.csv")
+# 
+
+
+
+###CT
+#starting points 
 ### Values from draw8 estimate
-p_star_sf_MA_variable_fh<- 0.71466680
-p_star_bsb_MA_variable_fh<-0.8812922
-p_star_scup_MA_variable_fh<-0.26348051
-p_star_sf_MA_variable_pr<-0.78951940
-p_star_bsb_MA_variable_pr<-0.8725747
-p_star_scup_MA_variable_pr<-0.64309893
-p_star_sf_MA_variable_sh<-1
-p_star_bsb_MA_variable_sh<-1
-p_star_scup_MA_variable_sh<-0.55955308
+p_star_sf_CT_variable_fh<- 0.81736043
+p_star_bsb_CT_variable_fh<-0.7085026
+p_star_scup_CT_variable_fh<-0.30864155
+p_star_sf_CT_variable_pr<-0.90095397
+p_star_bsb_CT_variable_pr<-0.8963786
+p_star_scup_CT_variable_pr<-0.64885454
+p_star_sf_CT_variable_sh<-0.53516571
+p_star_bsb_CT_variable_sh<-1
+p_star_scup_CT_variable_sh<-0.68448140
 
 
 select_mode = "sh"
 
 if(select_mode == "sh"){
-  p_star_bsb <- p_star_bsb_MA_variable_sh
-  p_star_sf <- p_star_sf_MA_variable_sh
-  p_star_scup <- p_star_scup_MA_variable_sh
+  p_star_bsb <- p_star_bsb_CT_variable_sh
+  p_star_sf <- p_star_sf_CT_variable_sh
+  p_star_scup <- p_star_scup_CT_variable_sh
 } 
 if(select_mode == "fh"){
-  p_star_bsb <- p_star_bsb_MA_variable_fh
-  p_star_sf <- p_star_sf_MA_variable_fh
-  p_star_scup <- p_star_scup_MA_variable_fh
+  p_star_bsb <- p_star_bsb_CT_variable_fh
+  p_star_sf <- p_star_sf_CT_variable_fh
+  p_star_scup <- p_star_scup_CT_variable_fh
 } 
 if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_MA_variable_pr
-  p_star_sf <- p_star_sf_MA_variable_pr
-  p_star_scup <- p_star_scup_MA_variable_pr
+  p_star_bsb <- p_star_bsb_CT_variable_pr
+  p_star_sf <- p_star_sf_CT_variable_pr
+  p_star_scup <- p_star_scup_CT_variable_pr
 }
 
 pstar_out <- data.frame()
 
 for(k in 1:100){
   repeat{
-  
-    pstar <- calibrate_rec_catch(state1 = "MA",
-                                 state_no = 25,
+    
+    pstar <- calibrate_rec_catch(state1 = "CT",
+                                 state_no = 9,
                                  #sf_catch_data_all,
                                  p_star_sf,
                                  p_star_bsb,
                                  p_star_scup,
                                  select_mode = "sh", 
-                                 k = k) 
-    
-    sf <- pstar %>% 
-      dplyr::filter(species == "SF") 
-    p_star_sf <- sf[[3]]
-    sf_harvest_harv_diff <- sf[[11]]
-    
-    bsb <- pstar %>% 
-      dplyr::filter(species == "BSB") 
-    p_star_bsb <- bsb[[3]]
-    bsb_harvest_harv_diff <- bsb[[11]]
-    
-    scup <- pstar %>% 
-      dplyr::filter(species == "SCUP") 
-    p_star_scup <- scup[[3]]
-    scup_harvest_harv_diff <- scup[[11]]
-    
-    # if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-    #   p_star_sf<-p_star_sf +.005
-    # }
-    # 
-    # if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-    #   p_star_sf<-p_star_sf -.005
-    # }
-    
-    # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-    #   p_star_bsb<-p_star_bsb +.005
-    # }
-    # 
-    # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-    #   p_star_bsb<-p_star_bsb -.005
-    # }
-    
-    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
-    }
-
-    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
-    }
-    
-    print(pstar)
-    #print(bsb_harvest_harv_diff)
-    print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-    if ((abs(scup_harvest_harv_diff)<2)) break
-    
-  }
-  pstar_out <- pstar_out %>% 
-    rbind(pstar)
-}  
-
-
-pstar_out_sh<- pstar_out
-
-
-### FH #########
-select_mode = "fh"
-
-if(select_mode == "sh"){
-  p_star_bsb <- p_star_bsb_MA_variable_sh
-  p_star_sf <- p_star_sf_MA_variable_sh
-  p_star_scup <- p_star_scup_MA_variable_sh
-} 
-if(select_mode == "fh"){
-  p_star_bsb <- p_star_bsb_MA_variable_fh
-  p_star_sf <- p_star_sf_MA_variable_fh
-  p_star_scup <- p_star_scup_MA_variable_fh
-} 
-if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_MA_variable_pr
-  p_star_sf <- p_star_sf_MA_variable_pr
-  p_star_scup <- p_star_scup_MA_variable_pr
-}
-
-pstar_out <- data.frame()
-
-for(k in 1:100){
-  repeat{
-    
-    #pstar <- calculate_pstar_NJ(m = "sh") 
-    pstar <- calibrate_rec_catch(state1 = "MA",
-                                 state_no = 25,
-                                 #sf_catch_data_all,
-                                 p_star_sf,
-                                 p_star_bsb,
-                                 p_star_scup,
-                                 select_mode = "fh", 
                                  k = k) 
     
     sf <- pstar %>% 
@@ -166,6 +355,96 @@ for(k in 1:100){
       p_star_sf<-p_star_sf -.005
     }
     
+    # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+    #   p_star_bsb<-p_star_bsb +.005
+    # }
+    # 
+    # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+    #   p_star_bsb<-p_star_bsb -.005
+    # }
+    
+    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup +.005
+    }
+    
+    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup -.005
+    }
+    
+    #print(pstar)
+    #print(bsb_harvest_harv_diff)
+    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    if ((abs(sf_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    #if ((abs(scup_harvest_harv_diff)<2)) break
+    
+  }
+  pstar_out <- pstar_out %>% 
+    rbind(pstar)
+}  
+
+
+pstar_out_sh<- pstar_out
+
+
+### FH #########
+select_mode = "fh"
+
+if(select_mode == "sh"){
+  p_star_bsb <- p_star_bsb_CT_variable_sh
+  p_star_sf <- p_star_sf_CT_variable_sh
+  p_star_scup <- p_star_scup_CT_variable_sh
+} 
+if(select_mode == "fh"){
+  p_star_bsb <- p_star_bsb_CT_variable_fh
+  p_star_sf <- p_star_sf_CT_variable_fh
+  p_star_scup <- p_star_scup_CT_variable_fh
+} 
+if(select_mode == "pr"){
+  p_star_bsb <- p_star_bsb_CT_variable_pr
+  p_star_sf <- p_star_sf_CT_variable_pr
+  p_star_scup <- p_star_scup_CT_variable_pr
+}
+
+pstar_out <- data.frame()
+
+for(k in 1:100){
+  repeat{
+    
+    #pstar <- calculate_pstar_NJ(m = "sh") 
+    pstar <- calibrate_rec_catch(state1 = "CT",
+                                 state_no = 9,
+                                 #sf_catch_data_all,
+                                 p_star_sf,
+                                 p_star_bsb,
+                                 p_star_scup,
+                                 select_mode = "fh", 
+                                 k = k) 
+    
+    sf <- pstar %>% 
+      dplyr::filter(species == "SF") 
+    p_star_sf <- sf[[3]]
+    sf_harvest_harv_diff <- sf[[11]]
+    sf_model_mrip_diff <- abs(sf$tot_keep_model - sf$harvest_MRIP)
+    
+    bsb <- pstar %>% 
+      dplyr::filter(species == "BSB") 
+    p_star_bsb <- bsb[[3]]
+    bsb_harvest_harv_diff <- bsb[[11]]
+    
+    scup <- pstar %>% 
+      dplyr::filter(species == "SCUP") 
+    p_star_scup <- scup[[3]]
+    scup_harvest_harv_diff <- scup[[11]]
+    
+    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf +.001
+    }
+    
+    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf -.001
+    }
+    
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
       p_star_bsb<-p_star_bsb +.005
     }
@@ -188,7 +467,7 @@ for(k in 1:100){
     if(p_star_sf < 0) break
     if(p_star_bsb < 0) break
     if(p_star_scup < 0) break
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    if ((abs(sf_harvest_harv_diff)<2)|sf_model_mrip_diff < 50 & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2)) break
     
@@ -205,17 +484,17 @@ pstar_out_fh <- pstar_out
 select_mode = "pr"
 
 if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_MA_variable_pr
-  p_star_sf <- p_star_sf_MA_variable_pr
-  p_star_scup <- p_star_scup_MA_variable_pr
+  p_star_bsb <- p_star_bsb_CT_variable_pr
+  p_star_sf <- p_star_sf_CT_variable_pr
+  p_star_scup <- p_star_scup_CT_variable_pr
 }
 
 pstar_out <- data.frame()
 
 for(k in 1:100){
   repeat{
-    pstar <- calibrate_rec_catch(state1 = "MA",
-                                 state_no = 25,
+    pstar <- calibrate_rec_catch(state1 = "CT",
+                                 state_no = 9,
                                  #sf_catch_data_all,
                                  p_star_sf,
                                  p_star_bsb,
@@ -279,12 +558,9 @@ for(k in 1:100){
 pstar_out_pr <- pstar_out
 
 
-pstar_MA <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) 
+pstar_CT <- rbind(pstar_out_sh,  pstar_out_fh )#, pstar_out_pr) 
 
-write.csv(pstar_MA, file = "pstar_MA_test1.csv")
-
-
-
+write.csv(pstar_CT, file = "pstar_CT_test1.csv")
 
 
 
@@ -299,6 +575,7 @@ p_star_sf_RI_variable_pr<-0.76866190
 p_star_bsb_RI_variable_pr<-0.9016561
 p_star_scup_RI_variable_pr<-0.57585542
 p_star_sf_RI_variable_sh<-0.99724088
+#p_star_sf_RI_variable_sh<-0.98 # starting value too close to 1
 p_star_bsb_RI_variable_sh<-0.9897113
 p_star_scup_RI_variable_sh<-0.35087106
 
@@ -339,11 +616,14 @@ for(k in 1:100){
       dplyr::filter(species == "SF") 
     p_star_sf <- sf[[3]]
     sf_harvest_harv_diff <- sf[[11]]
+    sf_model_mrip_diff <- abs(sf$tot_keep_model - sf$harvest_MRIP)
+    
     
     bsb <- pstar %>% 
       dplyr::filter(species == "BSB") 
     p_star_bsb <- bsb[[3]]
     bsb_harvest_harv_diff <- bsb[[11]]
+    bsb_model_mrip_diff <- abs(bsb$tot_keep_model - bsb$harvest_MRIP)
     
     scup <- pstar %>% 
       dplyr::filter(species == "SCUP") 
@@ -351,19 +631,19 @@ for(k in 1:100){
     scup_harvest_harv_diff <- scup[[11]]
 
      if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-       p_star_sf<-p_star_sf +.005
+       p_star_sf<-p_star_sf +.001
      }
     
      if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-       p_star_sf<-p_star_sf -.005
+       p_star_sf<-p_star_sf -.001
      }
 
      if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-       p_star_bsb<-p_star_bsb +.005
+       p_star_bsb<-p_star_bsb +.001
      }
     
      if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-       p_star_bsb<-p_star_bsb -.005
+       p_star_bsb<-p_star_bsb -.001
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
@@ -377,7 +657,8 @@ for(k in 1:100){
     print(pstar)
     #print(bsb_harvest_harv_diff)
     print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    if ((abs(sf_harvest_harv_diff)<2)|sf_model_mrip_diff < 50 & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
     #if ((abs(scup_harvest_harv_diff)<2)) break
     
@@ -567,285 +848,10 @@ write.csv(pstar_RI, file = "pstar_RI_test1.csv")
 
 
 
-###CT
-#starting points 
-### Values from draw8 estimate
-p_star_sf_CT_variable_fh<- 0.81736043
-p_star_bsb_CT_variable_fh<-0.7085026
-p_star_scup_CT_variable_fh<-0.30864155
-p_star_sf_CT_variable_pr<-0.90095397
-p_star_bsb_CT_variable_pr<-0.8963786
-p_star_scup_CT_variable_pr<-0.64885454
-p_star_sf_CT_variable_sh<-0.53516571
-p_star_bsb_CT_variable_sh<-1
-p_star_scup_CT_variable_sh<-0.68448140
 
 
-select_mode = "sh"
-
-if(select_mode == "sh"){
-  p_star_bsb <- p_star_bsb_CT_variable_sh
-  p_star_sf <- p_star_sf_CT_variable_sh
-  p_star_scup <- p_star_scup_CT_variable_sh
-} 
-if(select_mode == "fh"){
-  p_star_bsb <- p_star_bsb_CT_variable_fh
-  p_star_sf <- p_star_sf_CT_variable_fh
-  p_star_scup <- p_star_scup_CT_variable_fh
-} 
-if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_CT_variable_pr
-  p_star_sf <- p_star_sf_CT_variable_pr
-  p_star_scup <- p_star_scup_CT_variable_pr
-}
-
-pstar_out <- data.frame()
-
-for(k in 1:100){
-  repeat{
-    
-    pstar <- calibrate_rec_catch(state1 = "CT",
-                                 state_no = 9,
-                                 #sf_catch_data_all,
-                                 p_star_sf,
-                                 p_star_bsb,
-                                 p_star_scup,
-                                 select_mode = "sh", 
-                                 k = k) 
-    
-    sf <- pstar %>% 
-      dplyr::filter(species == "SF") 
-    p_star_sf <- sf[[3]]
-    sf_harvest_harv_diff <- sf[[11]]
-    
-    bsb <- pstar %>% 
-      dplyr::filter(species == "BSB") 
-    p_star_bsb <- bsb[[3]]
-    bsb_harvest_harv_diff <- bsb[[11]]
-    
-    scup <- pstar %>% 
-      dplyr::filter(species == "SCUP") 
-    p_star_scup <- scup[[3]]
-    scup_harvest_harv_diff <- scup[[11]]
-    
-    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
-    }
-    
-    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
-    }
-    
-    # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-    #   p_star_bsb<-p_star_bsb +.005
-    # }
-    # 
-    # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-    #   p_star_bsb<-p_star_bsb -.005
-    # }
-    
-    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
-    }
-    
-    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
-    }
-    
-    #print(pstar)
-    #print(bsb_harvest_harv_diff)
-    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-    #if ((abs(scup_harvest_harv_diff)<2)) break
-    
-  }
-  pstar_out <- pstar_out %>% 
-    rbind(pstar)
-}  
-
-
-pstar_out_sh<- pstar_out
-
-
-### FH #########
-select_mode = "fh"
-
-if(select_mode == "sh"){
-  p_star_bsb <- p_star_bsb_CT_variable_sh
-  p_star_sf <- p_star_sf_CT_variable_sh
-  p_star_scup <- p_star_scup_CT_variable_sh
-} 
-if(select_mode == "fh"){
-  p_star_bsb <- p_star_bsb_CT_variable_fh
-  p_star_sf <- p_star_sf_CT_variable_fh
-  p_star_scup <- p_star_scup_CT_variable_fh
-} 
-if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_CT_variable_pr
-  p_star_sf <- p_star_sf_CT_variable_pr
-  p_star_scup <- p_star_scup_CT_variable_pr
-}
-
-pstar_out <- data.frame()
-
-for(k in 1:100){
-  repeat{
-    
-    #pstar <- calculate_pstar_NJ(m = "sh") 
-    pstar <- calibrate_rec_catch(state1 = "CT",
-                                 state_no = 9,
-                                 #sf_catch_data_all,
-                                 p_star_sf,
-                                 p_star_bsb,
-                                 p_star_scup,
-                                 select_mode = "fh", 
-                                 k = k) 
-    
-    sf <- pstar %>% 
-      dplyr::filter(species == "SF") 
-    p_star_sf <- sf[[3]]
-    sf_harvest_harv_diff <- sf[[11]]
-    
-    bsb <- pstar %>% 
-      dplyr::filter(species == "BSB") 
-    p_star_bsb <- bsb[[3]]
-    bsb_harvest_harv_diff <- bsb[[11]]
-    
-    scup <- pstar %>% 
-      dplyr::filter(species == "SCUP") 
-    p_star_scup <- scup[[3]]
-    scup_harvest_harv_diff <- scup[[11]]
-    
-    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
-    }
-    
-    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
-    }
-    
-    if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb +.005
-    }
-    
-    if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb -.005
-    }
-    
-    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
-    }
-    
-    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
-    }
-    
-    print(pstar)
-    #print(bsb_harvest_harv_diff)
-    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-    if(p_star_sf < 0) break
-    if(p_star_bsb < 0) break
-    if(p_star_scup < 0) break
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-    #if ((abs(sf_harvest_harv_diff)<2)) break
-    
-  }
-  pstar_out <- pstar_out %>% 
-    rbind(pstar)
-}  
-
-pstar_out_fh <- pstar_out
-
-
-
-### PR #########
-select_mode = "pr"
-
-if(select_mode == "pr"){
-  p_star_bsb <- p_star_bsb_CT_variable_pr
-  p_star_sf <- p_star_sf_CT_variable_pr
-  p_star_scup <- p_star_scup_CT_variable_pr
-}
-
-pstar_out <- data.frame()
-
-for(k in 1:100){
-  repeat{
-    pstar <- calibrate_rec_catch(state1 = "CT",
-                                 state_no = 9,
-                                 #sf_catch_data_all,
-                                 p_star_sf,
-                                 p_star_bsb,
-                                 p_star_scup,
-                                 select_mode = "pr", 
-                                 k = k) 
-    
-    sf <- pstar %>% 
-      dplyr::filter(species == "SF") 
-    p_star_sf <- sf[[3]]
-    sf_harvest_harv_diff <- sf[[11]]
-    
-    bsb <- pstar %>% 
-      dplyr::filter(species == "BSB") 
-    p_star_bsb <- bsb[[3]]
-    bsb_harvest_harv_diff <- bsb[[11]]
-    
-    scup <- pstar %>% 
-      dplyr::filter(species == "SCUP") 
-    p_star_scup <- scup[[3]]
-    scup_harvest_harv_diff <- scup[[11]]
-    
-    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
-    }
-    
-    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
-    }
-    
-    if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb +.005
-    }
-    
-    if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb -.005
-    }
-    
-    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
-    }
-    
-    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
-    }
-    
-    #print(pstar)
-    #print(bsb_harvest_harv_diff)
-    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-    #if ((abs(sf_harvest_harv_diff)<2)) break
-    
-  }
-  pstar_out <- pstar_out %>% 
-    rbind(pstar)
-}  
-
-
-
-pstar_out_pr <- pstar_out
-
-
-pstar_CT <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) 
-
-write.csv(pstar_CT, file = "pstar_CT_test1.csv")
-
-
-
-###NY
-#starting points 
+### NY
+# starting points 
 ### Values from draw8 estimate
 p_star_sf_NY_variable_fh<- 0.82768161
 p_star_bsb_NY_variable_fh<-0.7712775
@@ -854,7 +860,8 @@ p_star_sf_NY_variable_pr<-0.91062808
 p_star_bsb_NY_variable_pr<-0.8841262
 p_star_scup_NY_variable_pr<-0.48319410
 p_star_sf_NY_variable_sh<-0.95724892
-p_star_bsb_NY_variable_sh<-0.9955043
+#p_star_bsb_NY_variable_sh<-0.9955043
+p_star_bsb_NY_variable_sh<-0.998
 p_star_scup_NY_variable_sh<-0.52660397
 
 
@@ -878,7 +885,7 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 1:100){
+for(k in 54:100){
   repeat{
     
     pstar <- calibrate_rec_catch(state1 = "NY",
@@ -914,11 +921,11 @@ for(k in 1:100){
     }
     
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb +.005
+      p_star_bsb<-p_star_bsb +.0001
     }
     
     if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-      p_star_bsb<-p_star_bsb -.005
+      p_star_bsb<-p_star_bsb -.0001
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
@@ -943,7 +950,7 @@ for(k in 1:100){
 
 
 pstar_out_sh<- pstar_out
-
+#write.csv(pstar_out, file = "pstar_NY_1_53.csv")
 
 ### FH #########
 select_mode = "fh"
@@ -1155,16 +1162,16 @@ if(select_mode == "pr"){
 
 pstar_out <- data.frame()
 
-for(k in 1:1){
+for(k in 1:100){
 repeat{
   
   #pstar <- calculate_pstar_NJ(m = "sh") 
   pstar <- calibrate_rec_catch(state1 = "NJ",
                                state_no = 34,
                                #sf_catch_data_all,
-                               #p_star_sf,
-                               #p_star_bsb,
-                               #p_star_scup,
+                               p_star_sf,
+                               p_star_bsb,
+                               p_star_scup,
                                select_mode = "sh", 
                                k = k) 
   
@@ -1483,11 +1490,11 @@ for(k in 1:100){
     scup_harvest_harv_diff <- scup[[11]]
     
     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
+      p_star_sf<-p_star_sf +.001
     }
     
     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
+      p_star_sf<-p_star_sf -.001
     }
     
     # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
@@ -1560,6 +1567,7 @@ for(k in 1:100){
       dplyr::filter(species == "SF") 
     p_star_sf <- sf[[3]]
     sf_harvest_harv_diff <- sf[[11]]
+    sf_model_mrip_diff <- abs(sf$tot_keep_model - sf$harvest_MRIP)
     
     bsb <- pstar %>% 
       dplyr::filter(species == "BSB") 
@@ -1570,13 +1578,14 @@ for(k in 1:100){
       dplyr::filter(species == "SCUP") 
     p_star_scup <- scup[[3]]
     scup_harvest_harv_diff <- scup[[11]]
+    scup_model_mrip_diff <- abs(scup$tot_keep_model - scup$harvest_MRIP)
     
     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
+      p_star_sf<-p_star_sf +.001
     }
     
     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
+      p_star_sf<-p_star_sf -.001
     }
     
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
@@ -1588,11 +1597,11 @@ for(k in 1:100){
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
+      p_star_scup<-p_star_scup +.001
     }
     
     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
+      p_star_scup<-p_star_scup -.001
     }
     
     print(pstar)
@@ -1601,7 +1610,7 @@ for(k in 1:100){
     if(p_star_sf < 0) break
     if(p_star_bsb < 0) break
     if(p_star_scup < 0) break
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    if ((abs(sf_harvest_harv_diff)<2)|sf_model_mrip_diff < 50 & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)|sf_model_mrip_diff < 50) break
     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2)) break
     
@@ -1668,11 +1677,11 @@ for(k in 1:100){
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
+      p_star_scup<-p_star_scup +.001
     }
     
     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
+      p_star_scup<-p_star_scup -.001
     }
     
     #print(pstar)
@@ -1701,280 +1710,281 @@ write.csv(pstar_DE, file = "pstar_DE_test1.csv")
 
 
 
-# ###MD
-# #starting points 
-# ### Values from draw8 estimate
-# p_star_sf_MD_variable_fh<- 0.71466680
-# p_star_bsb_MD_variable_fh<-0.8812922
-# p_star_scup_MD_variable_fh<-0.26348051
-# p_star_sf_MD_variable_pr<-0.78951940
-# p_star_bsb_MD_variable_pr<-0.8725747
-# p_star_scup_MD_variable_pr<-0.64309893
-# p_star_sf_MD_variable_sh<-1
-# p_star_bsb_MD_variable_sh<-1
-# p_star_scup_MD_variable_sh<-0.55955308
-# 
-# 
-# select_mode = "sh"
-# 
-# if(select_mode == "sh"){
-#   p_star_bsb <- p_star_bsb_MD_variable_sh
-#   p_star_sf <- p_star_sf_MD_variable_sh
-#   p_star_scup <- p_star_scup_MD_variable_sh
-# } 
-# if(select_mode == "fh"){
-#   p_star_bsb <- p_star_bsb_MD_variable_fh
-#   p_star_sf <- p_star_sf_MD_variable_fh
-#   p_star_scup <- p_star_scup_MD_variable_fh
-# } 
-# if(select_mode == "pr"){
-#   p_star_bsb <- p_star_bsb_MD_variable_pr
-#   p_star_sf <- p_star_sf_MD_variable_pr
-#   p_star_scup <- p_star_scup_MD_variable_pr
-# }
-# 
-# pstar_out <- data.frame()
-# 
-# for(k in 1:100){
-#   repeat{
-#     
-#     pstar <- calibrate_rec_catch(state1 = "MD",
-#                                  state_no = 24,
-#                                  #sf_catch_data_all,
-#                                  p_star_sf,
-#                                  p_star_bsb,
-#                                  p_star_scup,
-#                                  select_mode = "sh", 
-#                                  k = k) 
-#     
-#     sf <- pstar %>% 
-#       dplyr::filter(species == "SF") 
-#     p_star_sf <- sf[[3]]
-#     sf_harvest_harv_diff <- sf[[11]]
-#     
-#     bsb <- pstar %>% 
-#       dplyr::filter(species == "BSB") 
-#     p_star_bsb <- bsb[[3]]
-#     bsb_harvest_harv_diff <- bsb[[11]]
-#     
-#     scup <- pstar %>% 
-#       dplyr::filter(species == "SCUP") 
-#     p_star_scup <- scup[[3]]
-#     scup_harvest_harv_diff <- scup[[11]]
-#     
-#     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf +.005
-#     }
-#     
-#     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf -.005
-#     }
-#     
-#     # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-#     #   p_star_bsb<-p_star_bsb +.005
-#     # }
-#     # 
-#     # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-#     #   p_star_bsb<-p_star_bsb -.005
-#     # }
-#     # 
-#     # if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-#     #   p_star_scup<-p_star_scup +.005
-#     # }
-#     # 
-#     # if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-#     #   p_star_scup<-p_star_scup -.005
-#     # }
-#     
-#     print(pstar)
-#     #print(bsb_harvest_harv_diff)
-#     print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-#     if ((abs(sF_harvest_harv_diff)<2)) break
-#     
-#   }
-#   pstar_out <- pstar_out %>% 
-#     rbind(pstar)
-# }  
-# 
-# 
-# pstar_out_sh<- pstar_out
-# 
-# 
-# ### FH #########
-# select_mode = "fh"
-# 
-# if(select_mode == "sh"){
-#   p_star_bsb <- p_star_bsb_MD_variable_sh
-#   p_star_sf <- p_star_sf_MD_variable_sh
-#   p_star_scup <- p_star_scup_MD_variable_sh
-# } 
-# if(select_mode == "fh"){
-#   p_star_bsb <- p_star_bsb_MD_variable_fh
-#   p_star_sf <- p_star_sf_MD_variable_fh
-#   p_star_scup <- p_star_scup_MD_variable_fh
-# } 
-# if(select_mode == "pr"){
-#   p_star_bsb <- p_star_bsb_MD_variable_pr
-#   p_star_sf <- p_star_sf_MD_variable_pr
-#   p_star_scup <- p_star_scup_MD_variable_pr
-# }
-# 
-# pstar_out <- data.frame()
-# 
-# for(k in 1:100){
-#   repeat{
-#     
-#     #pstar <- calculate_pstar_NJ(m = "sh") 
-#     pstar <- calibrate_rec_catch(state1 = "MD",
-#                                  state_no = 24,
-#                                  #sf_catch_data_all,
-#                                  p_star_sf,
-#                                  p_star_bsb,
-#                                  p_star_scup,
-#                                  select_mode = "fh", 
-#                                  k = k) 
-#     
-#     sf <- pstar %>% 
-#       dplyr::filter(species == "SF") 
-#     p_star_sf <- sf[[3]]
-#     sf_harvest_harv_diff <- sf[[11]]
-#     
-#     bsb <- pstar %>% 
-#       dplyr::filter(species == "BSB") 
-#     p_star_bsb <- bsb[[3]]
-#     bsb_harvest_harv_diff <- bsb[[11]]
-#     
-#     scup <- pstar %>% 
-#       dplyr::filter(species == "SCUP") 
-#     p_star_scup <- scup[[3]]
-#     scup_harvest_harv_diff <- scup[[11]]
-#     
-#     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf +.005
-#     }
-#     
-#     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf -.005
-#     }
-#     
-#     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-#       p_star_bsb<-p_star_bsb +.005
-#     }
-#     
-#     if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-#       p_star_bsb<-p_star_bsb -.005
-#     }
-#     
-#     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-#       p_star_scup<-p_star_scup +.005
-#     }
-#     
-#     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-#       p_star_scup<-p_star_scup -.005
-#     }
-#     
-#     print(pstar)
-#     #print(bsb_harvest_harv_diff)
-#     #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-#     if(p_star_sf < 0) break
-#     if(p_star_bsb < 0) break
-#     if(p_star_scup < 0) break
-#     if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-#     #if ((abs(sf_harvest_harv_diff)<2)) break
-#     
-#   }
-#   pstar_out <- pstar_out %>% 
-#     rbind(pstar)
-# }  
-# 
-# pstar_out_fh <- pstar_out
-# 
-# 
-# 
-# ### PR #########
-# select_mode = "pr"
-# 
-# if(select_mode == "pr"){
-#   p_star_bsb <- p_star_bsb_MD_variable_pr
-#   p_star_sf <- p_star_sf_MD_variable_pr
-#   p_star_scup <- p_star_scup_MD_variable_pr
-# }
-# 
-# pstar_out <- data.frame()
-# 
-# for(k in 1:100){
-#   repeat{
-#     pstar <- calibrate_rec_catch(state1 = "MD",
-#                                  state_no = 24,
-#                                  #sf_catch_data_all,
-#                                  p_star_sf,
-#                                  p_star_bsb,
-#                                  p_star_scup,
-#                                  select_mode = "pr", 
-#                                  k = k) 
-#     
-#     sf <- pstar %>% 
-#       dplyr::filter(species == "SF") 
-#     p_star_sf <- sf[[3]]
-#     sf_harvest_harv_diff <- sf[[11]]
-#     
-#     bsb <- pstar %>% 
-#       dplyr::filter(species == "BSB") 
-#     p_star_bsb <- bsb[[3]]
-#     bsb_harvest_harv_diff <- bsb[[11]]
-#     
-#     scup <- pstar %>% 
-#       dplyr::filter(species == "SCUP") 
-#     p_star_scup <- scup[[3]]
-#     scup_harvest_harv_diff <- scup[[11]]
-#     
-#     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf +.005
-#     }
-#     
-#     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-#       p_star_sf<-p_star_sf -.005
-#     }
-#     
-#     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
-#       p_star_bsb<-p_star_bsb +.005
-#     }
-#     
-#     if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
-#       p_star_bsb<-p_star_bsb -.005
-#     }
-#     
-#     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-#       p_star_scup<-p_star_scup +.005
-#     }
-#     
-#     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-#       p_star_scup<-p_star_scup -.005
-#     }
-#     
-#     #print(pstar)
-#     #print(bsb_harvest_harv_diff)
-#     #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
-#     if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
-#     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
-#     #if ((abs(sf_harvest_harv_diff)<2)) break
-#     
-#   }
-#   pstar_out <- pstar_out %>% 
-#     rbind(pstar)
-# }  
-# 
-# 
-# 
-# pstar_out_pr <- pstar_out
-# 
-# 
-# pstar_MD <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr) 
-# 
-# write.csv(pstar_MD, file = "pstar_MD_test1.csv")
+###MD
+#starting points
+### Values from draw8 estimate
+p_star_sf_MD_variable_fh<- 0.71466680
+p_star_bsb_MD_variable_fh<-0.8812922
+p_star_scup_MD_variable_fh<-0.26348051
+p_star_sf_MD_variable_pr<-0.78951940
+p_star_bsb_MD_variable_pr<-0.8725747
+p_star_scup_MD_variable_pr<-0.64309893
+p_star_sf_MD_variable_sh<-1
+p_star_bsb_MD_variable_sh<-1
+p_star_scup_MD_variable_sh<-0.55955308
+
+
+select_mode = "sh"
+
+if(select_mode == "sh"){
+  p_star_bsb <- p_star_bsb_MD_variable_sh
+  p_star_sf <- p_star_sf_MD_variable_sh
+  p_star_scup <- p_star_scup_MD_variable_sh
+}
+if(select_mode == "fh"){
+  p_star_bsb <- p_star_bsb_MD_variable_fh
+  p_star_sf <- p_star_sf_MD_variable_fh
+  p_star_scup <- p_star_scup_MD_variable_fh
+}
+if(select_mode == "pr"){
+  p_star_bsb <- p_star_bsb_MD_variable_pr
+  p_star_sf <- p_star_sf_MD_variable_pr
+  p_star_scup <- p_star_scup_MD_variable_pr
+}
+
+pstar_out <- data.frame()
+
+for(k in 1:100){
+  repeat{
+
+    pstar <- calibrate_rec_catch(state1 = "MD",
+                                 state_no = 24,
+                                 #sf_catch_data_all,
+                                 p_star_sf,
+                                 p_star_bsb,
+                                 p_star_scup,
+                                 select_mode = "sh",
+                                 k = k)
+
+    sf <- pstar %>%
+      dplyr::filter(species == "SF")
+    p_star_sf <- sf[[3]]
+    sf_harvest_harv_diff <- sf[[11]]
+
+    bsb <- pstar %>%
+      dplyr::filter(species == "BSB")
+    p_star_bsb <- bsb[[3]]
+    bsb_harvest_harv_diff <- bsb[[11]]
+
+    scup <- pstar %>%
+      dplyr::filter(species == "SCUP")
+    p_star_scup <- scup[[3]]
+    scup_harvest_harv_diff <- scup[[11]]
+
+    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf +.001
+    }
+
+    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf -.001
+    }
+
+    # if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+    #   p_star_bsb<-p_star_bsb +.005
+    # }
+    #
+    # if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+    #   p_star_bsb<-p_star_bsb -.005
+    # }
+    #
+    # if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+    #   p_star_scup<-p_star_scup +.005
+    # }
+    #
+    # if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+    #   p_star_scup<-p_star_scup -.005
+    # }
+
+    print(pstar)
+    #print(bsb_harvest_harv_diff)
+    print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+    if ((abs(sF_harvest_harv_diff)<2)) break
+
+  }
+  pstar_out <- pstar_out %>%
+    rbind(pstar)
+}
+
+
+pstar_out_sh<- pstar_out
+
+
+### FH #########
+select_mode = "fh"
+
+if(select_mode == "sh"){
+  p_star_bsb <- p_star_bsb_MD_variable_sh
+  p_star_sf <- p_star_sf_MD_variable_sh
+  p_star_scup <- p_star_scup_MD_variable_sh
+}
+if(select_mode == "fh"){
+  p_star_bsb <- p_star_bsb_MD_variable_fh
+  p_star_sf <- p_star_sf_MD_variable_fh
+  p_star_scup <- p_star_scup_MD_variable_fh
+}
+if(select_mode == "pr"){
+  p_star_bsb <- p_star_bsb_MD_variable_pr
+  p_star_sf <- p_star_sf_MD_variable_pr
+  p_star_scup <- p_star_scup_MD_variable_pr
+}
+
+pstar_out <- data.frame()
+
+for(k in 1:100){
+  repeat{
+
+    #pstar <- calculate_pstar_NJ(m = "sh")
+    pstar <- calibrate_rec_catch(state1 = "MD",
+                                 state_no = 24,
+                                 #sf_catch_data_all,
+                                 p_star_sf,
+                                 p_star_bsb,
+                                 p_star_scup,
+                                 select_mode = "fh",
+                                 k = k)
+
+    sf <- pstar %>%
+      dplyr::filter(species == "SF")
+    p_star_sf <- sf[[3]]
+    sf_harvest_harv_diff <- sf[[11]]
+
+    bsb <- pstar %>%
+      dplyr::filter(species == "BSB")
+    p_star_bsb <- bsb[[3]]
+    bsb_harvest_harv_diff <- bsb[[11]]
+
+    scup <- pstar %>%
+      dplyr::filter(species == "SCUP")
+    p_star_scup <- scup[[3]]
+    scup_harvest_harv_diff <- scup[[11]]
+    scup_model_mrip_diff <- abs(scup$tot_keep_model - scup$harvest_MRIP)
+
+    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf +.001
+    }
+
+    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf -.001
+    }
+
+    if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+      p_star_bsb<-p_star_bsb +.005
+    }
+
+    if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+      p_star_bsb<-p_star_bsb -.005
+    }
+
+    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup +.001
+    }
+
+    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup -.001
+    }
+
+    print(pstar)
+    #print(bsb_harvest_harv_diff)
+    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    if(p_star_sf < 0) break
+    if(p_star_bsb < 0) break
+    if(p_star_scup < 0) break
+    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)|scup_model_mrip_diff < 50) break
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+    #if ((abs(sf_harvest_harv_diff)<2)) break
+
+  }
+  pstar_out <- pstar_out %>%
+    rbind(pstar)
+}
+
+pstar_out_fh <- pstar_out
+
+
+
+### PR #########
+select_mode = "pr"
+
+if(select_mode == "pr"){
+  p_star_bsb <- p_star_bsb_MD_variable_pr
+  p_star_sf <- p_star_sf_MD_variable_pr
+  p_star_scup <- p_star_scup_MD_variable_pr
+}
+
+pstar_out <- data.frame()
+
+for(k in 1:100){
+  repeat{
+    pstar <- calibrate_rec_catch(state1 = "MD",
+                                 state_no = 24,
+                                 #sf_catch_data_all,
+                                 p_star_sf,
+                                 p_star_bsb,
+                                 p_star_scup,
+                                 select_mode = "pr",
+                                 k = k)
+
+    sf <- pstar %>%
+      dplyr::filter(species == "SF")
+    p_star_sf <- sf[[3]]
+    sf_harvest_harv_diff <- sf[[11]]
+
+    bsb <- pstar %>%
+      dplyr::filter(species == "BSB")
+    p_star_bsb <- bsb[[3]]
+    bsb_harvest_harv_diff <- bsb[[11]]
+
+    scup <- pstar %>%
+      dplyr::filter(species == "SCUP")
+    p_star_scup <- scup[[3]]
+    scup_harvest_harv_diff <- scup[[11]]
+
+    if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf +.005
+    }
+
+    if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
+      p_star_sf<-p_star_sf -.005
+    }
+
+    if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
+      p_star_bsb<-p_star_bsb +.005
+    }
+
+    if (bsb_harvest_harv_diff>0 & abs(bsb_harvest_harv_diff)>1){
+      p_star_bsb<-p_star_bsb -.005
+    }
+
+    if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup +.005
+    }
+
+    if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
+      p_star_scup<-p_star_scup -.005
+    }
+
+    #print(pstar)
+    #print(bsb_harvest_harv_diff)
+    #print((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2))
+    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
+    #if ((abs(sf_harvest_harv_diff)<2)) break
+
+  }
+  pstar_out <- pstar_out %>%
+    rbind(pstar)
+}
+
+
+
+pstar_out_pr <- pstar_out
+
+
+pstar_MD <- rbind(pstar_out_sh,  pstar_out_fh, pstar_out_pr)
+
+write.csv(pstar_MD, file = "pstar_MD_test1.csv")
 
 ###VA
 #starting points 
@@ -2127,11 +2137,11 @@ for(k in 1:100){
     scup_harvest_harv_diff <- scup[[11]]
     
     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
+      p_star_sf<-p_star_sf +.001
     }
     
     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
+      p_star_sf<-p_star_sf -.001
     }
     
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
@@ -2397,6 +2407,7 @@ for(k in 1:100){
       dplyr::filter(species == "SF") 
     p_star_sf <- sf[[3]]
     sf_harvest_harv_diff <- sf[[11]]
+    sf_model_mrip_diff <- abs(sf$tot_keep_model - sf$harvest_MRIP)
     
     bsb <- pstar %>% 
       dplyr::filter(species == "BSB") 
@@ -2409,11 +2420,11 @@ for(k in 1:100){
     scup_harvest_harv_diff <- scup[[11]]
     
     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
+      p_star_sf<-p_star_sf +.001
     }
     
     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
+      p_star_sf<-p_star_sf -.001
     }
     
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
@@ -2425,11 +2436,11 @@ for(k in 1:100){
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
+      p_star_scup<-p_star_scup +.001
     }
     
     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
+      p_star_scup<-p_star_scup -.001
     }
     
     print(pstar)
@@ -2438,7 +2449,7 @@ for(k in 1:100){
     if(p_star_sf < 0) break
     if(p_star_bsb < 0) break
     if(p_star_scup < 0) break
-    if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
+    if ((abs(sf_harvest_harv_diff)<2)|sf_model_mrip_diff < 50 & (abs(bsb_harvest_harv_diff)<2) & (abs(scup_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2) & (abs(bsb_harvest_harv_diff)<2)) break
     #if ((abs(sf_harvest_harv_diff)<2)) break
     
@@ -2489,11 +2500,11 @@ for(k in 1:100){
     scup_harvest_harv_diff <- scup[[11]]
     
     if (sf_harvest_harv_diff<0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf +.005
+      p_star_sf<-p_star_sf +.001
     }
     
     if (sf_harvest_harv_diff>0 & abs(sf_harvest_harv_diff)>1){
-      p_star_sf<-p_star_sf -.005
+      p_star_sf<-p_star_sf -.001
     }
     
     if (bsb_harvest_harv_diff<0 & abs(bsb_harvest_harv_diff)>1){
@@ -2505,11 +2516,11 @@ for(k in 1:100){
     }
     
     if (scup_harvest_harv_diff<0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup +.005
+      p_star_scup<-p_star_scup +.001
     }
     
     if (scup_harvest_harv_diff>0 & abs(scup_harvest_harv_diff)>1){
-      p_star_scup<-p_star_scup -.005
+      p_star_scup<-p_star_scup -.001
     }
     
     #print(pstar)
