@@ -29,7 +29,8 @@ scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_p
   dplyr::filter(state=="NJ")
 
 l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
-  dplyr::filter(State=="NJ")
+  dplyr::filter(State=="NJ") %>% 
+  dplyr::mutate(ln_a = as.numeric(ln_a))
 
 s_star_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/s_star_NJ.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(state=="NJ")
@@ -191,14 +192,14 @@ get_predictions_out<- function(x){
                   period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::select(!c("landing_sf_new","landing_scup_new","landing_bsb_new","tot_cat_bsb_new" ))
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test.rds"))) %>% 
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test1.rds"))) %>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
     dplyr::filter(!day == "NA") %>% 
     dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
                   period2 = paste0(month_day, "-", mode)) %>% 
     dplyr::select(-c(month, day, month_day, mode))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,"_test.rds")))%>% 
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,"_test1.rds")))%>% 
     tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
     dplyr::filter(!day == "NA") %>%
     dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
