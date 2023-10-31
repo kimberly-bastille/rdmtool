@@ -20,7 +20,6 @@ predict_rec_catch <- function(state1,
                               costs_new_all,
                               sf_catch_data_all,
                               l_w_conversion,
-                              s_star_data,
                               n_drawz = 50,
                               n_catch_draws = 30,
                               eff_seed=190 ){
@@ -90,7 +89,8 @@ predict_rec_catch <- function(state1,
       
       set.seed(eff_seed)
       # Input the calibration output which contains the number of choice occasions needed to simulate
-      calibration_data <- calibration_data_table %>% tibble::tibble() #%>% 
+      calibration_data <- calibration_data_table %>% tibble::tibble()
+        
 
       
       print("first read in")
@@ -704,6 +704,8 @@ predict_rec_catch <- function(state1,
   
   
   costs_new_all2 <- data.frame(costs_new_all) %>% #tibble() %>%
+    dplyr::mutate_at(.vars = "period2", .funs = gsub, 
+                     pattern = "-", replace = "_") %>% 
     dplyr::rename(beta_sqrt_sf_keep_base=beta_sqrt_sf_keep,
                   beta_sqrt_sf_release_base=beta_sqrt_sf_release,
                   beta_sqrt_bsb_keep_base=beta_sqrt_bsb_keep,
@@ -1274,7 +1276,6 @@ predict_rec_catch <- function(state1,
   
   prediction_output_by_period1 <- period_conversion %>%  
     dplyr::select(period2, month, day, mode1) %>% 
-    dplyr::mutate()
     dplyr::right_join(trip_level_output, by = c("period2")) 
   
   
@@ -1461,7 +1462,7 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
   if (state1 %in% c("NJ")){
     prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)  %>%
-      dplyr::mutate(draw=d) %>% 
+      dplyr::mutate(draw=k) %>% 
       dplyr::group_by(mode1) %>% 
       dplyr::summarise(CV = sum(cv_sum), 
                        ntrips = sum(ntrips_alt)) %>% 
@@ -1506,7 +1507,7 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
  
  
   return(predictions)
-  
+}
   
     ##
   

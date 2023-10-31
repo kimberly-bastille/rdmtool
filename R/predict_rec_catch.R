@@ -1460,7 +1460,7 @@ predict_rec_catch <- function(state1,
                   weight = dplyr::case_when(Species == "sf" ~ a*length_cm^b, TRUE ~ weight), 
                   weight = dplyr::case_when(Species == "bsb" ~ a*length_cm^b, TRUE ~ weight), 
                   weight = weight*2.20462262185, #convert to lbs
-                  Total_weight = Number_at_Length * weight, 
+                  #Total_weight = Number_at_Length * weight, 
                   Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "sf" ~ (.1 * Number_at_Length * weight)), 
                   Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "scup" ~ (.15 * Number_at_Length * weight), TRUE ~ Mortality_weight),
                   Mortality_weight = dplyr::case_when(keep_release == "release" & Species == "bsb" ~ (.15 * Number_at_Length * weight), TRUE ~ Mortality_weight), 
@@ -1469,9 +1469,9 @@ predict_rec_catch <- function(state1,
                   Mortality_Number = dplyr::case_when(keep_release == "release" & Species == "bsb" ~ (.15 * Number_at_Length), TRUE ~ Mortality_Number))  %>% 
     dplyr::group_by(Species, Mode, keep_release) %>% 
     dplyr::summarise(Total_Number = sum(Number_at_Length), 
-                     Total_Weight = sum(Total_weight), 
-                     Mortality_Weight = sum(Mortality_weight), 
-                     Mortality_Number = sum(Mortality_Number)) %>% 
+                     Total_Weight = sum(weight), 
+                     Mortality_Weight = sum(Mortality_weight, na.rm = TRUE), 
+                     Mortality_Number = sum(Mortality_Number, na.rm = TRUE)) %>% 
     dplyr::rename(mode1 = Mode) %>% 
     dplyr::ungroup()
   
@@ -1486,6 +1486,7 @@ predict_rec_catch <- function(state1,
     dplyr::group_by(Species, keep_release) %>% 
     dplyr::summarise(Total_Number = sum(Total_Number), 
                      Total_Weight = sum(Total_Weight), 
+                     #tot_weight_mrip_avg = Total_Number * 
                      Mortality_Weight = sum(Mortality_Weight), 
                      Mortality_Weight = sum(Mortality_Weight)) %>% 
     dplyr::ungroup() %>% 

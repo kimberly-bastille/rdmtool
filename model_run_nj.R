@@ -19,21 +19,16 @@ predictions_all = list()
 # p_star_bsb<- 0.885
 # p_star_scup<- 0.045
 
-sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
-  dplyr::filter(state=="NJ")
+sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_prob_star_2024_NJ.csv")),  show_col_types = FALSE) 
 
-bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
-  dplyr::filter(state=="NJ")
+bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_prob_star_2022_NJ.csv")),  show_col_types = FALSE)
 
-scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_projected_catch_at_lengths.csv")),  show_col_types = FALSE) %>%
-  dplyr::filter(state=="NJ")
+scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_prob_star_2024_NJ.csv")),  show_col_types = FALSE)
 
 l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(State=="NJ") %>% 
   dplyr::mutate(ln_a = as.numeric(ln_a))
 
-s_star_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/s_star_NJ.csv")),  show_col_types = FALSE) %>%
-  dplyr::filter(state=="NJ")
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) 
 
@@ -172,8 +167,7 @@ if(input$SCUP_NJ_input_type == "Single"){
 }
 
 
-write.csv(directed_trips, file = "directed_trips_test.csv")
-print(directed_trips)
+
 #for(x in 1:1){
 future::plan(future::multisession, workers = 8)
 get_predictions_out<- function(x){
@@ -192,19 +186,9 @@ get_predictions_out<- function(x){
                   period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::select(!c("landing_sf_new","landing_scup_new","landing_bsb_new","tot_cat_bsb_new" ))
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test1.rds"))) %>% 
-    tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
-    dplyr::filter(!day == "NA") %>% 
-    dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
-                  period2 = paste0(month_day, "-", mode)) %>% 
-    dplyr::select(-c(month, day, month_day, mode))
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_NJ_",x,"_test1.rds")))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,"_test1.rds")))%>% 
-    tidyr::separate(period2, into = c("month", "day", "mode"), sep = "_") %>% 
-    dplyr::filter(!day == "NA") %>%
-    dplyr::mutate(month_day = stringr::str_remove(lubridate::make_date("2023", month, day), "2023-"), 
-                  period2 = paste0(month_day, "-", mode)) %>% 
-    dplyr::select(-c(month, day, month_day, mode))
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_NJ_",x,"_test1.rds")))
   
   # calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   # cost_files_all_base <- split(costs_new_all, costs_new_all$state)
@@ -218,19 +202,14 @@ get_predictions_out<- function(x){
   
   ######### Setup ##########################################
   sf_size_data <- sf_size_dat %>% 
-    dplyr::filter(draw == 0) #Change to X for model for sf and scup
+    dplyr::filter(draw == x) #Change to X for model for sf and scup
   
   bsb_size_data <- bsb_size_dat %>% 
-    dplyr::filter(draw == 0)
+    dplyr::filter(draw == x)
   
   scup_size_data <- scup_size_dat %>% 
-    dplyr::filter(draw == 0)
-
-
-  s_star_data <- s_star_dat %>% 
     dplyr::filter(draw == x)
-  #print(directed_trips2)
-  #2) Run the prediction model
+
   
   # Function arguments are:
   #State1 = list of states
@@ -245,7 +224,7 @@ get_predictions_out<- function(x){
   
   
   ##Run the catch function
-  source(here::here("R/predict_rec_catch.R"))
+  source(here::here("R/predict_rec_catch3.R"))
   
   # parallelly::availableCores()
   # future::plan(future::multisession, workers=6
@@ -268,12 +247,9 @@ get_predictions_out<- function(x){
                            scup_size_data_read = scup_size_data,
                            costs_new_all = costs_new_all,
                            l_w = l_w_conversion,
-                           s_star = s_star_data, 
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
-  
-    predictions_all <- predictions_all %>% 
-      rbind(test)
+
 
 }
 #})
@@ -281,61 +257,14 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "run_number")
 
+# predictions_out10<- predictions_out10 %>% 
+#   dplyr::rename("StatusQuo" = Value)
+# write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_NJ.csv"))
 
-#write.csv(predictions_all, file = "predictions_10_4.csv")
-
-# predictions <- predictions_all %>% 
-#   dplyr::group_by(Category, 
-#                   mode, 
-#                   keep_release, 
-#                   param, 
-#                   number_weight,
-#                   state) %>% 
-#   dplyr::summarise(Value = mean(Value))
+# predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
+#   dplyr::mutate(run_number = as.character(run_number))
 predictions <- predictions_out10 %>% 
-  dplyr::group_by(Category,mode,keep_release,param,number_weight,state ) %>% 
-  dplyr::summarise(Value = median(Value))
-
-# predictions_all2<-as.data.frame(predictions_all) %>% 
-#   tidyr::pivot_longer(cols = everything(), names_to = "colname", values_to = "value") %>% 
-#   janitor::clean_names() %>% 
-#   dplyr::group_by(colname) %>% 
-#   dplyr::summarise(across(where(is.numeric), mean)) #%>% 
-#   #dplyr::mutate(value = dplyr::across(value, ~ format(., big.mark = ",")))
-# #write.csv(predictions_all2, file = "output_NJ_test1.csv")
-# 
-# 
-# # # #### Length #########
-# # length_out<- prediction_output_by_period2 %>%
-# #   dplyr::select(-c(period2, kod, kod_24, n_choice_occasions, tripid, expand, change_CS, state,
-# #                    probA, prob0, tot_keep_sf, tot_rel_sf, tot_keep_bsb, tot_rel_bsb, tot_keep_scup,
-# #                    tot_rel_scup, tot_scup_catch, tot_keep_sf_base, tot_keep_bsb_base, tot_cat_scup_base)) %>%
-# #   dplyr::slice_head(n = 1) 
-# #   
-# # 
-# # lw_params <- read.csv(here::here("data-raw/lw_params2.csv")) %>%
-# #   dplyr::mutate(Month = as.numeric(Month))
-# # 
-# # length_weight_conv<-length_out %>%
-# #   tidyr::pivot_longer(everything() , names_to = "SppLength", values_to = "NumInd") %>%
-# #   tidyr::separate(SppLength, into = c("Spp", "keep_rel", "mode", "Month", "Length"), sep = "_") %>%
-# #   dplyr::filter(!Spp == "NA") %>%
-# #   dplyr::mutate(Month = as.numeric(Month),
-# #                 Lcm = as.numeric(Length) * 2.54) %>%
-# #   dplyr::left_join(lw_params, by = c("Spp", "Month"), relationship = "many-to-many") %>%
-# #   dplyr::filter(State == "NJ") %>%
-# #   dplyr::mutate(Wkg = dplyr::case_when(Spp == "SF" ~ (a * Lcm ^ b),
-# #                                 Spp == "SCUP" & Month %in% c(1, 2,3,4,5,12) ~ (exp(a + b *log(Lcm))),
-# #                                 Spp == "SCUP" & Month %in% c(6:11) ~ (exp(a + b *log(Lcm))),
-# #                                 Spp == "BSB" & Month %in% c(1:6) ~ (a * Lcm ^ b),
-# #                                 Spp == "BSB" & Month %in% c(7:12) ~ (a * Lcm ^ b)),
-# #                 Wlbs = Wkg * 2.20462,
-# #                 Tot_W = NumInd * Wlbs) %>%
-# #   dplyr::group_by(Spp, keep_rel, mode) %>%
-# #   dplyr::summarise(NumInd = sum(NumInd),
-# #                    Tot_W = sum(Tot_W))
-# # 
-# # 
+  dplyr::mutate(Value = as.numeric(Value))
 
 
 
