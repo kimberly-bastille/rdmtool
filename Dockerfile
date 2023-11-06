@@ -19,5 +19,5 @@ RUN install2.r -e -s \
     openxlsx \
     plyr \
     markdown \
-    && rm -rf /tmp/downloaded_packages\
+    && rm -rf /tmp/downloaded_packages \
     && chown -R shiny:shiny /srv/rdmtool
