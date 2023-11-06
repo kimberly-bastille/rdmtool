@@ -1,8 +1,7 @@
 ## Required Packages
-
 install.packages("shiny")
 install.packages("shinyjs")
-install.packages("shinywidgets")
+install.packages("shinyWidgets")
 install.packages("magrittr")
 install.packages("readr")
 install.packages("here")
