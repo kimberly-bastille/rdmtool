@@ -1,5 +1,5 @@
 # get directed trips
-directed_trips<- data.frame(readr::read_csv(file.path(here::here("data-raw/directed trips and regulations 2022_100 draws.csv"))))
+directed_trips<- data.frame(read.csv(file.path(here::here("data-raw/directed_trips/directed trips and regulations 2024_100 draws.csv"))))
 
 #############################################################
 directed_trips_CT<-directed_trips %>% 
