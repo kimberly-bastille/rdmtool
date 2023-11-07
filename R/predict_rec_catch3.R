@@ -20,6 +20,7 @@ predict_rec_catch <- function(state1,
                               costs_new_all,
                               sf_catch_data_all,
                               l_w_conversion,
+                              x,
                               n_drawz = 50,
                               n_catch_draws = 30,
                               eff_seed=190 ){
@@ -27,10 +28,13 @@ predict_rec_catch <- function(state1,
   
   
   calendar_2024_adjust <- readr::read_csv(file.path(here::here("data-raw/calendar 2024 adjustments.csv")),  show_col_types = FALSE) %>%
-    dplyr::filter(state==state1) %>%  dplyr::rename(mode1=mode)
+    dplyr::filter(state==state1, 
+                  draw == x) %>%  
+    dplyr::rename(mode1=mode)
   
   MRIP_harvest_weights<- readr::read_csv(file.path(here::here("data-raw/MRIP mean harvest weights.csv")),  show_col_types = FALSE) %>%
-    dplyr::filter(state==state1)
+    dplyr::filter(state==state1, 
+                  draw == x)
   
   
   #These next two files are only for NJ
@@ -39,9 +43,9 @@ predict_rec_catch <- function(state1,
   
   NJ_bias_catch<- readr::read_csv(file.path(here::here(paste0("data-raw/differences_total_catch_", state1, ".csv"))),  show_col_types = FALSE) 
   
-  NJ_bias_CV_trips1<- NJ_bias_CV_trips %>% dplyr::filter(draw==k)
+  NJ_bias_CV_trips1<- NJ_bias_CV_trips %>% dplyr::filter(draw==x)
   
-  NJ_bias_catch1<- NJ_bias_catch %>% dplyr::filter(draw==k) %>% 
+  NJ_bias_catch1<- NJ_bias_catch %>% dplyr::filter(draw==x) %>% 
     dplyr::select(diff_bsb_keep, diff_bsb_rel, diff_scup_keep, diff_scup_rel, diff_sf_keep, diff_sf_rel, mode1, draw)
   
   }
@@ -67,15 +71,7 @@ predict_rec_catch <- function(state1,
       #d <- 1
       #profvis({
      
-      
-      
-      
-      calendar_2024_adjust <- calendar_2024_adjust %>% dplyr::filter(draw==k) 
-        
-      MRIP_harvest_weights1<-MRIP_harvest_weights %>% dplyr::filter(draw==k)
-      
 
-      
       print("made it through data read in ")
       
       period_conversion<- directed_trips_table %>% 
@@ -676,24 +672,54 @@ predict_rec_catch <- function(state1,
       trip_data$tot_scup_catch_new<-0
       trip_data$tot_keep_scup_new<-0
       trip_data$tot_rel_scup_new<-0
+      
+      trip_data<-trip_data %>% 
+        dplyr::mutate(tot_scup_catch_new = tot_keep_scup_new + tot_rel_scup_new, 
+                      tot_bsb_catch_new = tot_keep_bsb_new + tot_rel_bsb_new, 
+                      tot_sf_catch_new = tot_keep_sf_new + tot_rel_sf_new)
     }
     
   }
   
   
+  if (state1 %in% c("DE", "MD", "VA", "NC")){
+    length_data <- keep_release_sf %>%
+      dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) 
+  }
   
-  length_data <- keep_release_sf %>%
-    dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>%
-    dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
+  if (state1 %in% c("MA", "RI", "CT", "NY", "NJ")){
+    length_data <- keep_release_sf %>%
+      dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>%
+      dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
+  }
+  
+  # length_data <- keep_release_sf %>%
+  #   dplyr::full_join(keep_release_bsb, by = c("period2","tripid", "catch_draw")) %>%
+  #   dplyr::full_join(keep_release_scup, by = c("period2","tripid", "catch_draw"))
   length_data[is.na(length_data)] <- 0
   
   length_data<-length_data %>% dplyr::arrange(period2,tripid, catch_draw)
   
+  if (state1 %in% c("MA", "RI", "CT", "NY", "NJ")){
   zero_catch_check <- sf_zero_catch %>%  dplyr::left_join(bsb_zero_catch) %>% dplyr::left_join(scup_zero_catch) %>% 
     dplyr::filter(tot_keep_sf_new==0 & tot_rel_sf_new==0 &
-                  tot_keep_bsb_new==0 & tot_rel_bsb_new==0 &
-                  tot_keep_scup_new==0 & tot_rel_scup_new==0) %>% 
+                    tot_keep_bsb_new==0 & tot_rel_bsb_new==0 &
+                    tot_keep_scup_new==0 & tot_rel_scup_new==0) %>% 
     dplyr::select("period2","tripid", "catch_draw")
+   }
+
+  if (state1 %in% c("DE", "MD", "VA", "NC")){
+    zero_catch_check <- sf_zero_catch %>%  dplyr::left_join(bsb_zero_catch) %>% 
+      dplyr::filter(tot_keep_sf_new==0 & tot_rel_sf_new==0 &
+                      tot_keep_bsb_new==0 & tot_rel_bsb_new==0) %>% 
+      dplyr::select("period2","tripid", "catch_draw")
+  }
+  
+  # zero_catch_check <- sf_zero_catch %>%  dplyr::left_join(bsb_zero_catch) %>% dplyr::left_join(scup_zero_catch) %>% 
+  #   dplyr::filter(tot_keep_sf_new==0 & tot_rel_sf_new==0 &
+  #                 tot_keep_bsb_new==0 & tot_rel_bsb_new==0 &
+  #                 tot_keep_scup_new==0 & tot_rel_scup_new==0) %>% 
+  #   dplyr::select("period2","tripid", "catch_draw")
   
   length_data<- plyr::rbind.fill(length_data, zero_catch_check)
    
@@ -1071,7 +1097,14 @@ predict_rec_catch <- function(state1,
                                                             catch_draw, expon_v0 ,v0_col_sum, expon_vA,
                                                             opt_out, v0, v0_optout, vA, vA_optout, vA_col_sum))
   
-  # Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
+  
+  mean_trip_data<-mean_trip_data %>% 
+    dplyr::mutate(tot_bsb_catch_new=tot_keep_bsb_new+tot_rel_bsb_new,
+                  tot_scup_catch_new=tot_keep_scup_new+tot_rel_scup_new,
+                  tot_sf_catch_new=tot_keep_sf_new+tot_rel_sf_new)
+  
+  # Multiply the average trip probability by each of the catch variables to get probability-weighted catch
+  
   
   list_names <- c("tot_keep_sf_new","tot_rel_sf_new", "tot_sf_catch_new", "tot_keep_bsb_new", "tot_rel_bsb_new" , 
                   "tot_bsb_catch_new" , "tot_keep_scup_new" , "tot_rel_scup_new","tot_scup_catch_new" )
@@ -1357,7 +1390,7 @@ predict_rec_catch <- function(state1,
                   sf_Discmortality_sum_weightavg = sf_Discmortality_sum_num*avg_lbs_release_sf, 
                   bsb_Discmortality_sum_weightavg = bsb_Discmortality_sum_num*avg_lbs_release_bsb, 
                   scup_Discmortality_sum_weightavg = scup_Discmortality_sum_num*avg_lbs_release_scup) %>% 
-    dplyr::left_join(MRIP_harvest_weights1, by=c("mode1")) %>% 
+    dplyr::left_join(MRIP_harvest_weights, by=c("mode1")) %>% 
     dplyr::mutate(sf_keep_sum_weightavg= sf_keep_sum_num*mean_weightSF, 
                   bsb_keep_sum_weightavg= bsb_keep_sum_num*mean_weightBSB, 
                   scup_keep_sum_weightavg= scup_keep_sum_num*mean_weightSCUP,
@@ -1406,7 +1439,7 @@ predict_rec_catch <- function(state1,
                     sf_Discmortality_sum_weightavg = sf_Discmortality_sum_num*avg_lbs_release_sf, 
                     bsb_Discmortality_sum_weightavg = bsb_Discmortality_sum_num*avg_lbs_release_bsb, 
                     scup_Discmortality_sum_weightavg = scup_Discmortality_sum_num*avg_lbs_release_scup) %>% 
-      dplyr::left_join(MRIP_harvest_weights1, by=c("mode1")) %>% 
+      dplyr::left_join(MRIP_harvest_weights, by=c("mode1")) %>% 
       dplyr::mutate(sf_keep_sum_weightavg= sf_keep_sum_num*mean_weightSF, 
                     bsb_keep_sum_weightavg= bsb_keep_sum_num*mean_weightBSB, 
                     scup_keep_sum_weightavg= scup_keep_sum_num*mean_weightSCUP, 
@@ -1430,8 +1463,8 @@ predict_rec_catch <- function(state1,
       dplyr::rename(mode=mode1) %>% 
       tidyr::separate(Var, into = c("Category", "keep_release", "param", "number_weight")) %>% 
       dplyr::mutate(param="Total") %>% 
-      dplyr::mutate(number_weight=case_when(number_weight=="num"~"Number", TRUE~number_weight)) %>%
-      dplyr::mutate(number_weight=case_when(number_weight=="weightavg"~"Weight_avg", TRUE~number_weight)) %>% 
+      dplyr::mutate(number_weight=dplyr::case_when(number_weight=="num"~"Number", TRUE~number_weight)) %>%
+      dplyr::mutate(number_weight=dplyr::case_when(number_weight=="weightavg"~"Weight_avg", TRUE~number_weight)) %>% 
       dplyr::mutate(state = state1) %>% 
       replace(is.na(.), 0)
       
@@ -1462,7 +1495,7 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
   if (state1 %in% c("NJ")){
     prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0)  %>%
-      dplyr::mutate(draw=k) %>% 
+      dplyr::mutate(draw=x) %>% 
       dplyr::group_by(mode1) %>% 
       dplyr::summarise(CV = sum(cv_sum), 
                        ntrips = sum(ntrips_alt)) %>% 
@@ -1494,14 +1527,14 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
       dplyr::mutate(state = state1) %>% 
       #run_number = x
       dplyr::filter(!Value == "NA") %>% 
-      dplyr::mutate(number_weight=case_when(is.na(number_weight) & Category=="CV"~"Dollars",TRUE ~ number_weight)) %>% 
-      dplyr::mutate(number_weight=case_when(is.na(number_weight) & Category=="ntrips"~"Ntrips",TRUE ~ number_weight))  %>% 
+      dplyr::mutate(number_weight=dplyr::case_when(is.na(number_weight) & Category=="CV"~"Dollars",TRUE ~ number_weight)) %>% 
+      dplyr::mutate(number_weight=dplyr::case_when(is.na(number_weight) & Category=="ntrips"~"Ntrips",TRUE ~ number_weight))  %>% 
       #remove from this data keep numbers, release numbers, discard mortality numbers from the length-weight equation data, 
       #as we use values from prediction_output_by_period_check0
       dplyr::filter(number_weight!="Number") %>% 
       #Now bind the keep and release numbers, discard mortality numbers, and weights based on MRIP averages
       rbind(prediction_output_by_period_check01, prediction_output_by_period_check02) %>% 
-      dplyr::mutate(keep_release=case_when(keep_release=="rel"~"release",TRUE ~ keep_release)) 
+      dplyr::mutate(keep_release=dplyr::case_when(keep_release=="rel"~"release",TRUE ~ keep_release)) 
     
  #}
  
@@ -1509,29 +1542,4 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
   return(predictions)
 }
   
-    ##
   
-  
-  
-  #})
-  
- 
-  # predictions <- prediction_output_by_period1 %>% 
-  #   dplyr::summarise(CV= sum(CV), 
-  #                    ntrips = sum(ntrips)) %>% 
-  #   tidyr::pivot_longer(cols = everything(.), names_to = "Var", values_to = "Value") %>% 
-  #   rbind(prediction_mode, l_w_mode, l_w_sum) %>% 
-  #   tidyr::separate(Var, into = c("Category", "mode", "keep_release", "param", "number_weight")) %>% 
-  #   dplyr::mutate(state = state1, 
-  #                 mode = replace(mode, mode %in% "NA", NA)) %>% 
-  #   #run_number = x
-  #   dplyr::filter(!Value == "NA")
-  
-  #write.csv(predictions, file = "test_NJ_10.csv")
-  ## Add Length_expand to trip_level_output
-  #left_join(LengthProbs) LengthProbablities(average Length for each tripID catch draws and days multiplied by probA (example with catch - line 900))
-  
-  # return(predictions)
-  
-  #end function
-  #}

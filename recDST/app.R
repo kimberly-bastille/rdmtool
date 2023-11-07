@@ -195,8 +195,8 @@
                  tableOutput(outputId = "futureplansout")), 
       
       
-      tabPanel("Documentation", 
-               htmlOutput("markdown"))
+      tabPanel("Documentation")#, 
+               #htmlOutput("markdown"))
     ))
   
   # Define server logic required to draw a histogram
@@ -596,25 +596,12 @@
       }
     })
     
-    output_compare <- reactive({
-      output_compare <- NULL
-      for(i in 1:length(input$state)){
-        state_name <- input$state[i]
-        output<- read.csv(here::here(paste0("data-raw/StatusQuo/baseline_", state_name, ".csv"))) %>% 
-          dplyr::mutate(StatusQuo = as.numeric(StatusQuo), 
-                        run_number = as.character(run_number))
-        
-        output_compare <- output_compare %>% rbind(output)
-        return(output_compare)
-      }
-    })
-    
     
     keep_release <- reactive({
-      keep_release_output<- output_compare()  %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state", "run_number")) %>% 
+      keep_release_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      param == "Total") %>% 
+                      number_weight %in% c("Weight", "Number"), 
+                      keep_release %in% c("keep", "release")) %>% 
         dplyr::mutate(#Category = paste(Category, "(lbs)"), 
           StatusQuo = round(StatusQuo, digits = 0), 
           Alternative = round(Value, digits = 0),
@@ -642,8 +629,7 @@
     
     
     welfare_ntrips<- reactive({
-      welfare_output<- output_compare() %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "number_weight", "state", "run_number")) %>% 
+      welfare_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
         dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
         dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
@@ -662,10 +648,9 @@
     })
     
     mortality<- reactive({
-      mortality_output<- output_compare() %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state", "run_number")) %>% 
+      mortality_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      param == "Discmortality") %>% 
+                      keep_release == "Discmortality") %>% 
         dplyr::mutate(#Category = paste(Category, "(lbs)"), 
           StatusQuo = round(StatusQuo, digits = 0), 
           Alternative = round(Value, digits = 0),
@@ -937,9 +922,9 @@
         openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
       })
     
-    output$markdown <- renderUI({
-      HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
-    })
+    # output$markdown <- renderUI({
+    #   HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
+    # })
 
 }
 
