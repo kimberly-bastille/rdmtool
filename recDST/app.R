@@ -21,164 +21,15 @@
                   inline = TRUE,
                   status = "danger"),
                 
-                fluidRow( 
-                  column(4,
-                         titlePanel("Summer Flounder"),
-                         
-                         
-                         selectInput("SF_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
-                         uiOutput("SFnjMode"),
-                         
-                         
-                         actionButton("SFNJaddSeason", "Add Season"), 
-                         shinyjs::hidden( div(ID = "SFnjSeason2",
-                                              sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 2
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),#)),
-                                              fluidRow(
-                                                column(5,
-                                                       numericInput(inputId = "SFnjFH_2_smbag", label ="Small Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjFH_2_smlen", label ="Small Min Length",
-                                                                   min = 5, max = 50, value = c(17,18), step = .5)),
-                                                column(5,
-                                                       numericInput(inputId = "SFnjFH_2_lgbag", label = "Large Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjFH_2_lglen", label ="Large Min Length",
-                                                                   min = 5, max = 50, value = c(18,50), step = .5))),
-                                              sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private season 2
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(5,
-                                                       numericInput(inputId = "SFnjPR_2_smbag", label ="Small Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjPR_2_smlen", label ="Small Min Length",
-                                                                   min = 5, max = 50, value = c(17, 18), step = .5)),
-                                                column(5,
-                                                       numericInput(inputId = "SFnjPR_2_lgbag", label = "Large Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjPR_2_lglen", label ="Large Min Length",
-                                                                   min = 5, max = 50, value = c(18, 50), step = .5))),
-                                              sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 2
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(5,
-                                                       numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
-                                                                   min = 5, max = 50, value = c(17, 18), step = .5)),
-                                                column(5,
-                                                       numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
-                                                                    min = 0, max = 7, value = 0),
-                                                       sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
-                                                                   min = 5, max = 50, value = c(18, 50), step = .5)))))),
-                  
-                  column(4, 
-                         titlePanel("Black Sea Bass"),
-                         
-                         selectInput("BSB_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
-                         uiOutput("BSBnjMode"),
-                         
-                         actionButton("BSBNJaddSeason", "Add Season"), 
-                         #Season 5
-                         shinyjs::hidden( div(ID = "BSBnjSeason5",
-                                              sliderInput(inputId = "BSBnjFH_seas5", label =" For Hire Open Season 5", 
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "BSBnjFH_5_bag", label ="Bag Limit",
-                                                                    min = 0, max = 20, value = 0)), 
-                                                column(6,
-                                                       sliderInput(inputId = "BSBnjFH_5_len", label ="Min Length",
-                                                                   min = 3, max = 28.5, value = 12.5, step = .5))),
-                                              sliderInput(inputId = "BSBnjPR_seas5", label ="Private/Rental Open Season 5",
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "BSBnjPR_5_bag", label ="Bag Limit",
-                                                                    min = 0, max = 20, value = 0)), 
-                                                column(6,
-                                                       sliderInput(inputId = "BSBnjPR_5_len", label ="Min Length",
-                                                                   min = 3, max = 28.5, value = 12.5, step = .5))),
-                                              sliderInput(inputId = "BSBnjSH_seas5", label ="Shore Open Season 5",
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "BSBnjSH_5_bag", label ="Bag Limit",
-                                                                    min = 0, max = 20, value = 0)), 
-                                                column(6,
-                                                       sliderInput(inputId = "BSBnjSH_5_len", label ="Min Length",
-                                                                   min = 3, max = 28.5, value = 12.5, step = .5)))))),
-                  
-                  
-                  
-                  
-                  column(4, 
-                         titlePanel("Scup"),
-                          
-                         selectInput("SCUP_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
-                         uiOutput("SCUPnjMode"),
-                         
-                         actionButton("SCUPNJaddSeason", "Add Season"), 
-                         shinyjs::hidden( div(ID = "SCUPnjSeason2",
-                                              sliderInput(inputId = "SCUPnjFH_seas2", label ="For Hire Open Season 2",
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "SCUPnjFH_2_bag", label ="Bag Limit",
-                                                                    min = 0, max = 100, value = 0)),
-                                                column(6,
-                                                       sliderInput(inputId = "SCUPnjFH_2_len", label ="Min Length",
-                                                                   min = 5, max = 15, value = 10, step = .5))), 
-                                              sliderInput(inputId = "SCUPnjPR_seas2", label ="Private Open Season 2",
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "SCUPnjPR_2_bag", label ="Bag Limit",
-                                                                    min = 0, max = 100, value = 0)),
-                                                column(6,
-                                                       sliderInput(inputId = "SCUPnjPR_2_len", label ="Min Length",
-                                                                   min = 5, max = 15, value = 10, step = .5))), 
-                                              sliderInput(inputId = "SCUPnjSH_seas2", label ="Shore Open Season 2",
-                                                          min = as.Date("01-01","%m-%d"),
-                                                          max = as.Date("12-31","%m-%d"),
-                                                          value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
-                                                          timeFormat = "%m-%d", ticks = FALSE),
-                                              fluidRow(
-                                                column(4,
-                                                       numericInput(inputId = "SCUPnjSH_2_bag", label ="Bag Limit",
-                                                                    min = 0, max = 100, value = 0)),
-                                                column(6,
-                                                       sliderInput(inputId = "SCUPnjSH_2_len", label ="Min Length",
-                                                                   min = 5, max = 15, value = 10, step = .5))))))),
-                
-                
+                uiOutput("addMA"),
+                uiOutput("addRI"),
+                uiOutput("addCT"), 
+                uiOutput("addNY"),
+                uiOutput("addNJ"), 
+                uiOutput("addDE"),
+                uiOutput("addMD"),
+                uiOutput("addVA"), 
+                uiOutput("addNC"),
                 
                 actionButton("runmeplease", "Run Me")),
       
@@ -206,6 +57,13 @@
     
     
     ############### Toggle extra seasons on front end #############
+    shinyjs::onclick("SFMAaddSeason",
+                     shinyjs::toggle(id = "SFmaSeason2", anim = TRUE))
+    shinyjs::onclick("BSBMAaddSeason",
+                     shinyjs::toggle(id = "BSBmaSeason2", anim = TRUE))
+    shinyjs::onclick("SCUPMAaddSeason",
+                     shinyjs::toggle(id = "SCUPmaSeason2", anim = TRUE))
+    
     shinyjs::onclick("SFNJaddSeason",
                      shinyjs::toggle(id = "SFnjSeason2", anim = TRUE))
     shinyjs::onclick("BSBNJaddSeason",
@@ -214,8 +72,486 @@
                      shinyjs::toggle(id = "SCUPnjSeason2", anim = TRUE))
     #################################################################
     
+    ############################################### MASSACHUSETTS ###########################################################
+    output$addMA <- renderUI({
+      if(any("MA" == input$state)){
+        fluidRow( 
+          column(4,
+                 titlePanel("Summer Flounder - MA"),
+                 
+                 selectInput("SF_MA_input_type", "Modes to choose from:",
+                             c("Single", "AllModes")),
+                 uiOutput("SFmaMode"),
+                 
+                 actionButton("SFMAaddSeason", "Add Season"), 
+                 shinyjs::hidden( div(ID = "SFmaSeason2",
+                                      sliderInput(inputId = "SFmaFH_seas2", label ="For Hire Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SFmaFH_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 0)),
+                                        column(6,
+                                               sliderInput(inputId = "SFmaFH_2_len", label ="Min Length",
+                                                           min = 5, max = 30, value = 16.5, step = .5))), 
+                                      sliderInput(inputId = "SFmaPR_seas2", label ="Private Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SFmaPR_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 0)),
+                                        column(6,
+                                               sliderInput(inputId = "SFmaPR_2_len", label ="Min Length",
+                                                           min = 5, max = 15, value = 10, step = .5))), 
+                                      sliderInput(inputId = "SFmaSH_seas2", label ="Shore Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SFmaSH_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 0)),
+                                        column(6,
+                                               sliderInput(inputId = "SFmaSH_2_len", label ="Min Length",
+                                                           min = 5, max = 30, value = 16.5, step = .5)))))),
+          
+          column(4, 
+                 titlePanel("Black Sea Bass - MA"),
+                 
+                 selectInput("BSB_MA_input_type", "Modes to choose from:",
+                             c("Single", "AllModes")),
+                 uiOutput("BSBmaMode"),
+          
+                 
+                 actionButton("BSBMAaddSeason", "Add Season"), 
+                 shinyjs::hidden( div(ID = "BSBmaSeason2",
+                                      sliderInput(inputId = "BSBmaFH_seas2", label ="For Hire Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "BSBmaFH_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 0)),
+                                        column(6,
+                                               sliderInput(inputId = "BSBmaFH_2_len", label ="Min Length",
+                                                           min = 5, max = 15, value = 16.5, step = .5))),
+                                  sliderInput(inputId = "BSBmaPR_seas2", label ="Private Open Season 2",
+                                              min = as.Date("01-01","%m-%d"),
+                                              max = as.Date("12-31","%m-%d"),
+                                              value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                              timeFormat = "%m-%d", ticks = FALSE),
+                                  fluidRow(
+                                    column(4,
+                                           numericInput(inputId = "BSBmaPR_2_bag", label ="Bag Limit",
+                                                        min = 0, max = 100, value = 0)),
+                                    column(6,
+                                           sliderInput(inputId = "BSBmaPR_2_len", label ="Min Length",
+                                                       min = 5, max = 15, value = 16.5, step = .5))),
+                                      sliderInput(inputId = "BSBmaSH_seas2", label ="Shore Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "BSBmaSH_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 0)),
+                                        column(6,
+                                               sliderInput(inputId = "BSBmaSH_2_len", label ="Min Length",
+                                                           min = 5, max = 15, value = 16.5, step = .5)))))),
+          
+          
+          
+          
+          column(4, #### SCUP 
+                 titlePanel("Scup - MA"),
+                 sliderInput(inputId = "SCUPmaFH_seas1", label ="For Hire Open Season 1", # Mass for hire season 1
+                             min = as.Date("01-01","%m-%d"),
+                             max = as.Date("12-31","%m-%d"),
+                             value =c(as.Date("05-01","%m-%d"),as.Date("06-30","%m-%d")), 
+                             timeFormat = "%m-%d", ticks = FALSE),
+                 fluidRow(
+                   column(4,
+                          numericInput(inputId = "SCUPmaFH_1_bag", label = "Bag Limit",
+                                       min = 0, max = 100, value = 40)),
+                   column(5, 
+                          sliderInput(inputId = "SCUPmaFH_1_len", label = "Min Length",
+                                      min = 5, max = 50, value = 10.5, step = .5))),
+                 
+                 sliderInput(inputId = "SCUPmaFH_seas2", label ="For Hire Open Season 2", # Mass for hire season 2
+                             min = as.Date("01-01","%m-%d"),
+                             max = as.Date("12-31","%m-%d"),
+                             value =c(as.Date("07-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                             timeFormat = "%m-%d", ticks = FALSE),
+                 fluidRow(
+                   column(4,
+                          numericInput(inputId = "SCUPmaFH_2_bag", label = "Bag Limit",
+                                       min = 0, max = 100, value = 30)),
+                   column(5, 
+                          sliderInput(inputId = "SCUPmaFH_2_len", label = "Min Length",
+                                      min = 5, max = 50, value = 10.5, step = .5))), 
+                 
+                 
+                 sliderInput(inputId = "SCUPmaPR_seas1", label ="Private Open Season 1", # Massprivate  season 1
+                             min = as.Date("01-01","%m-%d"),
+                             max = as.Date("12-31","%m-%d"),
+                             value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                             timeFormat = "%m-%d", ticks = FALSE),
+                 fluidRow(
+                   column(4,
+                          numericInput(inputId = "SCUPmaPR_1_bag", label = "Bag Limit",
+                                       min = 0, max = 100, value = 30)),
+                   column(5, 
+                          sliderInput(inputId = "SCUPmaPR_1_len", label = "Min Length",
+                                      min = 5, max = 50, value = 10.5, step = .5))),
+                 sliderInput(inputId = "SCUPmaSH_seas1", label ="Shore Open Season 1", # Massp shore season 1
+                             min = as.Date("01-01","%m-%d"),
+                             max = as.Date("12-31","%m-%d"),
+                             value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
+                             timeFormat = "%m-%d", ticks = FALSE),
+                 fluidRow(
+                   column(4,
+                          numericInput(inputId = "SCUPmaSH_1_bag", label = "Bag Limit",
+                                       min = 0, max = 100, value = 30)),
+                   column(5, 
+                          sliderInput(inputId = "SCUPmaSH_1_len", label = "Min Length",
+                                      min = 5, max = 50, value = 9.5, step = .5))),
+                 actionButton("SCUPMAaddSeason", "Add Season"), 
+                 shinyjs::hidden( div(ID = "SCUPmaSeason2",
+                                      sliderInput(inputId = "SCUPmaFH_seas3", label ="For Hire Open Season 3", 
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SCUPmaFH_3_bag", label ="Bag Limit",
+                                                            min = 0, max = 20, value = 0)), 
+                                        column(6,
+                                               sliderInput(inputId = "SCUPmaFH_3_len", label ="Min Length",
+                                                           min = 3, max = 28.5, value = 10, step = .5))), 
+                                      sliderInput(inputId = "SCUPmaPR_seas2", label ="Private Open Season 2", 
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SCUPmaPR_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 20, value = 0)), 
+                                        column(6,
+                                               sliderInput(inputId = "SCUPmaPR_2_len", label ="Min Length",
+                                                           min = 3, max = 28.5, value = 10, step = .5))), 
+                                      sliderInput(inputId = "SCUPmaSH_seas2", label ="Shore Open Season 2", 
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SCUPmaSH_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 20, value = 0)), 
+                                        column(6,
+                                               sliderInput(inputId = "SCUPmaSH_2_len", label ="Min Length",
+                                                           min = 3, max = 28.5, value = 10, step = .5)))))))
+      }})
+
     
-    ############# Breakout by mode ######################################
+    ############# MA Breakout by mode ######################################
+    output$SFmaMode <- renderUI({
+      if (is.null(input$SF_MA_input_type))
+        return()
+      
+      switch(input$SF_MA_input_type, 
+             "Single" = div(sliderInput(inputId = "SFma_seas1", label ="Open Season 1",
+                                        min = as.Date("01-01","%m-%d"),
+                                        max = as.Date("12-31","%m-%d"),
+                                        value=c(as.Date("05-21","%m-%d"),as.Date("09-29","%m-%d")), 
+                                        timeFormat = "%m-%d", ticks = FALSE),
+                            fluidRow(
+                              column(4,
+                                     numericInput(inputId = "SFma_1_bag", label ="Bag Limit",
+                                                  min = 0, max = 100, value = 5)),
+                              column(6,
+                                     sliderInput(inputId = "SFma_1_len", label ="Min Length",
+                                                 min = 5, max = 30, value = 16.5, step = .5)))), 
+             "AllModes" = div(sliderInput(inputId = "SFmaFH_seas1", label ="For Hire Open Season 1",
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-21","%m-%d"),as.Date("09-29","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "SFmaFH_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 100, value = 5)),
+                                column(6,
+                                       sliderInput(inputId = "SFmaFH_1_len", label ="Min Length",
+                                                   min = 5, max = 30, value = 16.5, step = .5))) ,
+                              sliderInput(inputId = "SFmaPR_seas1", label ="Private Open Season 1",
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-21","%m-%d"),as.Date("09-29","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "SFmaPR_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 100, value = 5)),
+                                column(6,
+                                       sliderInput(inputId = "SFmaPR_1_len", label ="Min Length",
+                                                   min = 5, max = 30, value = 16.5, step = .5))) ,
+                              sliderInput(inputId = "SFmaSH_seas1", label ="Shore Open Season 1",
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-21","%m-%d"),as.Date("09-29","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "SFmaSH_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 100, value = 5)),
+                                column(6,
+                                       sliderInput(inputId = "SFmaSH_1_len", label ="Min Length",
+                                                   min = 5, max = 30, value = 16.5, step = .5)))))
+    })
+    
+    
+    output$BSBmaMode <- renderUI({
+      if (is.null(input$BSB_MA_input_type))
+        return()
+      
+      # Depending on input$input_type, we'll generate a different
+      # UI component and send it to the client.
+      switch(input$BSB_MA_input_type,
+             
+             "Single" = div(sliderInput(inputId = "BSBma_seas1", label ="Open Season 1", 
+                                        min = as.Date("01-01","%m-%d"),
+                                        max = as.Date("12-31","%m-%d"),
+                                        value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                        timeFormat = "%m-%d", ticks = FALSE),
+                            fluidRow(
+                              column(4,
+                                     numericInput(inputId = "BSBma_1_bag", label ="Bag Limit",
+                                                  min = 0, max = 20, value = 4)), 
+                              column(6,
+                                     sliderInput(inputId = "BSBma_1_len", label ="Min Length",
+                                                 min = 3, max = 28.5, value = 16.5, step = .5)))),
+                            
+             
+             "AllModes" = div(sliderInput(inputId = "BSBmaFH_seas1", label =" For Hire Open Season 1", 
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "BSBmaFH_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 20, value = 4)), 
+                                column(6,
+                                       sliderInput(inputId = "BSBmaFH_1_len", label ="Min Length",
+                                                   min = 3, max = 28.5, value = 16.5, step = .5))),
+                              sliderInput(inputId = "BSBmaPR_seas1", label ="Private/Rental Open Season 1",
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "BSBmaPR_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 20, value = 4)), 
+                                column(6,
+                                       sliderInput(inputId = "BSBmaPR_1_len", label ="Min Length",
+                                                   min = 3, max = 28.5, value = 16.5, step = .5))),
+                              sliderInput(inputId = "BSBmaSH_seas1", label ="Shore Open Season 1",
+                                          min = as.Date("01-01","%m-%d"),
+                                          max = as.Date("12-31","%m-%d"),
+                                          value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                          timeFormat = "%m-%d", ticks = FALSE),
+                              fluidRow(
+                                column(4,
+                                       numericInput(inputId = "BSBmaSH_1_bag", label ="Bag Limit",
+                                                    min = 0, max = 20, value = 4)), 
+                                column(6,
+                                       sliderInput(inputId = "BSBmaSH_1_len", label ="Min Length",
+                                                   min = 3, max = 28.5, value = 16.5, step = .5)))))
+                             
+    })
+    
+    
+    
+    
+    
+    
+    
+    ############## NEW JERSEY ############################################################
+    output$addNJ <- renderUI({
+        if(any("NJ" == input$state)){
+      fluidRow( 
+        column(4,
+               titlePanel("Summer Flounder - NJ"),
+               
+               selectInput("SF_NJ_input_type", "Modes to choose from:",
+                           c("Single", "AllModes")),
+               uiOutput("SFnjMode"),
+               
+               
+               actionButton("SFNJaddSeason", "Add Season"), 
+               shinyjs::hidden( div(ID = "SFnjSeason2",
+                                    sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 2
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),#)),
+                                    fluidRow(
+                                      column(5,
+                                             numericInput(inputId = "SFnjFH_2_smbag", label ="Small Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjFH_2_smlen", label ="Small Min Length",
+                                                         min = 5, max = 50, value = c(17,18), step = .5)),
+                                      column(5,
+                                             numericInput(inputId = "SFnjFH_2_lgbag", label = "Large Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjFH_2_lglen", label ="Large Min Length",
+                                                         min = 5, max = 50, value = c(18,50), step = .5))),
+                                    sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private season 2
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(5,
+                                             numericInput(inputId = "SFnjPR_2_smbag", label ="Small Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjPR_2_smlen", label ="Small Min Length",
+                                                         min = 5, max = 50, value = c(17, 18), step = .5)),
+                                      column(5,
+                                             numericInput(inputId = "SFnjPR_2_lgbag", label = "Large Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjPR_2_lglen", label ="Large Min Length",
+                                                         min = 5, max = 50, value = c(18, 50), step = .5))),
+                                    sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 2
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(5,
+                                             numericInput(inputId = "SFnjSH_2_smbag", label ="Small Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjSH_2_smlen", label ="Small Min Length",
+                                                         min = 5, max = 50, value = c(17, 18), step = .5)),
+                                      column(5,
+                                             numericInput(inputId = "SFnjSH_2_lgbag", label = "Large Bag Limit",
+                                                          min = 0, max = 7, value = 0),
+                                             sliderInput(inputId = "SFnjSH_2_lglen", label ="Large Min Length",
+                                                         min = 5, max = 50, value = c(18, 50), step = .5)))))),
+        
+        column(4, 
+               titlePanel("Black Sea Bass - NJ"),
+               
+               selectInput("BSB_NJ_input_type", "Modes to choose from:",
+                           c("Single", "AllModes")),
+               uiOutput("BSBnjMode"),
+               
+               actionButton("BSBNJaddSeason", "Add Season"), 
+               #Season 5
+               shinyjs::hidden( div(ID = "BSBnjSeason5",
+                                    sliderInput(inputId = "BSBnjFH_seas5", label =" For Hire Open Season 5", 
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "BSBnjFH_5_bag", label ="Bag Limit",
+                                                          min = 0, max = 20, value = 0)), 
+                                      column(6,
+                                             sliderInput(inputId = "BSBnjFH_5_len", label ="Min Length",
+                                                         min = 3, max = 28.5, value = 12.5, step = .5))),
+                                    sliderInput(inputId = "BSBnjPR_seas5", label ="Private/Rental Open Season 5",
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "BSBnjPR_5_bag", label ="Bag Limit",
+                                                          min = 0, max = 20, value = 0)), 
+                                      column(6,
+                                             sliderInput(inputId = "BSBnjPR_5_len", label ="Min Length",
+                                                         min = 3, max = 28.5, value = 12.5, step = .5))),
+                                    sliderInput(inputId = "BSBnjSH_seas5", label ="Shore Open Season 5",
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "BSBnjSH_5_bag", label ="Bag Limit",
+                                                          min = 0, max = 20, value = 0)), 
+                                      column(6,
+                                             sliderInput(inputId = "BSBnjSH_5_len", label ="Min Length",
+                                                         min = 3, max = 28.5, value = 12.5, step = .5)))))),
+        
+        
+        
+        
+        column(4, 
+               titlePanel("Scup - NJ"),
+               
+               selectInput("SCUP_NJ_input_type", "Modes to choose from:",
+                           c("Single", "AllModes")),
+               uiOutput("SCUPnjMode"),
+               
+               actionButton("SCUPNJaddSeason", "Add Season"), 
+               shinyjs::hidden( div(ID = "SCUPnjSeason2",
+                                    sliderInput(inputId = "SCUPnjFH_seas2", label ="For Hire Open Season 2",
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "SCUPnjFH_2_bag", label ="Bag Limit",
+                                                          min = 0, max = 100, value = 0)),
+                                      column(6,
+                                             sliderInput(inputId = "SCUPnjFH_2_len", label ="Min Length",
+                                                         min = 5, max = 15, value = 10, step = .5))), 
+                                    sliderInput(inputId = "SCUPnjPR_seas2", label ="Private Open Season 2",
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "SCUPnjPR_2_bag", label ="Bag Limit",
+                                                          min = 0, max = 100, value = 0)),
+                                      column(6,
+                                             sliderInput(inputId = "SCUPnjPR_2_len", label ="Min Length",
+                                                         min = 5, max = 15, value = 10, step = .5))), 
+                                    sliderInput(inputId = "SCUPnjSH_seas2", label ="Shore Open Season 2",
+                                                min = as.Date("01-01","%m-%d"),
+                                                max = as.Date("12-31","%m-%d"),
+                                                value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                timeFormat = "%m-%d", ticks = FALSE),
+                                    fluidRow(
+                                      column(4,
+                                             numericInput(inputId = "SCUPnjSH_2_bag", label ="Bag Limit",
+                                                          min = 0, max = 100, value = 0)),
+                                      column(6,
+                                             sliderInput(inputId = "SCUPnjSH_2_len", label ="Min Length",
+                                                         min = 5, max = 15, value = 10, step = .5)))))))
+      }
+      
+    })
+    ############# NJ Breakout by mode ######################################
     output$SFnjMode <- renderUI({
       if (is.null(input$SF_NJ_input_type))
         return()
@@ -286,11 +622,6 @@
                                        sliderInput(inputId = "SFnjSH_1_lglen", label ="Large Min Length",
                                                    min = 5, max = 50, value = c(18, 50), step = .5)))))
     })
-    
-    
-    
-    
-    
     
     
     output$BSBnjMode <- renderUI({
@@ -577,6 +908,24 @@
     output$dynamic_value <- renderPrint({
       str(input$dynamic)
     })
+    
+    
+    
+    ############## DELEWARE ###########################################################
+    output$addDE <- renderUI({
+      if(any("DE" == input$state)){
+        print("Deleware")
+      }})
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     ##################################################################
  
