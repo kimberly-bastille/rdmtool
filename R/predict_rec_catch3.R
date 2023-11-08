@@ -1241,7 +1241,7 @@ predict_rec_catch <- function(state1,
      dplyr::mutate(a = ifelse(is.na(a), 0, a)) %>%
      dplyr::mutate(b = ifelse(is.na(b), 0, b)) %>%
      dplyr::mutate(ln_b = ifelse(is.na(ln_b), 0, ln_b))  %>%   
-     dplyr::mutate(weight = dplyr::case_when(Species == "scup" ~ exp(ln_a + ln_b*log(length_cm)))) %>% 
+     dplyr::mutate(weight = dplyr::case_when(Species == "scup" ~ exp(ln_a + b*log(length_cm)))) %>% 
      dplyr::mutate(weight = dplyr::case_when(Species == "sf" ~ a*length_cm^b, TRUE ~ weight))  %>% 
      dplyr::mutate(weight = dplyr::case_when(Species == "bsb" ~ a*length_cm^b, TRUE ~ weight),
                   weight = weight*2.20462262185, #convert to lbs

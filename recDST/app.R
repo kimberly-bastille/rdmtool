@@ -606,21 +606,20 @@
           StatusQuo = round(StatusQuo, digits = 0), 
           Alternative = round(Value, digits = 0),
           Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
-        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
+        dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change, MeetsChange)) %>% 
+        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change", "MeetsChange")) %>% 
         tidyr::replace_na(list(mode = "All")) %>% 
         dplyr::select(state, Category, mode, keep_release, 
                       StatusQuo_Number, Alternative_Number, Percent_Change_Number,
-                      StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
-        dplyr::rename("StatusQuo Weight (lbs)" = StatusQuo_Weight, 
-                      "Alternative Weight (lbs)" = Alternative_Weight, 
-                      "StatusQuo Number" = StatusQuo_Number, 
+                      Percent_Change_Weight, MeetsChange_Weight) %>% 
+        dplyr::rename("StatusQuo Number" = StatusQuo_Number, 
                       "Alternative Number" = Alternative_Number,
                       "Percent Change Number" = Percent_Change_Number, 
                       "Percent Change Weight" = Percent_Change_Weight,
                       "Species" = Category, 
                       "Mode" = mode, 
-                      "Keep/Release" = keep_release) %>% 
+                      "Keep/Release" = keep_release, 
+                      "Percent of runs that meet 10% change" = MeetsChange_Weight) %>% 
         dplyr::arrange(factor(Species, levels = c("sf", "bsb", "scup")))
       
       
@@ -673,6 +672,8 @@
     })
     
     regulations <- reactive({
+      
+      if(input$state == "NJ"){  
       if(input$SF_NJ_input_type == "Single"){
         
         SFnjseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("All"),
@@ -874,7 +875,7 @@
                                       Length = paste(input$SCUPnjSH_2_len))
         
         SCUPnj <- rbind(SCUPnjFHseason1, SCUPnjPRseason1, SCUPnjSHseason1, SCUPnjFHseason2, SCUPnjPRseason2, SCUPnjSHseason2)
-      }
+      }}
       
       
       regs_output<- rbind(SFnj, BSBnj, SCUPnj) %>%

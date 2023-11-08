@@ -175,7 +175,7 @@ get_predictions_out<- function(x){
   
   print(x)
   
-  catch_files_NJ<- readRDS(file.path(here::here(paste0("data-raw/catch2024/",state1,"_catch_2024_", x, ".rds")))) %>% 
+  catch_files_NJ<- readr::read_csv(file.path(here::here(paste0("data-raw/catch2024/", state1, " catch draws 2024 draw4 ",x ,".csv")))) %>% 
     dplyr::rename(tot_sf_catch = tot_cat_sf,
                   tot_bsb_catch = tot_cat_bsb,
                   tot_scup_catch = tot_cat_scup, 
@@ -265,9 +265,7 @@ predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "d
 # predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
 #   dplyr::mutate(run_number = as.character(run_number))
 
-StatusQuo <- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
-  dplyr::rename(StatusQuo = Value) %>% 
-  dplyr::mutate(draw = rep(1:25, each = 116))
+StatusQuo <- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv"), na.strings = "") 
 
 predictions <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
@@ -277,10 +275,9 @@ predictions <- predictions_out10 %>% #predictions_out10 %>%
                 perc_change = round(((Value/StatusQuo) - 1) * 100, digits = 0)) %>% 
   dplyr::group_by(Category,mode,keep_release,param,number_weight,state  ) %>% 
   dplyr::summarise(Value = mean(Value), 
-                   ValueSD = sd(Value), 
                    StatusQuo = mean(StatusQuo), 
-                   StatusQuoSD = sd(StatusQuo),
-                   MeetsChange = length(perc_change > 10),
-                   perc_change = mean(perc_change))
+                   MeetsChange = sum(perc_change > 10),
+                   perc_change = mean(perc_change)) %>% 
+  dplyr::ungroup()
 
 
