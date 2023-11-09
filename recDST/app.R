@@ -195,8 +195,8 @@
                  tableOutput(outputId = "futureplansout")), 
       
       
-      tabPanel("Documentation", 
-               htmlOutput("markdown"))
+      tabPanel("Documentation")#, 
+               #htmlOutput("markdown"))
     ))
   
   # Define server logic required to draw a histogram
@@ -596,44 +596,30 @@
       }
     })
     
-    output_compare <- reactive({
-      output_compare <- NULL
-      for(i in 1:length(input$state)){
-        state_name <- input$state[i]
-        output<- read.csv(here::here(paste0("data-raw/StatusQuo/baseline_", state_name, ".csv"))) %>% 
-          dplyr::mutate(StatusQuo = as.numeric(StatusQuo), 
-                        run_number = as.character(run_number))
-        
-        output_compare <- output_compare %>% rbind(output)
-        return(output_compare)
-      }
-    })
-    
     
     keep_release <- reactive({
-      keep_release_output<- output_compare()  %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state", "run_number")) %>% 
+      keep_release_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      param == "Total") %>% 
+                      number_weight %in% c("Weight", "Number"), 
+                      keep_release %in% c("keep", "release")) %>% 
         dplyr::mutate(#Category = paste(Category, "(lbs)"), 
           StatusQuo = round(StatusQuo, digits = 0), 
           Alternative = round(Value, digits = 0),
           Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
-        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>% 
+        dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change, MeetsChange)) %>% 
+        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change", "MeetsChange")) %>% 
         tidyr::replace_na(list(mode = "All")) %>% 
         dplyr::select(state, Category, mode, keep_release, 
                       StatusQuo_Number, Alternative_Number, Percent_Change_Number,
-                      StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
-        dplyr::rename("StatusQuo Weight (lbs)" = StatusQuo_Weight, 
-                      "Alternative Weight (lbs)" = Alternative_Weight, 
-                      "StatusQuo Number" = StatusQuo_Number, 
+                      Percent_Change_Weight, MeetsChange_Weight) %>% 
+        dplyr::rename("StatusQuo Number" = StatusQuo_Number, 
                       "Alternative Number" = Alternative_Number,
                       "Percent Change Number" = Percent_Change_Number, 
                       "Percent Change Weight" = Percent_Change_Weight,
                       "Species" = Category, 
                       "Mode" = mode, 
-                      "Keep/Release" = keep_release) %>% 
+                      "Keep/Release" = keep_release, 
+                      "Percent of runs that meet 10% change" = MeetsChange_Weight) %>% 
         dplyr::arrange(factor(Species, levels = c("sf", "bsb", "scup")))
       
       
@@ -642,8 +628,7 @@
     
     
     welfare_ntrips<- reactive({
-      welfare_output<- output_compare() %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "number_weight", "state", "run_number")) %>% 
+      welfare_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
         dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
         dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
@@ -662,10 +647,9 @@
     })
     
     mortality<- reactive({
-      mortality_output<- output_compare() %>% 
-        dplyr::left_join(predictions_1(), by = c("Category", "mode", "keep_release", "param", "number_weight", "state", "run_number")) %>% 
+      mortality_output<- predictions_1() %>% 
         dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      param == "Discmortality") %>% 
+                      keep_release == "Discmortality") %>% 
         dplyr::mutate(#Category = paste(Category, "(lbs)"), 
           StatusQuo = round(StatusQuo, digits = 0), 
           Alternative = round(Value, digits = 0),
@@ -688,6 +672,8 @@
     })
     
     regulations <- reactive({
+      
+      if(input$state == "NJ"){  
       if(input$SF_NJ_input_type == "Single"){
         
         SFnjseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("All"),
@@ -889,7 +875,7 @@
                                       Length = paste(input$SCUPnjSH_2_len))
         
         SCUPnj <- rbind(SCUPnjFHseason1, SCUPnjPRseason1, SCUPnjSHseason1, SCUPnjFHseason2, SCUPnjPRseason2, SCUPnjSHseason2)
-      }
+      }}
       
       
       regs_output<- rbind(SFnj, BSBnj, SCUPnj) %>%
@@ -937,9 +923,9 @@
         openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
       })
     
-    output$markdown <- renderUI({
-      HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
-    })
+    # output$markdown <- renderUI({
+    #   HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
+    # })
 
 }
 

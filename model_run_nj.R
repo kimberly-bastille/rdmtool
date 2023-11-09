@@ -175,7 +175,7 @@ get_predictions_out<- function(x){
   
   print(x)
   
-  catch_files_NJ<- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw4 ", x, ".csv")))) %>% 
+  catch_files_NJ<- readr::read_csv(file.path(here::here(paste0("data-raw/catch2024/", state1, " catch draws 2024 draw4 ",x ,".csv")))) %>% 
     dplyr::rename(tot_sf_catch = tot_cat_sf,
                   tot_bsb_catch = tot_cat_bsb,
                   tot_scup_catch = tot_cat_scup, 
@@ -247,6 +247,7 @@ get_predictions_out<- function(x){
                            scup_size_data_read = scup_size_data,
                            costs_new_all = costs_new_all,
                            l_w = l_w_conversion,
+                           x = x,
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
 
@@ -255,16 +256,28 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "run_number")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 
-# predictions_out10<- predictions_out10 %>% 
+# predictions_out10<- predictions_out10 %>%
 #   dplyr::rename("StatusQuo" = Value)
 # write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_NJ.csv"))
 
 # predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
 #   dplyr::mutate(run_number = as.character(run_number))
-predictions <- predictions_out10 %>% 
-  dplyr::mutate(Value = as.numeric(Value))
 
+StatusQuo <- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv"), na.strings = "") 
+
+predictions <- predictions_out10 %>% #predictions_out10 %>% 
+  dplyr::mutate(draw = as.numeric(draw)) %>% 
+  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
+  dplyr::mutate(StatusQuo = as.numeric(StatusQuo), 
+                Value = as.numeric(Value), 
+                perc_change = round(((Value/StatusQuo) - 1) * 100, digits = 0)) %>% 
+  dplyr::group_by(Category,mode,keep_release,param,number_weight,state  ) %>% 
+  dplyr::summarise(Value = mean(Value), 
+                   StatusQuo = mean(StatusQuo), 
+                   MeetsChange = sum(perc_change > 10),
+                   perc_change = mean(perc_change)) %>% 
+  dplyr::ungroup()
 
 
