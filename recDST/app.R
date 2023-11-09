@@ -192,7 +192,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBmaFH_2_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16.5, step = .5))),
+                                                           min = 5, max = 30, value = 16.5, step = .5))),
                                   sliderInput(inputId = "BSBmaPR_seas2", label ="Private Open Season 2",
                                               min = as.Date("01-01","%m-%d"),
                                               max = as.Date("12-31","%m-%d"),
@@ -204,7 +204,7 @@
                                                         min = 0, max = 100, value = 0)),
                                     column(6,
                                            sliderInput(inputId = "BSBmaPR_2_len", label ="Min Length",
-                                                       min = 5, max = 15, value = 16.5, step = .5))),
+                                                       min = 5, max = 30, value = 16.5, step = .5))),
                                       sliderInput(inputId = "BSBmaSH_seas2", label ="Shore Open Season 2",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -216,7 +216,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBmaSH_2_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16.5, step = .5)))))),
+                                                           min = 5, max = 30, value = 16.5, step = .5)))))),
           
           
           
@@ -579,7 +579,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBriFH_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16, step = .5))),
+                                                           min = 5, max = 30, value = 16, step = .5))),
                                       sliderInput(inputId = "BSBriPR_seas3", label ="Private Open Season 3",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -591,7 +591,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBriPR_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16.5, step = .5))),
+                                                           min = 5, max = 30, value = 16.5, step = .5))),
                                       sliderInput(inputId = "BSBriSH_seas3", label ="Shore Open Season 3",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -603,7 +603,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBriSH_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16.5, step = .5)))))),
+                                                           min = 5, max = 30, value = 16.5, step = .5)))))),
           
           
           
@@ -915,7 +915,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBctFH_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16, step = .5))),
+                                                           min = 5, max = 30, value = 16, step = .5))),
                                       sliderInput(inputId = "BSBctPR_seas3", label ="Private Open Season 3",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -927,7 +927,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBctPR_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16, step = .5))),
+                                                           min = 5, max = 30, value = 16, step = .5))),
                                       sliderInput(inputId = "BSBctSH_seas3", label ="Shore Open Season 3",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -939,7 +939,7 @@
                                                             min = 0, max = 100, value = 0)),
                                         column(6,
                                                sliderInput(inputId = "BSBctSH_3_len", label ="Min Length",
-                                                           min = 5, max = 15, value = 16, step = .5)))))),
+                                                           min = 5, max = 30, value = 16, step = .5)))))),
           
           
           
