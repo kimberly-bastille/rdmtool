@@ -1,4 +1,8 @@
 FROM rocker/shiny:4.3
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    nano \
+    && rm -rf /var/lib/apt/lists/*
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 COPY . /srv/rdmtool/
 COPY ./recDST/app.R /srv/rdmtool/.
@@ -19,5 +23,7 @@ RUN install2.r -e -s \
     openxlsx \
     plyr \
     markdown \
-    && rm -rf /tmp/downloaded_packages \
+    future \
+    furrr \
+    rlang \
     && chown -R shiny:shiny /srv/rdmtool
