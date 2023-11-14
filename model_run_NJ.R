@@ -169,7 +169,7 @@ if(input$SCUP_NJ_input_type == "Single"){
 
 
 #for(x in 1:1){
-future::plan(future::multisession, workers = 8)
+future::plan(future::multisession, workers = 36)
 get_predictions_out<- function(x){
   
   
@@ -256,8 +256,12 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw", options(future.globals.maxSize = 1000 * 1024^2), debug = TRUE)
+
+options(future.debug = TRUE)
+
+predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
 head(prediction_out10)
+
 # predictions_out10<- predictions_out10 %>%
 #   dplyr::rename("StatusQuo" = Value)
 # write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_NJ.csv"))

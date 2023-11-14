@@ -1,8 +1,7 @@
 ## Required Packages
-
 install.packages("shiny")
 install.packages("shinyjs")
-install.packages("shinywidgets")
+install.packages("shinyWidgets")
 install.packages("magrittr")
 install.packages("readr")
 install.packages("here")
@@ -15,6 +14,9 @@ install.packages("data.table")
 install.packages("knitr")
 install.packages("openxlsx")
 install.packages("plyr")
+
+install.packages("markdown")
+
 install.packages("future")
 install.packages("furrr")
 
