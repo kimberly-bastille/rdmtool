@@ -257,7 +257,7 @@ get_predictions_out<- function(x){
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
 
-options(future.debug = TRUE)
+
 
 predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
 head(prediction_out10)

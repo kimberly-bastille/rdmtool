@@ -201,7 +201,7 @@
   
   # Define server logic required to draw a histogram
   server <- function(input, output, session) {
-    
+    if (!interactive()) sink(stderr(), type = "output")
     library(magrittr) 
     
     
