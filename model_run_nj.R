@@ -257,7 +257,7 @@ get_predictions_out<- function(x){
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:1, ~get_predictions_out(.), .id = "draw")
 
 # predictions_out10<- predictions_out10 %>%
 #   dplyr::rename("StatusQuo" = Value)
@@ -266,19 +266,67 @@ predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "d
 # predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
 #   dplyr::mutate(run_number = as.character(run_number))
 
-StatusQuo <- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv"), na.strings = "") 
 
-predictions <- predictions_out10 %>% #predictions_out10 %>% 
+alt_MA <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_MA.xlsx")) 
+alt_RI <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_RI.xlsx")) 
+alt_CT <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_CT.xlsx")) 
+alt_NY <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_NY.xlsx")) 
+alt_NJ <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_NJ.xlsx")) 
+alt_DE <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_DE.xlsx")) 
+alt_MD <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_MD.xlsx")) 
+alt_VA <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_VA.xlsx")) 
+alt_NC <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/coastwide1_projections_11_9_NC.xlsx")) 
+
+alt <- rbind(alt_MA, alt_RI, alt_CT, 
+             alt_NY, alt_DE, alt_VA,
+             alt_NJ, alt_MD, alt_NC) %>% 
+  dplyr::rename(value_alt = Value)
+
+
+StatusQuo_MA <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_MA.xlsx")) 
+StatusQuo_RI <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_RI.xlsx")) 
+StatusQuo_CT <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_CT.xlsx")) 
+StatusQuo_NY <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NY.xlsx")) 
+StatusQuo_NJ <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NJ.xlsx")) 
+StatusQuo_DE <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_DE.xlsx")) 
+StatusQuo_MD <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_MD.xlsx")) 
+StatusQuo_VA <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_VA.xlsx")) 
+StatusQuo_NC <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NC.xlsx")) 
+
+StatusQuo <- rbind(StatusQuo_MA, StatusQuo_RI, StatusQuo_CT, 
+                   StatusQuo_NY, StatusQuo_DE, StatusQuo_VA,
+                   StatusQuo_NJ, StatusQuo_MD, StatusQuo_NC) %>% 
+  dplyr::rename(value_SQ = Value)
+
+predictions <- alt %>% #predictions_out10 %>% #predictions_out10 %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
+  dplyr::filter(!Category == "CV") %>% 
   dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
-  dplyr::mutate(StatusQuo = as.numeric(StatusQuo), 
-                Value = as.numeric(Value), 
-                perc_change = round(((Value/StatusQuo) - 1) * 100, digits = 0)) %>% 
-  dplyr::group_by(Category,mode,keep_release,param,number_weight,state  ) %>% 
-  dplyr::summarise(Value = mean(Value), 
-                   StatusQuo = mean(StatusQuo), 
-                   MeetsChange = sum(perc_change > 10),
-                   perc_change = mean(perc_change)) %>% 
-  dplyr::ungroup()
+  dplyr::mutate(value_SQ = as.numeric(value_SQ), 
+                value_alt = as.numeric(value_alt), 
+                perc_change_weight = round(((value_alt/value_SQ) - 1) * 100, digits = 0)) #%>% 
 
+  
+  # dplyr::group_by(Category,mode,keep_release,param,number_weight,state  ) %>% 
+  # dplyr::summarise(#Value = mean(Value), 
+  #                  #StatusQuo = mean(StatusQuo), 
+  #                  #MeetsChange = sum(perc_change > 10),
+  #                  #perc_change = mean(perc_change)) %>% 
+  # dplyr::ungroup()
+
+predictions_weight <- predictions %>% 
+  dplyr::filter(number_weight == "Weight") %>% 
+  dplyr::rename()
+
+predictions_weight_avg <- predictions %>% 
+  dplyr::filter(number_weight == "Weight_avg") %>% 
+  dplyr::select(!c(perc_change_weight,value_alt, number_weight)) %>% 
+  dplyr::left_join(predictions_weight, by = c("Category","mode","keep_release","param","state","draw")) %>% 
+  dplyr::mutate(imputed_value_alt= perc_change_weight/100, 
+                imputed_value_alt = value_SQ.x * imputed_value_alt, 
+                imputed_value_alt=imputed_value_alt+value_SQ, 
+                imputed_value_alt = dplyr::case_when(is.na(imputed_value_alt) ~ value_alt, TRUE ~ imputed_value_alt))
+
+predictions_cv <- predictions_out10 %>% 
+  dplyr::filter(Category == "CV")
 
