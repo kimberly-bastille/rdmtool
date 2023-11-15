@@ -1538,7 +1538,6 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
     
  #}
  
- 
   return(predictions)
 }
   

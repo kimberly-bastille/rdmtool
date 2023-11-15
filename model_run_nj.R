@@ -250,6 +250,7 @@ get_predictions_out<- function(x){
                            x = x,
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
+  
 
 
 }
