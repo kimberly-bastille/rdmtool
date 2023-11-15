@@ -1537,7 +1537,8 @@ if (state1 %in% c("MA", "RI", "CT", "NY", "DE", "MD", "VA", "NC")){
       dplyr::mutate(keep_release=dplyr::case_when(keep_release=="rel"~"release",TRUE ~ keep_release)) 
     
  #}
- 
+    print("end of predict rec catch")
+    print(predictions)
  
   return(predictions)
 }

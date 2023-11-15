@@ -251,7 +251,8 @@ get_predictions_out<- function(x){
                            #sf_catch_data_all = c(list(catch_files_NJ[[1]])))
                            sf_catch_data_all = c(list(catch_files_NJ)))
   
-  
+  print("test")
+  print(test)  
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
