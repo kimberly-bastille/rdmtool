@@ -1169,7 +1169,7 @@
                  
                  
                  actionButton("BSBNYaddSeason", "Add Season"), 
-                 shinyjs::hidden( div(ID = "BSBnySeason2",
+                 shinyjs::hidden( div(ID = "BSBnySeason3",
                                       sliderInput(inputId = "BSBnyFH_seas3", label ="For Hire Open Season 3",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
@@ -1467,7 +1467,7 @@
                               sliderInput(inputId = "BSBnySH_seas2", label ="Shore Open Season 2",
                                           min = as.Date("01-01","%m-%d"),
                                           max = as.Date("12-31","%m-%d"),
-                                          value=c(as.Date("09-31","%m-%d"),as.Date("12-31","%m-%d")), 
+                                          value=c(as.Date("09-01","%m-%d"),as.Date("12-31","%m-%d")), 
                                           timeFormat = "%m-%d", ticks = FALSE),
                               fluidRow(
                                 column(4,
