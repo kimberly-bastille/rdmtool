@@ -261,7 +261,7 @@ get_predictions_out<- function(x){
 
 
 predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-head(prediction_out10)
+#head(prediction_out10)
 
 # predictions_out10<- predictions_out10 %>%
 #   dplyr::rename("StatusQuo" = Value)
