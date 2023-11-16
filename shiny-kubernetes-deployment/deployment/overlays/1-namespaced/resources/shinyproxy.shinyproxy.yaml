@@ -1,0 +1,126 @@
+apiVersion: openanalytics.eu/v1
+kind: ShinyProxy
+metadata:
+  name: shinyproxy
+  namespace: shinyproxy
+spec:
+  logging:
+    requestdump: true
+    level:
+      DEBUG
+  server:
+    secureCookies: false
+    frameOptions: sameorigin
+    forward-headers-strategy: native
+    servlet.session.timeout: 3600
+  spring:
+    session:
+      store-type: redis
+    redis:
+      password: ${REDIS_PASSWORD}
+      sentinel:
+        master: shinyproxy
+        password: ${REDIS_PASSWORD}
+        nodes: redis-node-0.redis-headless:26379, redis-node-1.redis-headless:26379, redis-node-2.redis-headless:26379
+  proxy:
+    log-as-json: true
+    container-wait-time: 60000000 
+    store-mode: Redis
+    stop-proxies-on-shutdown: false
+    title: RDMTool
+    logoUrl: ""
+    landingPage: /
+    containerBackend: kubernetes
+    kubernetes:
+      namespace: shinyproxy
+      internal-networking: true
+      image-pull-policy: Always
+    authentication: simple
+    admin-groups: scientists
+    my-apps-mode: Inline
+    users:
+      - name: jack
+        password: password
+        groups: scientists
+      - name: jeff
+        password: password
+        groups: mathematicians
+    specs:
+      - id: rdmtool
+        display-name: RDM Tool
+        description: RDM Tool
+        port: 3838
+        container-image: shinyacrhs123.azurecr.io/shiny:v1
+        access-groups: [scientists, mathematicians]
+        kubernetes-pod-patches: |
+          - op: add
+            path: /spec/containers/0/resources
+            value:
+              requests:
+                memory: "500G"
+                cpu: "32"
+          - op: add
+            path: /spec/tolerations
+            value:
+              - key: "sku"
+                operator: "Equal"
+                value: "fx"
+                effect: "NoSchedule"
+          - op: add
+            path: /spec/volumes
+            value:
+              - name: fileshare
+                persistentVolumeClaim:
+                  claimName: azurefile
+          - op: add
+            path: /spec/containers/0/volumeMounts
+            value:
+              - mountPath: /srv/rdmtool/data-raw
+                name: fileshare
+  kubernetesPodTemplateSpecPatches: |
+    - op: add
+      path: /spec/containers/0/env/-
+      value:
+        name: REDIS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: redis
+            key: redis-password
+    - op: add
+      path: /spec/containers/0/resources
+      value:
+        limits:
+          cpu: 1
+          memory: 1Gi
+        requests:
+          cpu: 0.5
+          memory: 1Gi
+    - op: add
+      path: /spec/serviceAccountName
+      value: shinyproxy-sa
+  kubernetesIngressPatches: |
+    - op: add
+      path: /metadata/annotations
+      value:
+        updated: "true"
+        nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+        nginx.ingress.kubernetes.io/ssl-redirect: "false"
+        nginx.ingress.kubernetes.io/proxy-body-size: 300m
+    - op: add
+      path: /spec/ingressClassName
+      value: webapprouting.kubernetes.azure.com
+    - op: add
+      path: /spec/rules
+      value: 
+        - http:
+            paths:
+            - backend:
+                service:
+                  name: sp-shinyproxy-svc
+                  port:
+                    number: 80
+              path: /
+              pathType: Prefix
+  image: openanalytics/shinyproxy:3.0.1
+  imagePullPolicy: Always
+  fqdn: shinyproxy-demo.local
