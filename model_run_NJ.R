@@ -31,8 +31,8 @@ l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Co
 
 
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_NJ.rds")))) 
-
-if(input$SF_NJ_input_type == "Single"){
+print("out directed trips")
+if(input$SF_NJ_input_type == "All Modes Combined"){
   directed_trips<- directed_trips %>%
     dplyr::mutate(#Summer Flounder
       fluke_bag1=dplyr::case_when(day_i >= lubridate::yday(input$SFnj_seas1[1]) & day_i <= lubridate::yday(input$SFnj_seas1[2]) ~ as.numeric(input$SFnj_1_smbag), TRUE ~ fluke_bag1), 
@@ -81,7 +81,7 @@ if(input$SF_NJ_input_type == "Single"){
 }
 
 
-if(input$BSB_NJ_input_type == "Single"){
+if(input$BSB_NJ_input_type == "All Modes Combined"){
   directed_trips<- directed_trips %>%
     dplyr::mutate(# Black Sea Bass Bag Limit
       bsb_bag=dplyr::case_when(day_i >= lubridate::yday(input$BSBnj_seas1[1]) & day_i <= lubridate::yday(input$BSBnj_seas1[2]) ~ as.numeric(input$BSBnj_1_bag), TRUE ~ bsb_bag), 
@@ -135,7 +135,7 @@ if(input$BSB_NJ_input_type == "Single"){
       bsb_min=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$BSBnjSH_seas5[1]) & day_i <= lubridate::yday(input$BSBnjSH_seas5[2]) ~ as.numeric(input$BSBnjSH_5_len), TRUE ~ bsb_min))
 }
 
-if(input$SCUP_NJ_input_type == "Single"){
+if(input$SCUP_NJ_input_type == "All Modes Combined"){
   directed_trips<- directed_trips %>%
     dplyr::mutate(
       #SCUP
@@ -169,7 +169,8 @@ if(input$SCUP_NJ_input_type == "Single"){
 
 
 #for(x in 1:1){
-future::plan(future::multisession, workers = 36)
+#future::plan(future::multisession, workers = 36)
+future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -259,8 +260,8 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
 # predictions_out10<- predictions_out10 %>%
@@ -270,19 +271,507 @@ predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = 
 # predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
 #   dplyr::mutate(run_number = as.character(run_number))
 
-StatusQuo <- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv"), na.strings = "") 
+StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NJ.xlsx")) %>% 
+  dplyr::rename(value_SQ = Value)
 
-predictions <- predictions_out10 %>% #predictions_out10 %>% 
+predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
+  dplyr::rename(value_alt= Value) %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
   dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
-  dplyr::mutate(StatusQuo = as.numeric(StatusQuo), 
-                Value = as.numeric(Value), 
-                perc_change = round(((Value/StatusQuo) - 1) * 100, digits = 0)) %>% 
-  dplyr::group_by(Category,mode,keep_release,param,number_weight,state  ) %>% 
-  dplyr::summarise(Value = mean(Value), 
-                   StatusQuo = mean(StatusQuo), 
-                   MeetsChange = sum(perc_change > 10),
-                   perc_change = mean(perc_change)) %>% 
-  dplyr::ungroup()
+  dplyr::filter(Category %in% c("sf", "bsb", "scup"),
+                mode!="all", 
+                keep_release=="keep", 
+                number_weight %in% c("Weight_avg", "Weight") ) %>% 
+  dplyr::select(-param) %>% 
+  dplyr::mutate(value_SQ = as.numeric(value_SQ), 
+                value_alt = as.numeric(value_alt))
 
-# test push
+predictions_weight <- predictions_merge %>%
+  dplyr::filter(number_weight == "Weight") %>%
+  dplyr::rename(value_alt_Weight=value_alt, value_SQ_Weight=value_SQ) %>%
+  dplyr::mutate(perc_change_weight = (((value_alt_Weight-value_SQ_Weight)/value_SQ_Weight) * 100))
+
+predictions_avg <- predictions_merge %>%
+  dplyr::filter(number_weight == "Weight_avg") 
+  
+predictions_merge2<- predictions_avg %>% 
+  dplyr::left_join(predictions_weight, by = c("Category","mode", "state","draw")) %>%
+  dplyr::select(-keep_release.x, -keep_release.y, -number_weight.y) %>% 
+  dplyr::mutate(imputed_value_alt= perc_change_weight/100,
+                imputed_value_alt = value_SQ * imputed_value_alt, 
+                imputed_value_alt=imputed_value_alt+value_SQ) 
+#check = ((imputed_value_alt-value_SQ)/value_SQ)*100)
+
+predictions_merge2<- predictions_merge2 %>% 
+  #If imputed_value_alt is missing and value_alt_Weight is not missing, replace imputed_value_alt with value_alt_Weight
+  dplyr::mutate(imputed_value_alt = dplyr::case_when(is.na(imputed_value_alt) & 
+                                                       !is.na(value_alt_Weight) ~ value_alt_Weight, TRUE ~ imputed_value_alt)) %>% 
+  #If imputed_value_alt is missing and value_alt_Weight IS missing, and value_SQ =0,  replace imputed_value_alt with 0
+  dplyr::mutate(imputed_value_alt = dplyr::case_when(is.na(imputed_value_alt) & 
+                                                       is.na(value_alt_Weight) & 
+                                                       value_SQ==0 ~ 0, TRUE ~ imputed_value_alt))
+state_harvest_output<- predictions_merge2 %>% 
+  dplyr::group_by(draw, Category, state) %>% 
+  dplyr::summarise(imputed_value_alt_sum = sum(imputed_value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((imputed_value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(state, Category, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               imputed_value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+state_harvest_output <- state_harvest_output %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category)) %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,imputed_value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
+  dplyr::ungroup() 
+
+state_harvest_output<- state_harvest_output %>% 
+  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~.9*value_SQ_sum, TRUE~NA), 
+                harv_target=dplyr::case_when(Category=="sf"~.72*value_SQ_sum, TRUE~harv_target)) %>% 
+  dplyr::mutate(reach_target=dplyr::case_when(imputed_value_alt_sum<=harv_target  ~1, TRUE~0))
+
+categories_state=list()
+
+for(d in unique(state_harvest_output$domain)){
+  
+  new<- state_harvest_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$imputed_value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$imputed_value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$imputed_value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  reach_target<- sum(new$reach_target)
+  
+  
+  categories_state[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ, reach_target
+    ))
+  
+  categories_state[[d]]$domain<-d
+  
+  
+}
+state_harvest_results= rlist::list.stack(categories_state, fill=TRUE)
+state_harvest_results<- state_harvest_results %>% 
+  tidyr::separate(domain, into = c("region", "species"))  %>% 
+  dplyr::mutate(stat="harvest pounds", 
+                mode="all modes") %>% 
+  dplyr::relocate(region, stat, species, mode)
+
+
+###########################
+#state by mode-level output
+state_mode_harvest_output<- predictions_merge2 %>% 
+  dplyr::group_by(draw, Category, state, mode) %>% 
+  dplyr::summarise(imputed_value_alt_sum = sum(imputed_value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((imputed_value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(state, mode, Category, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               imputed_value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+state_mode_harvest_output_check<- state_mode_harvest_output %>% 
+  dplyr::filter(perc_diff=="NaN")
+
+state_mode_harvest_output <- state_mode_harvest_output %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category, "_", mode)) %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,imputed_value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::arrange(domain,perc_diff) 
+
+state_mode_harvest_output<- state_mode_harvest_output %>% 
+  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~.9*value_SQ_sum, TRUE~NA), 
+                harv_target=dplyr::case_when(Category=="sf"~.72*value_SQ_sum, TRUE~harv_target)) %>% 
+  dplyr::mutate(reach_target=dplyr::case_when(imputed_value_alt_sum<=harv_target~1, TRUE~0))
+
+categories_state_mode=list()
+
+for(d in unique(state_mode_harvest_output$domain)){
+  
+  new<- state_mode_harvest_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$imputed_value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$imputed_value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$imputed_value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  reach_target<- sum(new$reach_target)
+  
+  
+  
+  categories_state_mode[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ, reach_target
+    ))
+  
+  categories_state_mode[[d]]$domain<-d
+  
+  
+}
+state_mode_harvest_results= rlist::list.stack(categories_state_mode, fill=TRUE)
+state_mode_harvest_results<- state_mode_harvest_results %>% 
+  tidyr::separate(domain, into = c("region", "species", "mode"))  %>% 
+  dplyr::mutate(stat="harvest pounds") 
+
+keep_output <- state_harvest_results %>% rbind(state_mode_harvest_results)
+
+
+
+### Release
+
+predictions_releases_merge <- predictions_out10 %>% 
+  dplyr::rename(value_alt= Value) %>% 
+  dplyr::mutate(draw = as.numeric(draw)) %>% 
+  dplyr::left_join(StatusQuo, by=c("Category","mode", "number_weight","state", "draw", "keep_release")) %>%
+  dplyr::mutate(value_SQ = as.numeric(value_SQ),
+                value_alt = as.numeric(value_alt))
+
+predictions_release_weight <- predictions_releases_merge %>%
+  dplyr::filter(number_weight == "Weight") %>%
+  dplyr::rename(value_alt_Weight=value_alt, value_SQ_Weight=value_SQ) %>%
+  dplyr::mutate(perc_change_weight = (((value_alt_Weight-value_SQ_Weight)/value_SQ_Weight) * 100))
+
+predictions_release_avg <- predictions_releases_merge %>%
+  dplyr::filter(number_weight == "Weight_avg") 
+
+
+
+predictions_releases_merge2<- predictions_release_avg %>% 
+  dplyr::left_join(predictions_release_weight, by = c("Category","mode", "state","draw", "keep_release")) %>%
+  dplyr::select(-number_weight.y) %>% 
+  dplyr::mutate(imputed_value_alt= perc_change_weight/100,
+                imputed_value_alt = value_SQ * imputed_value_alt, 
+                imputed_value_alt=imputed_value_alt+value_SQ)  
+#check = ((imputed_value_alt-value_SQ)/value_SQ)*100)
+
+predictions_releases_merge2<- predictions_releases_merge2 %>% 
+  #If imputed_value_alt is missing and value_alt_Weight is not missing, replace imputed_value_alt with value_alt_Weight
+  dplyr::mutate(imputed_value_alt = dplyr::case_when(is.na(imputed_value_alt) & 
+                                                       !is.na(value_alt_Weight) ~ value_alt_Weight, TRUE ~ imputed_value_alt)) %>% 
+  #If imputed_value_alt is missing and value_alt_Weight IS missing, and value_SQ =0,  replace imputed_value_alt with 0
+  dplyr::mutate(imputed_value_alt = dplyr::case_when(is.na(imputed_value_alt) & 
+                                                       is.na(value_alt_Weight) & 
+                                                       value_SQ==0 ~ 0, TRUE ~ imputed_value_alt))  
+
+state_release_output<- predictions_releases_merge2 %>% 
+  dplyr::mutate(domain=paste0(Category, "_", state, "_", keep_release)) %>% 
+  dplyr::group_by(draw, domain) %>% 
+  dplyr::summarise(imputed_value_alt_sum = sum(imputed_value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((imputed_value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(domain, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               imputed_value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+state_release_output <- state_release_output %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,imputed_value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
+  dplyr::ungroup() 
+
+categories_release_state=list()
+
+for(d in unique(state_release_output$domain)){
+  
+  new<- state_release_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$imputed_value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$imputed_value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$imputed_value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  categories_release_state[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  categories_release_state[[d]]$domain<-d
+  
+  
+}
+state_release_results= rlist::list.stack(categories_release_state, fill=TRUE)
+
+state_release_results<- state_release_results %>% 
+  tidyr::separate(domain, into = c("species", "region", "stat1")) %>% 
+  dplyr::mutate(stat=dplyr::case_when(stat1=="release" ~ "release pounds", TRUE~stat1), 
+                stat=dplyr::case_when(stat1=="Discmortality"~ "dead release pounds", TRUE~stat), 
+                mode="all modes") %>% 
+  dplyr::select(-stat1)
+
+###########################
+#state by mode-level release output
+state_mode_release_output<- predictions_releases_merge2 %>% 
+  dplyr::group_by(draw, Category, state, mode, keep_release) %>% 
+  dplyr::summarise(imputed_value_alt_sum = sum(imputed_value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((imputed_value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(state, mode, Category, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               imputed_value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+
+state_mode_release_output <- state_mode_release_output %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category, "_", mode, "_", keep_release)) %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,imputed_value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::arrange(domain,perc_diff) 
+
+categories_releases_state_mode=list()
+
+for(d in unique(state_mode_release_output$domain)){
+  
+  new<- state_mode_release_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$imputed_value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$imputed_value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$imputed_value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  categories_releases_state_mode[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  categories_releases_state_mode[[d]]$domain<-d
+  
+  
+}
+state_mode_release_results= rlist::list.stack(categories_releases_state_mode, fill=TRUE)
+state_mode_release_results<- state_mode_release_results %>% 
+  tidyr::separate(domain, into = c("region", "species",  "mode", "stat1"))  %>% 
+  dplyr::mutate(stat=dplyr::case_when(stat1=="release" ~ "release pounds", TRUE~stat1), 
+                stat=dplyr::case_when(stat1=="Discmortality"~ "dead release pounds", TRUE~stat)) %>% 
+  dplyr::select(-stat1)
+
+release_ouput<- state_release_results %>% rbind(state_mode_release_results) %>% 
+  dplyr::filter(!stat == "keep")
+
+
+
+### CV
+CV_state_mode <- predictions_out10 %>% 
+  dplyr::mutate(draw = as.numeric(draw)) %>%
+  dplyr::rename(value_alt= Value) %>% 
+  dplyr::left_join(StatusQuo, by=c("Category","mode", "number_weight","state", "draw")) %>%
+  dplyr::mutate(value_SQ = as.numeric(value_SQ),
+                value_alt = as.numeric(value_alt)) %>% 
+  dplyr::filter(Category %in% c("CV", "ntrips"),
+                mode!="all" ) %>% 
+  dplyr::select(!c(param.x, param.y, keep_release.x, keep_release.y)) %>% 
+  dplyr::mutate(value_SQ = as.numeric(value_SQ),
+                value_alt = as.numeric(value_alt), 
+                perc_diff=((value_alt-value_SQ)/value_SQ)*100)
+
+state_CV<- CV_state_mode %>% 
+  dplyr::group_by(draw, Category, state) %>% 
+  dplyr::summarise(value_alt_sum = sum(value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) 
+
+
+#sort observations and create index by species
+state_CV<- state_CV %>% 
+  dplyr::group_by(Category, state) %>% 
+  dplyr::arrange(Category,state, value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(Category)) %>% 
+  dplyr::arrange(Category,state, perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(Category)) %>% 
+  dplyr::arrange(Category,state,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(Category)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::arrange(Category,state,perc_diff) %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category))
+
+
+
+state_Cvs=list()
+
+for(d in unique(state_CV$domain)){
+  
+  new<- state_CV %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  state_Cvs[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  state_Cvs[[d]]$domain<-d
+  
+  
+}
+state_CV_results= rlist::list.stack(state_Cvs, fill=TRUE)   
+state_CV_results<- state_CV_results %>% 
+  tidyr::separate(domain, into = c("region", "stat")) %>% 
+  dplyr::mutate(mode="all modes", species="all species")
+
+
+
+###########################
+#state mode-level CV output
+state_mode_CV_output<- CV_state_mode %>% 
+  dplyr::group_by(draw, Category, state, mode) %>% 
+  dplyr::summarise(value_alt_sum = sum(value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(state, mode, Category, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+
+state_mode_CV_output <- state_mode_CV_output %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category, "_", mode)) %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,value_alt_sum) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::arrange(domain,perc_diff) 
+
+categories_CV_state_mode=list()
+
+for(d in unique(state_mode_CV_output$domain)){
+  
+  new<- state_mode_CV_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  categories_CV_state_mode[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  categories_CV_state_mode[[d]]$domain<-d
+  
+  
+}
+state_mode_CV_results= rlist::list.stack(categories_CV_state_mode, fill=TRUE)
+state_mode_CV_results<- state_mode_CV_results %>% 
+  tidyr::separate(domain, into = c("region", "stat",  "mode"))  %>% 
+  dplyr::mutate(species="all species")
+
+
+predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results, 
+                               keep_output, release_ouput) %>% 
+  dplyr::mutate(species = dplyr::recode(species, "bsb"= "Black Sea Bass", 
+                                        "sf" = "Summer Flounder", 
+                                        "scup" = "Scup"), 
+                mode = dplyr::recode(mode, "fh" = "For Hire", 
+                                     "pr" = "Private", 
+                                     "sh" = "Shore"), 
+                median_perc_diff = round(median_perc_diff, 2), 
+                median_value_alt = round(median_value_alt, 0), 
+                median_value_SQ = round(median_value_SQ, 0), 
+                median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
+                median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
+                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE))
+

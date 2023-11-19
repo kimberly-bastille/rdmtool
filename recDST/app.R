@@ -26,8 +26,8 @@
                          titlePanel("Summer Flounder"),
                          
                          
-                         selectInput("SF_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
+                         selectInput("SF_NJ_input_type", "Regulations combined or seperated by mode?",
+                                     c("All Modes Combined", "Seperated By Mode")),
                          uiOutput("SFnjMode"),
                          
                          
@@ -85,8 +85,8 @@
                   column(4, 
                          titlePanel("Black Sea Bass"),
                          
-                         selectInput("BSB_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
+                         selectInput("BSB_NJ_input_type", "Regulations combined or seperated by mode?",
+                                     c("All Modes Combined", "Seperated By Mode")),
                          uiOutput("BSBnjMode"),
                          
                          actionButton("BSBNJaddSeason", "Add Season"), 
@@ -135,8 +135,8 @@
                   column(4, 
                          titlePanel("Scup"),
                           
-                         selectInput("SCUP_NJ_input_type", "Modes to choose from:",
-                                     c("Single", "AllModes")),
+                         selectInput("SCUP_NJ_input_type", "Regulations combined or seperated by mode?",
+                                     c("All Modes Combined", "Seperated By Mode")),
                          uiOutput("SCUPnjMode"),
                          
                          actionButton("SCUPNJaddSeason", "Add Season"), 
@@ -183,16 +183,14 @@
                 actionButton("runmeplease", "Run Me")),
       
       tabPanel("Results", 
-               
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                
                  downloadButton(outputId = "downloadData", "Download"),
                  tableOutput(outputId = "regtableout"),
-                 tableOutput(outputId = "keep_release_tableout"),
-                 tableOutput(outputId = "welfare_trips_tableout"), 
+                 tableOutput(outputId = "keep_tableout"),
                  tableOutput(outputId = "mortalityout"),
-                 tableOutput(outputId = "futureplansout")), 
+                 tableOutput(outputId = "welfare_trips_tableout")),
       
       
       tabPanel("Documentation")#, 
@@ -221,7 +219,7 @@
         return()
       
       switch(input$SF_NJ_input_type, 
-             "Single" = div(sliderInput(inputId = "SFnj_seas1", label ="Open Season 1", # New Jersey for hire season 1
+             "All Modes Combined" = div(sliderInput(inputId = "SFnj_seas1", label ="Open Season 1", # New Jersey for hire season 1
                                         min = as.Date("01-01","%m-%d"),
                                         max = as.Date("12-31","%m-%d"),
                                         value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -237,7 +235,7 @@
                                                   min = 0, max = 7, value = 1), 
                                      sliderInput(inputId = "SFnj_1_lglen", label ="Large Min Length",
                                                  min = 5, max = 50, value = c(18,50), step = .5)))), 
-             "AllModes" = div(sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
+             "Seperated By Mode" = div(sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
                                           min = as.Date("01-01","%m-%d"),
                                           max = as.Date("12-31","%m-%d"),
                                           value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -301,7 +299,7 @@
       # UI component and send it to the client.
       switch(input$BSB_NJ_input_type,
              
-             "Single" = div(sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1", 
+             "All Modes Combined" = div(sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1", 
                                         min = as.Date("01-01","%m-%d"),
                                         max = as.Date("12-31","%m-%d"),
                                         value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
@@ -356,7 +354,7 @@
                                      sliderInput(inputId = "BSBnj_4_len", label ="Min Length",
                                                  min = 3, max = 28.5, value = 12.5, step = .5)))),
              
-             "AllModes" = div(sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
+             "Seperated By Mode" = div(sliderInput(inputId = "BSBnjFH_seas1", label =" For Hire Open Season 1", 
                                           min = as.Date("01-01","%m-%d"),
                                           max = as.Date("12-31","%m-%d"),
                                           value=c(as.Date("05-17","%m-%d"),as.Date("06-19","%m-%d")), 
@@ -513,7 +511,7 @@
         # UI component and send it to the client.
         switch(input$SCUP_NJ_input_type,
                
-               "Single" = div(sliderInput(inputId = "SCUPnj_seas1", label ="Open Season 1",
+               "All Modes Combined" = div(sliderInput(inputId = "SCUPnj_seas1", label ="Open Season 1",
                                            min = as.Date("01-01","%m-%d"),
                                            max = as.Date("12-31","%m-%d"),
                                            value=c(as.Date("08-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -525,7 +523,7 @@
                                  column(6,
                                         sliderInput(inputId = "SCUPnj_1_len", label ="Min Length",
                                                     min = 5, max = 15, value = 10, step = .5)))),
-               "AllModes" = div(sliderInput(inputId = "SCUPnjFH_seas1", label ="For Hire Open Season 1",
+               "Seperated By Mode" = div(sliderInput(inputId = "SCUPnjFH_seas1", label ="For Hire Open Season 1",
                                             min = as.Date("01-01","%m-%d"),
                                             max = as.Date("12-31","%m-%d"),
                                             value=c(as.Date("08-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -597,84 +595,37 @@
     })
     
     
-    keep_release <- reactive({
-      keep_release_output<- predictions_1() %>% 
-        dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      number_weight %in% c("Weight", "Number"), 
-                      keep_release %in% c("keep", "release")) %>% 
-        dplyr::mutate(#Category = paste(Category, "(lbs)"), 
-          StatusQuo = round(StatusQuo, digits = 0), 
-          Alternative = round(Value, digits = 0),
-          Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(state, Category, mode, keep_release, number_weight, StatusQuo, Alternative, Percent_Change, MeetsChange)) %>% 
-        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change", "MeetsChange")) %>% 
-        tidyr::replace_na(list(mode = "All")) %>% 
-        dplyr::select(state, Category, mode, keep_release, 
-                      StatusQuo_Number, Alternative_Number, Percent_Change_Number,
-                      Percent_Change_Weight, MeetsChange_Weight) %>% 
-        dplyr::rename("StatusQuo Number" = StatusQuo_Number, 
-                      "Alternative Number" = Alternative_Number,
-                      "Percent Change Number" = Percent_Change_Number, 
-                      "Percent Change Weight" = Percent_Change_Weight,
-                      "Species" = Category, 
-                      "Mode" = mode, 
-                      "Keep/Release" = keep_release, 
-                      "Percent of runs that meet 10% change" = MeetsChange_Weight) %>% 
-        dplyr::arrange(factor(Species, levels = c("sf", "bsb", "scup")))
+    keep <- reactive({
+      keep_output<- predictions_1() %>% 
+        dplyr::filter(stat == "harvest pounds") %>% 
+        dplyr::select(region, stat, species, mode, reach_target, median_perc_diff, median_value_SQ, median_value_alt)
       
       
-      return(keep_release_output)
+      return(keep_output)
     })
     
     
     welfare_ntrips<- reactive({
       welfare_output<- predictions_1() %>% 
-        dplyr::filter(Category %in% c("CV", "ntrips")) %>% 
-        dplyr::arrange(factor(Category, levels = c("CV", "ntrips"))) %>% 
-        dplyr::mutate(Category = dplyr::recode(Category, "CV" = "Angler Welfare"), 
-                      Category = dplyr::recode(Category, "ntrips" = "Estimated Trips"),
-                      Category = dplyr::case_when(stringr::str_detect(Category, "Angler Welfare") ~ paste(Category, "($)"), 
-                                                  stringr::str_detect(Category, "Estimated Trips") ~ Category),
-                      StatusQuo = round(StatusQuo, digits = 2), 
-                      Alternative = round(Value, digits = 2),
-                      Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        tidyr::replace_na(list(mode = "All")) %>% 
-        dplyr::select(c(state, Category, mode, StatusQuo, Alternative, Percent_Change)) %>% 
-        dplyr::rename("Percent Change" = Percent_Change, 
-                      "Mode" = mode) 
+        dplyr::filter(stat %in% c("CV", "ntrips")) %>% 
+        dplyr::mutate(stat = dplyr::recode(stat, "CV" = "Angler Welfare", 
+                                           "ntrips" = "Estimate Trips")) %>% 
+        dplyr::select(region, stat, species, mode, median_perc_diff, median_value_SQ, median_value_alt)
       
       return(welfare_output)
     })
     
     mortality<- reactive({
       mortality_output<- predictions_1() %>% 
-        dplyr::filter(Category %in% c("bsb", "scup","sf"), 
-                      keep_release == "Discmortality") %>% 
-        dplyr::mutate(#Category = paste(Category, "(lbs)"), 
-          StatusQuo = round(StatusQuo, digits = 0), 
-          Alternative = round(Value, digits = 0),
-          Percent_Change = paste(round(((Alternative/StatusQuo) - 1) * 100, digits = 0), "%" )) %>% 
-        dplyr::select(c(state, Category, mode, number_weight, StatusQuo, Alternative, Percent_Change)) %>% 
-        tidyr::pivot_wider(names_from = number_weight, values_from = c("StatusQuo", "Alternative", "Percent_Change")) %>%
-        dplyr::select(state, Category, mode, 
-                      StatusQuo_Number, Alternative_Number, Percent_Change_Number, 
-                      StatusQuo_Weight, Alternative_Weight, Percent_Change_Weight) %>% 
-        dplyr::arrange(factor(Category, levels = c("sf", "bsb", "scup"))) %>% 
-        dplyr::rename("StatusQuo Discard Mortality Weight (lbs)" = StatusQuo_Weight, 
-                      "Alternative Discard Mortality Weight (lbs)" = Alternative_Weight, 
-                      "StatusQuo Discard Mortality Number" = StatusQuo_Number, 
-                      "Alternative Discard Mortality Number" = Alternative_Number, 
-                      "Percent Change Number" = Percent_Change_Number, 
-                      "Percent Change Weight" = Percent_Change_Weight, 
-                      "Species" = Category, 
-                      "Mode" = mode)
+        dplyr::filter(stat %in% c("release pounds", "dead release pounds")) %>% 
+        dplyr::select(region, stat, species, mode, median_perc_diff, median_value_SQ, median_value_alt)
       return(mortality_output)
     })
     
     regulations <- reactive({
       
       if(input$state == "NJ"){  
-      if(input$SF_NJ_input_type == "Single"){
+      if(input$SF_NJ_input_type == "All Modes Combined"){
         
         SFnjseason1 <- data.frame(State = c("NJ"), Species = c("Summer Flounder"), Mode = c("All"),
                                   Season = paste(input$SFnj_seas1[1], "-", input$SFnj_seas1[2]),
@@ -722,7 +673,7 @@
         SFnj <- rbind(SFnjFHseason1,SFnjFHseason2, SFnjPRseason1,SFnjPRseason2, SFnjSHseason1,SFnjSHseason2)
       }
       
-      if(input$BSB_NJ_input_type == "Single"){
+      if(input$BSB_NJ_input_type == "All Modes Combined"){
         BSBnjseason1 <- data.frame(State = c("NJ"), Species = c("Black Sea Bass"), Mode = c("All"),
                                    Season = paste(input$BSBnj_seas1[1], "-", input$BSBnj_seas1[2]),
                                    BagLimit = paste(input$BSBnj_1_bag),
@@ -827,7 +778,7 @@
       
       
       
-      if(input$SCUP_NJ_input_type == "Single"){
+      if(input$SCUP_NJ_input_type == "All Modes Combined"){
         SCUPnjseason1 <- data.frame(State = c("NJ"), Species = c("Scup"), Mode = c("All"),
                                     Season = paste(input$SCUPnj_seas1[1], "-", input$SCUPnj_seas1[2]),
                                     BagLimit = paste(input$SCUPnj_1_bag),
@@ -888,8 +839,8 @@
     
     
     ## Output Tables 
-    output$keep_release_tableout<- renderTable({
-      keep_release()
+    output$keep_tableout<- renderTable({
+      keep()
     })
     
     output$welfare_trips_tableout<- renderTable({
@@ -904,21 +855,12 @@
       mortality()
     })
     
-    output$futureplansout <- renderTable({
-      futureout <- data.frame(Variable =c("Total Mortality", "Discard Mortality", 
-                                          "% of runs that result in desired outcome", 
-                                          "Catch by weight", "Incorporating Avidity and Angler Age"), 
-                              Notes = c("These are topics we are currently working to incorporate in the model and/or outputs. We just aren't quite there yet to share.", 
-                                        "Done", "", "Done", "Done"))
-      
-      
-    })
     
     output$downloadData <- downloadHandler(
       filename = function(){"RecDSToutput.xlsx"},
       content = function(filename) {
         
-        df_list <- list(Regulations=regulations(), Keep_Release=keep_release(), 
+        df_list <- list(Regulations=regulations(), Keep_Release=keep(), 
                         Angler_Welfare = welfare_ntrips(), Discard_Mortality = mortality())
         openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
       })
