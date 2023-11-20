@@ -184,7 +184,7 @@
                 actionButton("runmeplease", "Run Me")),
       
       tabPanel("Results", 
-               strong(div("REMINDER: 1) Do not click any buttons in this tool once while it says `Calculating`! 2) Be sure to download data 3) When finished with tool click `Stop App` and close out of the window. ", style = "color:blue")),
+               strong(div("REMINDER: 1) Do not click any buttons in this tool once while it says `Calculating`! 2) Be sure to download data 3) When finished with tool, click `Stop App` and close out of the window. ", style = "color:blue")),
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This may take a minute.",id="loadmessage")),
                
@@ -596,14 +596,15 @@
     
     keep <- reactive({
       keep_output<- predictions_1() %>% 
-        dplyr::filter(Statistic == "harvest pounds")
+        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers"))
       return(keep_output)
     })
     
     mortality<- reactive({
       mortality_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("release pounds", "dead release pounds")) %>% 
-        dplyr::select(! "Percent Under Harvest Target out of 100 Simulations")
+        dplyr::filter(Statistic %in% c("release pounds", "dead release pounds", 
+                                       "release numbers", "dead release numbers")) %>% 
+        dplyr::select(! "% under harvest target (out of 100 simulations)")
       return(mortality_output)
     })
     
@@ -613,7 +614,7 @@
         dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare", 
                                                 "ntrips" = "Estimate Trips")) %>% 
         dplyr::arrange(factor(Statistic, levels = c("Angler Welfare","Estimate Trips"))) %>% 
-        dplyr::select(! c("Percent Under Harvest Target out of 100 Simulations","Status-quo Value (Median)","Percent Difference from Status-quo Outcome (Median)"))
+        dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
       return(welfare_output)
     })
     
@@ -829,7 +830,8 @@
         dplyr::filter(!BagLimit == "0",
                       !BagLimit == "0 , 0") %>%
         dplyr::mutate(Season = stringr::str_remove(Season, pattern = "2023-"),
-                      Season = stringr::str_remove(Season, pattern = "2023-"))
+                      Season = stringr::str_remove(Season, pattern = "2023-")) %>% 
+        dplyr::rename("Bag Limit" = BagLimit)
       return(regs_output)
     })
     
