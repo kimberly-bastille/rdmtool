@@ -264,7 +264,8 @@ predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = 
 #predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
-# predictions_out10<- predictions_out10 %>%
+predictions_out10<- predictions_out10 %>%
+  dplyr::filter(!mode == "all")
 #   dplyr::rename("StatusQuo" = Value)
 # write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_NJ.csv"))
 
@@ -461,7 +462,8 @@ predictions_releases_merge <- predictions_out10 %>%
   dplyr::mutate(draw = as.numeric(draw)) %>% 
   dplyr::left_join(StatusQuo, by=c("Category","mode", "number_weight","state", "draw", "keep_release")) %>%
   dplyr::mutate(value_SQ = as.numeric(value_SQ),
-                value_alt = as.numeric(value_alt))
+                value_alt = as.numeric(value_alt)) %>% 
+  dplyr::filter(keep_release %in% c("release", "Discmortality") )
 
 predictions_release_weight <- predictions_releases_merge %>%
   dplyr::filter(number_weight == "Weight") %>%
@@ -616,9 +618,7 @@ state_mode_release_results<- state_mode_release_results %>%
                 stat=dplyr::case_when(stat1=="Discmortality"~ "dead release pounds", TRUE~stat)) %>% 
   dplyr::select(-stat1)
 
-release_ouput<- state_release_results %>% rbind(state_mode_release_results) %>% 
-  dplyr::filter(!stat == "keep")
-
+release_ouput<- state_release_results %>% rbind(state_mode_release_results) 
 
 
 ### CV
@@ -773,5 +773,14 @@ predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results,
                 median_value_SQ = round(median_value_SQ, 0), 
                 median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
                 median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
-                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE))
+                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE)) %>% 
+  dplyr::select(region, stat, mode, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
+  dplyr::rename("State" = region,
+                "Statistic" = stat,
+                "Mode" = mode, 
+                "Species" = species, 
+                "Status-quo Value (Median)" = median_value_SQ, 
+                "Alternative Option Value (Median)" = median_value_alt, 
+                "Percent Difference from Status-quo Outcome (Median)" = median_perc_diff, 
+                "Percent Under Harvest Target out of 100 Simulations" = reach_target)
 

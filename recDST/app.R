@@ -586,9 +586,6 @@
       for(i in 1:length(input$state)){
         state_name <- input$state[i]
         
-        ################ Summary Outputs ######################################
-        ######################################################################
-        
         source(here::here(paste0("model_run_",state_name,".R")), local = TRUE)
         
         predictions_1 <- predictions_1 %>% rbind(predictions)
@@ -599,30 +596,27 @@
     
     keep <- reactive({
       keep_output<- predictions_1() %>% 
-        dplyr::filter(stat == "harvest pounds") %>% 
-        dplyr::select(region, stat, species, mode, reach_target, median_perc_diff, median_value_SQ, median_value_alt)
-      
-      
+        dplyr::filter(Statistic == "harvest pounds")
       return(keep_output)
-    })
-    
-    
-    welfare_ntrips<- reactive({
-      welfare_output<- predictions_1() %>% 
-        dplyr::filter(stat %in% c("CV", "ntrips")) %>% 
-        dplyr::mutate(stat = dplyr::recode(stat, "CV" = "Angler Welfare", 
-                                           "ntrips" = "Estimate Trips")) %>% 
-        dplyr::select(region, stat, species, mode, median_perc_diff, median_value_SQ, median_value_alt)
-      
-      return(welfare_output)
     })
     
     mortality<- reactive({
       mortality_output<- predictions_1() %>% 
-        dplyr::filter(stat %in% c("release pounds", "dead release pounds")) %>% 
-        dplyr::select(region, stat, species, mode, median_perc_diff, median_value_SQ, median_value_alt)
+        dplyr::filter(Statistic %in% c("release pounds", "dead release pounds")) %>% 
+        dplyr::select(! "Percent Under Harvest Target out of 100 Simulations")
       return(mortality_output)
     })
+    
+    welfare_ntrips<- reactive({
+      welfare_output<- predictions_1() %>% 
+        dplyr::filter(Statistic %in% c("CV", "ntrips")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare", 
+                                                "ntrips" = "Estimate Trips")) %>% 
+        dplyr::arrange(factor(Statistic, levels = c("Angler Welfare","Estimate Trips"))) %>% 
+        dplyr::select(! "Percent Under Harvest Target out of 100 Simulations")
+      return(welfare_output)
+    })
+    
     
     regulations <- reactive({
       
