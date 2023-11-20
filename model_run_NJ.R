@@ -176,8 +176,8 @@ if(input$SCUP_NJ_input_type == "All Modes Combined"){
 
 
 #for(x in 1:1){
-#future::plan(future::multisession, workers = 36)
-future::plan(future::multisession, workers = 3)
+future::plan(future::multisession, workers = 36)
+#future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -268,8 +268,8 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
 predictions_out10<- predictions_out10 %>%
