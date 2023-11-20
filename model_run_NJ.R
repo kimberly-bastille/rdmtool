@@ -693,7 +693,8 @@ for(d in unique(state_CV$domain)){
 state_CV_results= rlist::list.stack(state_Cvs, fill=TRUE)   
 state_CV_results<- state_CV_results %>% 
   tidyr::separate(domain, into = c("region", "stat")) %>% 
-  dplyr::mutate(mode="all modes", species="all species")
+  dplyr::mutate(mode="all modes", species="all species", 
+                median_value_alt = dplyr::case_when(stat == "CV" ~ median_value_alt * -1, TRUE ~ median_value_alt))
 
 
 
@@ -757,7 +758,8 @@ for(d in unique(state_mode_CV_output$domain)){
 state_mode_CV_results= rlist::list.stack(categories_CV_state_mode, fill=TRUE)
 state_mode_CV_results<- state_mode_CV_results %>% 
   tidyr::separate(domain, into = c("region", "stat",  "mode"))  %>% 
-  dplyr::mutate(species="all species")
+  dplyr::mutate(species="all species", 
+                median_value_alt = dplyr::case_when(stat == "CV" ~ median_value_alt * -1, TRUE ~ median_value_alt))
 
 
 predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results, 

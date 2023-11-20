@@ -613,7 +613,7 @@
         dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare", 
                                                 "ntrips" = "Estimate Trips")) %>% 
         dplyr::arrange(factor(Statistic, levels = c("Angler Welfare","Estimate Trips"))) %>% 
-        dplyr::select(! "Percent Under Harvest Target out of 100 Simulations")
+        dplyr::select(! c("Percent Under Harvest Target out of 100 Simulations","Status-quo Value (Median)","Percent Difference from Status-quo Outcome (Median)"))
       return(welfare_output)
     })
     

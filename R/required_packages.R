@@ -19,4 +19,5 @@ install.packages("markdown")
 
 install.packages("future")
 install.packages("furrr")
+install.packages("rlist")
 
