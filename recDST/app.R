@@ -3807,6 +3807,140 @@
           
       }
       
+      
+      if(any("CT" == input$state)){  
+        if(input$SF_CT_input_type == "All Modes Combined"){
+          
+          SFctseason1 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("All"),
+                                    Season = paste(input$SFct_seas1[1], "-", input$SFct_seas1[2]),
+                                    BagLimit = paste(input$SFct_1_bag),
+                                    Length = paste(input$SFct_1_len))
+          SFctFHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                      Season = paste(input$SFctFH_seas2[1], "-", input$SFctFH_seas2[2]),
+                                      BagLimit = paste(input$SFctFH_2_bag),
+                                      Length = paste(input$SFctFH_2_len))
+          SFctPRseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                      Season = paste(input$SFctPR_seas2[1], "-", input$SFctPR_seas2[2]),
+                                      BagLimit = paste(input$SFctPR_2_bag),
+                                      Length = paste(input$SFctPR_2_len))
+          SFctSHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                      Season = paste(input$SFctSH_seas2[1], "-", input$SFctSH_seas2[2]),
+                                      BagLimit = paste(input$SFctSH_2_bag),
+                                      Length = paste(input$SFctSH_2_len))
+          SFct <- rbind(SFctseason1, SFctFHseason2, SFctPRseason2, SFctSHseason2)
+        } else {
+          SFctFHseason1 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                      Season = paste(input$SFctFH_seas1[1], "-", input$SFctFH_seas1[2]),
+                                      BagLimit = paste(input$SFrctFH_1_bag),
+                                      Length = paste(input$SFctFH_1_len))
+          SFctPRseason1 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                      Season = paste(input$SFctPR_seas1[1], "-", input$SFctPR_seas1[2]),
+                                      BagLimit = paste(input$SFctPR_1_bag),
+                                      Length = paste(input$SFctPR_1_len))
+          SFctSHseason1 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                      Season = paste(input$SFctSH_seas1[1], "-", input$SFctSH_seas1[2]),
+                                      BagLimit = paste(input$SFctSH_1_bag),
+                                      Length = paste(input$SFctSH_1_len))
+          SFctFHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                      Season = paste(input$SFctFH_seas2[1], "-", input$SFctFH_seas2[2]),
+                                      BagLimit = paste(input$SFctFH_2_bag),
+                                      Length = paste(input$SFctFH_2_len))
+          SFctPRseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                      Season = paste(input$SFctPR_seas2[1], "-", input$SFctPR_seas2[2]),
+                                      BagLimit = paste(input$SFctPR_2_bag),
+                                      Length = paste(input$SFctPR_2_len))
+          SFctSHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                      Season = paste(input$SFctSH_seas2[1], "-", input$SFctSH_seas2[2]),
+                                      BagLimit = paste(input$SFctSH_2_bag),
+                                      Length = paste(input$SFctSH_2_len))
+          
+          SFct <- rbind(SFctFHseason1,SFctFHseason2, SFctPRseason1,SFctPRseason2, SFctSHseason1,SFctSHseason2)
+        }
+        
+        
+        BSBctFHseason1 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                     Season = paste(input$BSBctFH_seas1[1], "-", input$BSBctFH_seas1[2]),
+                                     BagLimit = paste(input$BSBctFH_1_bag),
+                                     Length = paste(input$BSBctFH_1_len))
+        BSBctFHseason2 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                     Season = paste(input$BSBctFH_seas2[1], "-", input$BSBctFH_seas2[2]),
+                                     BagLimit = paste(input$BSBctFH_2_bag),
+                                     Length = paste(input$BSBctFH_2_len))
+        BSBctFHseason3 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("For Hire"),
+                                     Season = paste(input$BSBctFH_seas3[1], "-", input$BSBctFH_seas3[2]),
+                                     BagLimit = paste(input$BSBctFH_3_bag),
+                                     Length = paste(input$BSBctFH_3_len))
+        
+        BSBctPRseason1 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                     Season = paste(input$BSBctPR_seas1[1], "-", input$BSBctPR_seas1[2]),
+                                     BagLimit = paste(input$BSBctPR_1_bag),
+                                     Length = paste(input$BSBctPR_1_len))
+        BSBctPRseason2 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                     Season = paste(input$BSBctPR_seas2[1], "-", input$BSBctPR_seas2[2]),
+                                     BagLimit = paste(input$BSBctPR_2_bag),
+                                     Length = paste(input$BSBctPR_2_len))
+        BSBctPRseason3 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Private"),
+                                     Season = paste(input$BSBctPR_seas3[1], "-", input$BSBctPR_seas3[2]),
+                                     BagLimit = paste(input$BSBctPR_3_bag),
+                                     Length = paste(input$BSBctPR_3_len))
+        
+        BSBctSHseason1 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                     Season = paste(input$BSBctSH_seas1[1], "-", input$BSBctSH_seas1[2]),
+                                     BagLimit = paste(input$BSBctSH_1_bag),
+                                     Length = paste(input$BSBctSH_1_len))
+        BSBctSHseason2 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                     Season = paste(input$BSBctSH_seas2[1], "-", input$BSBctSH_seas2[2]),
+                                     BagLimit = paste(input$BSBctSH_2_bag),
+                                     Length = paste(input$BSBctSH_2_len))
+        BSBctSHseason3 <- data.frame(State = c("CT"), Species = c("Black Sea Bass"), Mode = c("Shore"),
+                                     Season = paste(input$BSBctSH_seas3[1], "-", input$BSBctSH_seas3[2]),
+                                     BagLimit = paste(input$BSBctSH_3_bag),
+                                     Length = paste(input$BSBctSH_3_len))
+        
+        BSBct<- rbind(BSBctFHseason1, BSBctFHseason2, BSBctFHseason3,BSBctPRseason1, BSBctPRseason2,BSBctPRseason3,BSBctSHseason1, BSBctSHseason2, BSBctSHseason3)
+        
+        
+        
+        
+        
+        SCUPctFHseason1 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("For Hire"),
+                                      Season = paste(input$SCUPctFH_seas1[1], "-", input$SCUPctFH_seas1[2]),
+                                      BagLimit = paste(input$SCUPctFH_1_bag),
+                                      Length = paste(input$SCUPctFH_1_len))
+        SCUPctPRseason1 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("Private"),
+                                      Season = paste(input$SCUPctPR_seas1[1], "-", input$SCUPctPR_seas1[2]),
+                                      BagLimit = paste(input$SCUPctPR_1_bag),
+                                      Length = paste(input$SCUPctPR_1_len))
+        SCUPctSHseason1 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("Shore"),
+                                      Season = paste(input$SCUPctSH_seas1[1], "-", input$SCUPctSH_seas1[2]),
+                                      BagLimit = paste(input$SCUPctSH_1_bag),
+                                      Length = paste(input$SCUPctSH_1_len))
+        SCUPctFHseason2 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("For Hire"),
+                                      Season = paste(input$SCUPctFH_seas2[1], "-", input$SCUPctFH_seas2[2]),
+                                      BagLimit = paste(input$SCUPctFH_2_bag),
+                                      Length = paste(input$SCUPctFH_2_len))
+        SCUPctPRseason2 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("Private"),
+                                      Season = paste(input$SCUPctPR_seas2[1], "-", input$SCUPctPR_seas2[2]),
+                                      BagLimit = paste(input$SCUPctPR_2_bag),
+                                      Length = paste(input$SCUPctPR_2_len))
+        SCUPctSHseason2 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("Shore"),
+                                      Season = paste(input$SCUPctSH_seas2[1], "-", input$SCUPctSH_seas2[2]),
+                                      BagLimit = paste(input$SCUPctSH_2_bag),
+                                      Length = paste(input$SCUPctSH_2_len))
+        SCUPctFHseason3 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("For Hire"),
+                                      Season = paste(input$SCUPctFH_seas3[1], "-", input$SCUPctFH_seas3[2]),
+                                      BagLimit = paste(input$SCUPctFH_3_bag),
+                                      Length = paste(input$SCUPctFH_3_len))
+        SCUPctFHseason4 <- data.frame(State = c("CT"), Species = c("Scup"), Mode = c("For Hire"),
+                                      Season = paste(input$SCUPctFH_seas4[1], "-", input$SCUPctFH_seas4[2]),
+                                      BagLimit = paste(input$SCUPctFH_4_bag),
+                                      Length = paste(input$SCUPctFH_4_len))
+        
+        SCUPct <- rbind(SCUPctFHseason1, SCUPctFHseason2, SCUPctFHseason3, SCUPctFHseason4,  SCUPctPRseason1,  SCUPctPRseason2,SCUPctSHseason1,  SCUPctSHseason2)
+        
+        dat <- dat %>% rbind(SFct, BSBct, SCUPct)
+        
+      }
       if(any("NJ" == input$state)){  
         if(input$SF_NJ_input_type == "All Modes Combined"){
           
@@ -3967,7 +4101,7 @@
                                       BagLimit = paste(input$SCUPnj_1_bag),
                                       Length = paste(input$SCUPnj_1_len))
           
-           <- data.frame(State = c("NJ"), Species = c("Scup"), Mode = c("For Hire"),
+           SCUPnjFHseason2<- data.frame(State = c("NJ"), Species = c("Scup"), Mode = c("For Hire"),
                                       Season = paste(input$SCUPnjFH_seas2[1], "-", input$SCUPnjFH_seas2[2]),
                                       BagLimit = paste(input$SCUPnjFH_2_bag),
                                       Length = paste(input$SCUPnjFH_2_len))
