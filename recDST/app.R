@@ -596,7 +596,7 @@
     
     keep <- reactive({
       keep_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers"))
+        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers")) 
       return(keep_output)
     })
     
@@ -604,16 +604,17 @@
       mortality_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("release pounds", "dead release pounds", 
                                        "release numbers", "dead release numbers")) %>% 
-        dplyr::select(! "% under harvest target (out of 100 simulations)")
+        dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
+        dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers")))
       return(mortality_output)
     })
     
     welfare_ntrips<- reactive({
       welfare_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("CV", "ntrips")) %>% 
-        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare", 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare ($)", 
                                                 "ntrips" = "Estimate Trips")) %>% 
-        dplyr::arrange(factor(Statistic, levels = c("Angler Welfare","Estimate Trips"))) %>% 
+        dplyr::arrange(factor(Statistic, levels = c("Angler Welfare ($)","Estimate Trips"))) %>% 
         dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
       return(welfare_output)
     })

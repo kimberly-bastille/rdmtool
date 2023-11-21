@@ -309,10 +309,10 @@ numbers <- numbers_mode %>%
   dplyr::mutate(stat = dplyr::case_when(keep_release == "keep" ~ "harvest numbers"),
                 stat = dplyr::case_when(keep_release == "release" ~ "release numbers", TRUE ~ stat), 
                 stat = dplyr::case_when(keep_release == "Discmortality" ~ "dead release numbers", TRUE ~ stat),
-                reach_target = NA) %>% 
+                reach_target = c("No harvest target")) %>% 
   dplyr::rename("species" = Category, 
                 "region" = state) %>% 
-  dplyr::select(c("median_perc_diff","median_value_alt","median_value_SQ","region","stat","mode","species"))
+  dplyr::select(c("median_perc_diff","median_value_alt","median_value_SQ","region","stat","mode","species", "reach_target"))
 
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
@@ -805,7 +805,8 @@ state_mode_CV_results<- state_mode_CV_results %>%
 
 predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results, 
                                keep_output, release_ouput, numbers) %>% 
-  dplyr::mutate(species = dplyr::recode(species, "bsb"= "Black Sea Bass", 
+  dplyr::mutate(reach_target = dplyr::case_when(species == "bsb" ~ "No harvest target", TRUE ~ reach_target), 
+                species = dplyr::recode(species, "bsb"= "Black Sea Bass", 
                                         "sf" = "Summer Flounder", 
                                         "scup" = "Scup"), 
                 mode = dplyr::recode(mode, "fh" = "For Hire", 
