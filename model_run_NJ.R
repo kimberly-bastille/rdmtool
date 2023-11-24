@@ -280,39 +280,48 @@ predictions_out10<- predictions_out10 %>%
 # predic<- read.csv(here::here("data-raw/StatusQuo/baseline_NJ.csv")) %>% 
 #   dplyr::mutate(run_number = as.character(run_number))
 
+#Here we read in the bias estimates for NJ. To get accurate harvest/release/discard numbers, 
+#we will subract the bias from from the output of the model, then compute the percentage chnages based on these values. 
+#We will then apply the percent changes to the orginal, unadjusted value of the status quo to get the "imputed" value of the alternitve
+#Then we will compute the percent differences based on these original status quo and the imputed value. 
+
+NJ_bias_est<- readr::read_csv(file.path(here::here("data-raw/differences_total_catch_NJ.csv")),  show_col_types = FALSE) %>% 
+  dplyr::select(diff_bsb_keep,diff_bsb_rel,diff_scup_keep ,    
+                diff_scup_rel,diff_sf_keep,diff_sf_rel,draw,mode1)
+
+all_vars=c("diff_bsb_keep","diff_bsb_rel","diff_scup_keep" ,    
+           "diff_scup_rel","diff_sf_keep","diff_sf_rel")
+
+append=list()
+for(v in all_vars){
+  new<- NJ_bias_est %>%  dplyr::select(v, draw,mode1)
+  
+  append[[v]]<-new
+  append[[v]]<-append[[v]] %>% dplyr::rename(diff=v) %>% 
+    dplyr::mutate(stat=v)
+}
+NJ_bias_est_long= rlist::list.stack(append, fill=TRUE)
+
+NJ_bias_est_long<- NJ_bias_est_long %>% 
+  tidyr::separate(stat, into = c("x", "Category", "keep_release")) %>% 
+  dplyr::mutate(keep_release=case_when(keep_release=="rel"~"release", TRUE~keep_release)) %>% 
+  dplyr::select(-x)
+
+NJ_bias_est_long_disc_mort<- NJ_bias_est_long %>% 
+  dplyr::filter(keep_release=="release") %>% 
+  dplyr::mutate(diff=.1*diff, 
+                keep_release="Discmortality")
+
+NJ_bias_est_long<-rbind(NJ_bias_est_long, NJ_bias_est_long_disc_mort) 
+
+NJ_bias_est_long<-NJ_bias_est_long %>% 
+  dplyr::rename(mode=mode1)
+
+
+
 StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NJ.xlsx")) %>% 
   dplyr::rename(value_SQ = Value)
 
-
-numbers_mode <- predictions_out10 %>% #predictions_out10 %>% 
-  dplyr::rename(value_alt= Value) %>% 
-  dplyr::mutate(draw = as.numeric(draw)) %>% 
-  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
-  dplyr::filter(Category %in% c("sf", "bsb", "scup"),
-                mode!="all",
-                number_weight == c("Number") ) %>% 
-  dplyr::group_by(Category, keep_release, mode, state) %>% 
-  dplyr::summarise(median_value_SQ = median(as.numeric(value_SQ), na.rm = TRUE), 
-                median_value_alt = median(as.numeric(value_alt), na.rm = TRUE), 
-                median_perc_diff = median((median_value_alt-median_value_SQ)/median_value_SQ *100), na.rm = TRUE) %>% 
-  dplyr::ungroup()
-
-numbers <- numbers_mode %>% 
-  dplyr::group_by(Category, keep_release) %>% 
-  dplyr::summarise(median_value_SQ = sum(median_value_SQ, na.rm = TRUE), 
-                   median_value_alt = sum(median_value_alt, na.rm = TRUE), 
-                   median_perc_diff = sum(median_perc_diff, na.rm = TRUE)) %>%
-  dplyr::mutate(mode = "all modes", 
-                state = "NJ") %>% 
-  rbind(numbers_mode) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::mutate(stat = dplyr::case_when(keep_release == "keep" ~ "harvest numbers"),
-                stat = dplyr::case_when(keep_release == "release" ~ "release numbers", TRUE ~ stat), 
-                stat = dplyr::case_when(keep_release == "Discmortality" ~ "dead release numbers", TRUE ~ stat),
-                reach_target = c("No harvest target")) %>% 
-  dplyr::rename("species" = Category, 
-                "region" = state) %>% 
-  dplyr::select(c("median_perc_diff","median_value_alt","median_value_SQ","region","stat","mode","species", "reach_target"))
 
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
@@ -489,8 +498,6 @@ state_mode_harvest_results= rlist::list.stack(categories_state_mode, fill=TRUE)
 state_mode_harvest_results<- state_mode_harvest_results %>% 
   tidyr::separate(domain, into = c("region", "species", "mode"))  %>% 
   dplyr::mutate(stat="harvest pounds") 
-
-keep_output <- state_harvest_results %>% rbind(state_mode_harvest_results)
 
 
 
@@ -802,10 +809,202 @@ state_mode_CV_results<- state_mode_CV_results %>%
 
 
 
+##### Numbers 
+alt<- predictions_out10 %>% 
+  dplyr::mutate(draw = as.numeric(draw)) %>% 
+  dplyr::rename(value_alt = Value) %>% 
+  dplyr::filter(Category %in% c("sf", "bsb", "scup")) %>%
+  dplyr::filter(mode!="all" ) %>%
+  dplyr::filter(keep_release %in% c("keep", "release", "Discmortality") ) %>%
+  dplyr::filter(number_weight %in% c("Number") ) %>% 
+  dplyr::select(-param)
 
-predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results, 
-                               keep_output, release_ouput, numbers) %>% 
-  dplyr::mutate(reach_target = dplyr::case_when(species == "bsb" ~ "No harvest target", TRUE ~ reach_target), 
+
+StatusQuo <- rbind(StatusQuo) %>% 
+  dplyr::filter(Category %in% c("sf", "bsb", "scup")) %>%
+  dplyr::filter(mode!="all" ) %>%
+  dplyr::filter(keep_release %in% c("keep", "release", "Discmortality") ) %>%
+  dplyr::filter(number_weight %in% c("Number") ) %>% 
+  dplyr::select(-param)
+
+
+predictions_harv_num_merge <- alt %>% 
+  dplyr::left_join(StatusQuo, by=c("Category","mode", "number_weight","state", "draw", "keep_release")) %>%
+  dplyr::mutate(value_SQ = as.numeric(value_SQ),
+                value_alt = as.numeric(value_alt))
+
+predictions_harv_num_merge_NJ <- predictions_harv_num_merge %>% 
+  dplyr::filter(state=="NJ") %>%
+  dplyr::left_join(NJ_bias_est_long, by=c("draw", "mode", "Category", "keep_release")) %>% 
+  dplyr::mutate(value_SQ_adj=value_SQ-diff, value_alt_adj=value_alt-diff) %>% 
+  dplyr::mutate(perc_diff=((value_alt_adj-value_SQ_adj)/value_SQ_adj)*100, 
+                imputed_value_alt= perc_diff/100,
+                imputed_value_alt = value_SQ * imputed_value_alt, 
+                imputed_value_alt=imputed_value_alt+value_SQ) %>%
+  dplyr::mutate(perc_diff=case_when(is.nan(perc_diff) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~perc_diff)) %>% 
+  dplyr::mutate(imputed_value_alt=case_when(is.nan(imputed_value_alt) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~imputed_value_alt)) %>% 
+  dplyr::select(Category, mode, keep_release, number_weight, value_SQ, imputed_value_alt, state, draw) %>% 
+  dplyr::rename(value_alt=imputed_value_alt)
+
+
+
+predictions_harv_num_merge<-predictions_harv_num_merge %>% 
+  dplyr::filter(state!="NJ")
+
+predictions_harv_num_merge<-rbind(predictions_harv_num_merge, predictions_harv_num_merge_NJ)
+
+
+
+
+###########################
+#state-level output
+state_harv_num_output<- predictions_harv_num_merge %>% 
+  dplyr::mutate(domain=paste0(Category, "_", state, "_", keep_release)) %>% 
+  dplyr::group_by(draw, domain) %>% 
+  dplyr::summarise(value_alt_sum = sum(value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(domain, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
+                                               value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+state_harv_num_output <- state_harv_num_output %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,value_alt_sum) %>% 
+  dplyr::mutate(n_weight = row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  dplyr::mutate(n_perc = row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  dplyr::mutate(n_SQ = row_number(domain)) %>% 
+  dplyr::ungroup() 
+
+categories_harv_num_state=list()
+
+for(d in unique(state_harv_num_output$domain)){
+  
+  new<- state_harv_num_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  categories_harv_num_state[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  categories_harv_num_state[[d]]$domain<-d
+  
+  
+}
+state_harv_num_results= rlist::list.stack(categories_harv_num_state, fill=TRUE)
+
+state_harv_num_results<- state_harv_num_results %>% 
+  tidyr::separate(domain, into = c("species", "region", "stat1")) %>% 
+  dplyr::mutate(stat=case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
+                stat=case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
+                stat=case_when(stat1=="keep"~ "harvest numbers", TRUE~stat), 
+                mode="all modes") %>% 
+  dplyr::select(-stat1)
+
+
+rm(lb_value_alt,lb_perc_diff,lb_value_SQ, ub_value_alt, ub_perc_diff,
+   ub_value_SQ,median_value_alt,median_perc_diff,median_value_SQ)
+
+
+###########################
+#state by mode-level harvest num output
+state_mode_harv_num_output<- predictions_harv_num_merge %>% 
+  dplyr::group_by(draw, Category, state, mode, keep_release) %>% 
+  dplyr::summarise(value_alt_sum = sum(value_alt),
+                   value_SQ_sum = sum(value_SQ)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::arrange(state, mode, Category, draw) %>% 
+  dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 & value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
+
+
+state_mode_harv_num_output <- state_mode_harv_num_output %>% 
+  dplyr::mutate(domain=paste0(state, "_", Category, "_", mode, "_", keep_release)) %>% 
+  dplyr::group_by(domain) %>% 
+  dplyr::arrange(domain,value_alt_sum) %>% 
+  mutate(n_weight = row_number(domain)) %>% 
+  dplyr::arrange(domain,perc_diff) %>% 
+  mutate(n_perc = row_number(domain)) %>% 
+  dplyr::arrange(domain,value_SQ_sum) %>% 
+  mutate(n_SQ = row_number(domain)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::arrange(domain,value_SQ_sum) 
+
+# state_mode_harv_num_output_check<-state_mode_harv_num_output %>% 
+#   dplyr::filter(state=="NY" & Category=="scup" & keep_release=="keep" & mode=="fh")
+
+categories_harv_num_state_mode=list()
+
+for(d in unique(state_mode_harv_num_output$domain)){
+  
+  new<- state_mode_harv_num_output %>% 
+    dplyr::filter(domain==d) #%>% 
+  #dplyr::arrange(n_perc)
+  
+  lb_value_alt<- new$value_alt_sum[new$n_weight==11] 
+  lb_perc_diff<- new$perc_diff[new$n_perc==11] 
+  lb_value_SQ<- new$value_SQ_sum[new$n_SQ==11] 
+  
+  ub_value_alt<- new$value_alt_sum[new$n_weight==90] 
+  ub_perc_diff<- new$perc_diff[new$n_perc==90] 
+  ub_value_SQ<- new$value_SQ_sum[new$n_SQ==90] 
+  
+  median_value_alt<- median(new$value_alt_sum)
+  median_perc_diff<- median(new$perc_diff)
+  median_value_SQ<- median(new$value_SQ_sum)
+  
+  
+  categories_harv_num_state_mode[[d]] <- as.data.frame(
+    cbind(
+      median_perc_diff,lb_perc_diff, ub_perc_diff,
+      median_value_alt,lb_value_alt, ub_value_alt,
+      median_value_SQ,lb_value_SQ, ub_value_SQ
+    ))
+  
+  categories_harv_num_state_mode[[d]]$domain<-d
+  
+  
+}
+state_mode_harv_num_results= rlist::list.stack(categories_harv_num_state_mode, fill=TRUE)
+state_mode_harv_num_results<- state_mode_harv_num_results %>% 
+  tidyr::separate(domain, into = c("region", "species",  "mode", "stat1"))  %>% 
+  dplyr::mutate(stat=case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
+                stat=case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
+                stat=case_when(stat1=="keep"~ "harvest numbers", TRUE~stat)) %>% 
+  dplyr::select(-stat1)
+
+
+rm(lb_value_alt,lb_perc_diff,lb_value_SQ, ub_value_alt, ub_perc_diff,
+   ub_value_SQ,median_value_alt,median_perc_diff,median_value_SQ)
+
+
+predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results,
+                                state_mode_harv_num_results, state_harv_num_results,
+                                state_harvest_results, state_mode_harvest_results,release_ouput, numbers) %>% 
+  dplyr::mutate(reach_target = dplyr::case_when(species == "bsb" ~ "No harvest target", TRUE ~ reach_target),
+                reach_target = dplyr::case_when(stat == "harvest numbers" ~ "No harvest target", TRUE ~ reach_target),
+                reach_target = dplyr::case_when(stat == "release numbers" ~ "No harvest target", TRUE ~ reach_target),
+                reach_target = dplyr::case_when(stat == "dead release numbers" ~ "No harvest target", TRUE ~ reach_target),
                 species = dplyr::recode(species, "bsb"= "Black Sea Bass", 
                                         "sf" = "Summer Flounder", 
                                         "scup" = "Scup"), 
