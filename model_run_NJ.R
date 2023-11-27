@@ -6,18 +6,6 @@ print("start model_NJ")
 state1 = "NJ"
 predictions_all = list()
 
-#### p_stars old ####
-# p_star_sf_NJ_variable<- 0.89
-# p_star_bsb_NJ_variable<- 0.885
-# p_star_scup_NJ_variable<- 0.045
-
-#### p_stars new ######
-# p_star_sf_NJ_variable<- 0.72
-# p_star_bsb_NJ_variable<- 0.72
-# p_star_scup_NJ_variable<- -0.11
-# p_star_sf<- 0.89
-# p_star_bsb<- 0.885
-# p_star_scup<- 0.045
 
 sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_prob_star_2024_NJ.csv")),  show_col_types = FALSE) 
 
@@ -80,7 +68,7 @@ if(input$SF_NJ_input_type == "All Modes Combined"){
       
       fluke_min1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas2[1]) & day_i <= lubridate::yday(input$SFnjFH_seas2[2]) ~ as.numeric(input$SFnjFH_2_smlen[1]), TRUE ~ fluke_min1),
       fluke_min1=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SFnjPR_seas2[1]) & day_i <= lubridate::yday(input$SFnjPR_seas2[2]) ~ as.numeric(input$SFnjPR_2_smlen[1]), TRUE ~ fluke_min1),
-      fluke_max1=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SFnjSH_seas2[1]) & day_i <= lubridate::yday(input$SFnjSH_seas2[2]) ~ as.numeric(input$SFnjSH_2_smlen[1]), TRUE ~ fluke_min1), 
+      fluke_min1=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SFnjSH_seas2[1]) & day_i <= lubridate::yday(input$SFnjSH_seas2[2]) ~ as.numeric(input$SFnjSH_2_smlen[1]), TRUE ~ fluke_min1), 
       fluke_max1=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SFnjFH_seas2[1]) & day_i <= lubridate::yday(input$SFnjFH_seas2[2]) ~ as.numeric(input$SFnjFH_2_smlen[2]), TRUE ~ fluke_max1),
       fluke_max1=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SFnjPR_seas2[1]) & day_i <= lubridate::yday(input$SFnjPR_seas2[2]) ~ as.numeric(input$SFnjPR_2_smlen[2]), TRUE ~ fluke_max1),
       fluke_max1=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SFnjSH_seas2[1]) & day_i <= lubridate::yday(input$SFnjSH_seas2[2]) ~ as.numeric(input$SFnjSH_2_smlen[2]), TRUE ~ fluke_max1))
@@ -176,8 +164,8 @@ if(input$SCUP_NJ_input_type == "All Modes Combined"){
 
 
 #for(x in 1:1){
-future::plan(future::multisession, workers = 36)
-#future::plan(future::multisession, workers = 3)
+#future::plan(future::multisession, workers = 36)
+future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -268,8 +256,8 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
 predictions_out10<- predictions_out10 %>%
@@ -304,7 +292,7 @@ NJ_bias_est_long= rlist::list.stack(append, fill=TRUE)
 
 NJ_bias_est_long<- NJ_bias_est_long %>% 
   tidyr::separate(stat, into = c("x", "Category", "keep_release")) %>% 
-  dplyr::mutate(keep_release=case_when(keep_release=="rel"~"release", TRUE~keep_release)) %>% 
+  dplyr::mutate(keep_release=dplyr::case_when(keep_release=="rel"~"release", TRUE~keep_release)) %>% 
   dplyr::select(-x)
 
 NJ_bias_est_long_disc_mort<- NJ_bias_est_long %>% 
@@ -841,8 +829,8 @@ predictions_harv_num_merge_NJ <- predictions_harv_num_merge %>%
                 imputed_value_alt= perc_diff/100,
                 imputed_value_alt = value_SQ * imputed_value_alt, 
                 imputed_value_alt=imputed_value_alt+value_SQ) %>%
-  dplyr::mutate(perc_diff=case_when(is.nan(perc_diff) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~perc_diff)) %>% 
-  dplyr::mutate(imputed_value_alt=case_when(is.nan(imputed_value_alt) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~imputed_value_alt)) %>% 
+  dplyr::mutate(perc_diff=dplyr::case_when(is.nan(perc_diff) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~perc_diff)) %>% 
+  dplyr::mutate(imputed_value_alt=dplyr::case_when(is.nan(imputed_value_alt) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~imputed_value_alt)) %>% 
   dplyr::select(Category, mode, keep_release, number_weight, value_SQ, imputed_value_alt, state, draw) %>% 
   dplyr::rename(value_alt=imputed_value_alt)
 
@@ -872,11 +860,11 @@ state_harv_num_output<- predictions_harv_num_merge %>%
 state_harv_num_output <- state_harv_num_output %>% 
   dplyr::group_by(domain) %>% 
   dplyr::arrange(domain,value_alt_sum) %>% 
-  dplyr::mutate(n_weight = row_number(domain)) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
   dplyr::arrange(domain,perc_diff) %>% 
-  dplyr::mutate(n_perc = row_number(domain)) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
   dplyr::arrange(domain,value_SQ_sum) %>% 
-  dplyr::mutate(n_SQ = row_number(domain)) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
   dplyr::ungroup() 
 
 categories_harv_num_state=list()
@@ -915,9 +903,9 @@ state_harv_num_results= rlist::list.stack(categories_harv_num_state, fill=TRUE)
 
 state_harv_num_results<- state_harv_num_results %>% 
   tidyr::separate(domain, into = c("species", "region", "stat1")) %>% 
-  dplyr::mutate(stat=case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
-                stat=case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
-                stat=case_when(stat1=="keep"~ "harvest numbers", TRUE~stat), 
+  dplyr::mutate(stat=dplyr::case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
+                stat=dplyr::case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
+                stat=dplyr::case_when(stat1=="keep"~ "harvest numbers", TRUE~stat), 
                 mode="all modes") %>% 
   dplyr::select(-stat1)
 
@@ -942,11 +930,11 @@ state_mode_harv_num_output <- state_mode_harv_num_output %>%
   dplyr::mutate(domain=paste0(state, "_", Category, "_", mode, "_", keep_release)) %>% 
   dplyr::group_by(domain) %>% 
   dplyr::arrange(domain,value_alt_sum) %>% 
-  mutate(n_weight = row_number(domain)) %>% 
+  dplyr::mutate(n_weight = dplyr::row_number(domain)) %>% 
   dplyr::arrange(domain,perc_diff) %>% 
-  mutate(n_perc = row_number(domain)) %>% 
+  dplyr::mutate(n_perc = dplyr::row_number(domain)) %>% 
   dplyr::arrange(domain,value_SQ_sum) %>% 
-  mutate(n_SQ = row_number(domain)) %>% 
+  dplyr::mutate(n_SQ = dplyr::row_number(domain)) %>% 
   dplyr::ungroup() %>% 
   dplyr::arrange(domain,value_SQ_sum) 
 
@@ -988,9 +976,9 @@ for(d in unique(state_mode_harv_num_output$domain)){
 state_mode_harv_num_results= rlist::list.stack(categories_harv_num_state_mode, fill=TRUE)
 state_mode_harv_num_results<- state_mode_harv_num_results %>% 
   tidyr::separate(domain, into = c("region", "species",  "mode", "stat1"))  %>% 
-  dplyr::mutate(stat=case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
-                stat=case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
-                stat=case_when(stat1=="keep"~ "harvest numbers", TRUE~stat)) %>% 
+  dplyr::mutate(stat=dplyr::case_when(stat1=="release" ~ "release numbers", TRUE~stat1),
+                stat=dplyr::case_when(stat1=="Discmortality"~ "dead release numbers", TRUE~stat),
+                stat=dplyr::case_when(stat1=="keep"~ "harvest numbers", TRUE~stat)) %>% 
   dplyr::select(-stat1)
 
 
@@ -1000,8 +988,9 @@ rm(lb_value_alt,lb_perc_diff,lb_value_SQ, ub_value_alt, ub_perc_diff,
 
 predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results,
                                 state_mode_harv_num_results, state_harv_num_results,
-                                state_harvest_results, state_mode_harvest_results,release_ouput, numbers) %>% 
-  dplyr::mutate(reach_target = dplyr::case_when(species == "bsb" ~ "No harvest target", TRUE ~ reach_target),
+                                state_harvest_results, state_mode_harvest_results,release_ouput) %>% 
+  dplyr::mutate(reach_target = as.character(reach_target),
+                reach_target = dplyr::case_when(species == "bsb" ~ "No harvest target", TRUE ~ reach_target),
                 reach_target = dplyr::case_when(stat == "harvest numbers" ~ "No harvest target", TRUE ~ reach_target),
                 reach_target = dplyr::case_when(stat == "release numbers" ~ "No harvest target", TRUE ~ reach_target),
                 reach_target = dplyr::case_when(stat == "dead release numbers" ~ "No harvest target", TRUE ~ reach_target),
