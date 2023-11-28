@@ -187,13 +187,14 @@
       tabPanel("Results", 
                strong(div("REMINDER: 1) Do not click any buttons in this tool once while it says `Calculating`! 2) Be sure to download data 3) When finished with tool, click `Stop App` and close out of the window. ", style = "color:blue")),
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                                tags$div("Calculating...This may take a minute.",id="loadmessage")),
+                                tags$div("Calculating...This will take ~15 min.",id="loadmessage")),
                
                  downloadButton(outputId = "downloadData", "Download"),
                  tableOutput(outputId = "regtableout"),
                  tableOutput(outputId = "keep_tableout"),
                  tableOutput(outputId = "mortalityout"),
-                 tableOutput(outputId = "welfare_trips_tableout")),
+                 tableOutput(outputId = "welfare_tableout"), 
+                 tableOutput(outputId = "ntrips_tableout")),
       
       
       tabPanel("Documentation")#, 
@@ -597,7 +598,8 @@
     
     keep <- reactive({
       keep_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers")) 
+        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
+        dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers")))
       return(keep_output)
     })
     
@@ -610,14 +612,20 @@
       return(mortality_output)
     })
     
-    welfare_ntrips<- reactive({
+    welfare<- reactive({
       welfare_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("CV", "ntrips")) %>% 
-        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare ($)", 
-                                                "ntrips" = "Estimate Trips")) %>% 
-        dplyr::arrange(factor(Statistic, levels = c("Angler Welfare ($)","Estimate Trips"))) %>% 
+        dplyr::filter(Statistic %in% c("CV")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in nngler satisfaction ($)")) %>% 
         dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
       return(welfare_output)
+    })
+    
+    ntrips<- reactive({
+      ntrips_output<- predictions_1() %>% 
+        dplyr::filter(Statistic %in% c( "ntrips")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
+        dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
+      return(ntrips_output)
     })
     
     
@@ -843,8 +851,12 @@
       keep()
     })
     
-    output$welfare_trips_tableout<- renderTable({
-      welfare_ntrips()
+    output$welfare_tableout<- renderTable({
+      welfare()
+    })
+    
+    output$ntrips_tableout<- renderTable({
+      ntrips()
     })
     
     output$regtableout <- renderTable({
@@ -861,7 +873,9 @@
       content = function(filename) {
         
         df_list <- list(Regulations=regulations(), Keep_Release=keep(), 
-                        Angler_Welfare = welfare_ntrips(), Discard_Mortality = mortality())
+                        Change_Angler_Satisfaction = welfare(),
+                        Estimated_Trips = ntrips(),
+                        Discard_Mortality = mortality())
         openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
       })
     
