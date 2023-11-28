@@ -612,7 +612,7 @@
     })
     
     welfare<- reactive({
-      welfare_output<- predictions_1 %>% 
+      welfare_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("CV")) %>% 
         dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($) relative to 2022")) %>% 
         dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
