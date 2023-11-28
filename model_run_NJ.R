@@ -164,8 +164,8 @@ if(input$SCUP_NJ_input_type == "All Modes Combined"){
 
 
 #for(x in 1:1){
-future::plan(future::multisession, workers = 36)
-#future::plan(future::multisession, workers = 3)
+#future::plan(future::multisession, workers = 36)
+future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -256,8 +256,8 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
 predictions_out10<- predictions_out10 %>%
@@ -986,8 +986,7 @@ rm(lb_value_alt,lb_perc_diff,lb_value_SQ, ub_value_alt, ub_perc_diff,
    ub_value_SQ,median_value_alt,median_perc_diff,median_value_SQ)
 
 
-predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results,
-                                state_mode_harv_num_results, state_harv_num_results,
+predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_results,
                                 state_harvest_results, state_mode_harvest_results,release_ouput) %>% 
   dplyr::mutate(reach_target = as.character(reach_target),
                 reach_target = dplyr::case_when(median_value_SQ == 0 ~ "Not Applicable", TRUE ~ reach_target),
@@ -995,15 +994,12 @@ predictions<- plyr::rbind.fill( state_CV_results, state_mode_CV_results,
                 reach_target = dplyr::case_when(stat == "harvest numbers" ~ "No harvest target", TRUE ~ reach_target),
                 reach_target = dplyr::case_when(stat == "release numbers" ~ "No harvest target", TRUE ~ reach_target),
                 reach_target = dplyr::case_when(stat == "dead release numbers" ~ "No harvest target", TRUE ~ reach_target),
-                species = dplyr::recode(species, "bsb"= "Black Sea Bass", 
-                                        "sf" = "Summer Flounder", 
-                                        "scup" = "Scup"), 
-                mode = dplyr::recode(mode, "fh" = "For Hire", 
-                                     "pr" = "Private", 
-                                     "sh" = "Shore"), 
                 median_perc_diff = round(median_perc_diff, 2), 
                 median_value_alt = round(median_value_SQ + ((median_perc_diff/100)* median_value_SQ), 0), 
-                median_value_SQ = round(median_value_SQ, 0), 
+                median_value_SQ = round(median_value_SQ, 0)) %>% 
+  plyr::rbind.fill(state_CV_results, state_mode_CV_results) %>% 
+  dplyr::mutate(species = dplyr::recode(species, "bsb"= "Black Sea Bass", "sf" = "Summer Flounder", "scup" = "Scup"), 
+                mode = dplyr::recode(mode, "fh" = "For Hire", "pr" = "Private", "sh" = "Shore"), 
                 median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
                 median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
                 median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE)) %>% 
