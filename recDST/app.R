@@ -15,7 +15,7 @@
     
     tabsetPanel(
       tabPanel( "Regulation Selection",
-                strong(div("REMINDER: 1) select state(s) - Just New Jersey included for now. 2) Make selections below 3) click run me and then the `Results` tab to run model", style = "color:blue")),
+                strong(div("REMINDER: (1) select state(s) - Just New Jersey included for now. (2) Make selections below (3) click run me and then the `Results` tab to run model", style = "color:blue")),
                 shinyWidgets::awesomeCheckboxGroup(
                   inputId = "state",
                   label = "State", 
@@ -185,15 +185,15 @@
                 actionButton("runmeplease", "Run Me")),
       
       tabPanel("Results", 
-               strong(div("REMINDER: 1) Do not click any buttons in this tool once while it says `Calculating`! 2) Be sure to download data 3) When finished with tool, click `Stop App` and close out of the window. ", style = "color:blue")),
+               strong(div("REMINDER: (1) Do not click any buttons in this tool once while it says `Calculating`! (2) Be sure to download data (3) When finished with tool, click `Stop App` and close out of the window. ", style = "color:blue")),
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
                                 tags$div("Calculating...This will take ~15 min.",id="loadmessage")),
                
                  downloadButton(outputId = "downloadData", "Download"),
                  tableOutput(outputId = "regtableout"),
+                 tableOutput(outputId = "welfare_tableout"), 
                  tableOutput(outputId = "keep_tableout"),
                  tableOutput(outputId = "mortalityout"),
-                 tableOutput(outputId = "welfare_tableout"), 
                  tableOutput(outputId = "ntrips_tableout")),
       
       
@@ -615,7 +615,7 @@
     welfare<- reactive({
       welfare_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("CV")) %>% 
-        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in nngler satisfaction ($)")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
         dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
       return(welfare_output)
     })
