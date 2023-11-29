@@ -164,8 +164,8 @@ if(input$SCUP_NJ_input_type == "All Modes Combined"){
 
 
 #for(x in 1:1){
-future::plan(future::multisession, workers = 36)
-#future::plan(future::multisession, workers = 3)
+#future::plan(future::multisession, workers = 36)
+future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -256,8 +256,8 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 #head(prediction_out10)
 
 predictions_out10<- predictions_out10 %>%
@@ -727,8 +727,7 @@ for(d in unique(state_CV$domain)){
 state_CV_results= rlist::list.stack(state_Cvs, fill=TRUE)   
 state_CV_results<- state_CV_results %>% 
   tidyr::separate(domain, into = c("region", "stat")) %>% 
-  dplyr::mutate(mode="all modes", species="all species", 
-                median_value_alt = dplyr::case_when(stat == "CV" ~ median_value_alt * -1, TRUE ~ median_value_alt))
+  dplyr::mutate(mode="all modes", species="all species")
 
 
 
@@ -739,7 +738,7 @@ state_mode_CV_output<- CV_state_mode %>%
   dplyr::summarise(value_alt_sum = sum(value_alt),
                    value_SQ_sum = sum(value_SQ)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) %>% 
+  dplyr::mutate(perc_diff=value_SQ_sum-value_alt_sum) %>% 
   dplyr::arrange(state, mode, Category, draw) %>% 
   dplyr::mutate(perc_diff = dplyr::case_when(value_SQ_sum==0 &
                                                value_alt_sum==0 ~ 0, TRUE ~ perc_diff))
@@ -792,8 +791,7 @@ for(d in unique(state_mode_CV_output$domain)){
 state_mode_CV_results= rlist::list.stack(categories_CV_state_mode, fill=TRUE)
 state_mode_CV_results<- state_mode_CV_results %>% 
   tidyr::separate(domain, into = c("region", "stat",  "mode"))  %>% 
-  dplyr::mutate(species="all species", 
-                median_value_alt = dplyr::case_when(stat == "CV" ~ median_value_alt * -1, TRUE ~ median_value_alt))
+  dplyr::mutate(species="all species")
 
 
 

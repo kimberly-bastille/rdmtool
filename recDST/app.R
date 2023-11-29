@@ -616,7 +616,7 @@
       welfare_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("CV")) %>% 
         dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
-        dplyr::rename( "Difference releative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
+        dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
         dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" ))
       return(welfare_output)
     })
