@@ -674,7 +674,7 @@ state_CV<- CV_state_mode %>%
   dplyr::summarise(value_alt_sum = sum(value_alt),
                    value_SQ_sum = sum(value_SQ)) %>% 
   dplyr::ungroup() %>% 
-  dplyr::mutate(perc_diff=((value_alt_sum-value_SQ_sum)/value_SQ_sum)*100) 
+  dplyr::mutate(perc_diff=(value_SQ_sum-value_alt_sum)) 
 
 
 #sort observations and create index by species
