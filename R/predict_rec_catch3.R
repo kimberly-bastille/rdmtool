@@ -23,7 +23,7 @@ predict_rec_catch <- function(state1,
                               x,
                               n_drawz = 50,
                               n_catch_draws = 30,
-                              eff_seed=190 ){
+                              eff_seed=130 ){
   
   
   
