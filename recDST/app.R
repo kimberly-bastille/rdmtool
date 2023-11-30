@@ -14,7 +14,7 @@
     
     tabsetPanel(
       tabPanel( "Regulation Selection",
-                strong(div("REMINDER: 1) select state(s) - Just New Jersey included for now. 2) Make selections below 3) click run me and then the `Results` tab to run model", style = "color:blue")),
+                strong(div("REMINDER: (1) select state(s)  (2) Make selections below (3) click run me and then the `Results` tab to run model", style = "color:blue")),
                 shinyWidgets::awesomeCheckboxGroup(
                   inputId = "state",
                   label = "State", 
@@ -37,13 +37,14 @@
       tabPanel("Results", 
                
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                                tags$div("Calculating...This may take a minute.",id="loadmessage")),
+                                tags$div("Calculating...This will take ~15 min per state selected.",id="loadmessage")),
                
-                 downloadButton(outputId = "downloadData", "Download"),
-                 tableOutput(outputId = "regtableout"),
-                 tableOutput(outputId = "keep_release_tableout"),
-                 tableOutput(outputId = "mortalityout"),
-                 tableOutput(outputId = "welfare_trips_tableout")), 
+               downloadButton(outputId = "downloadData", "Download"),
+               tableOutput(outputId = "regtableout"),
+               tableOutput(outputId = "welfare_tableout"),
+               tableOutput(outputId = "keep_tableout"),
+               tableOutput(outputId = "mortalityout"),
+               tableOutput(outputId = "ntrips_tableout")), 
       
       
       tabPanel("Documentation")#, 
@@ -3487,44 +3488,85 @@
     predictions_1 <- eventReactive(input$runmeplease,{
       
       predictions_1 <- NULL
-      for(i in 1:length(input$state)){
-        state_name <- input$state[i]
-        
-        ################ Summary Outputs ######################################
-        ######################################################################
-        
-        source(here::here(paste0("model_run_",state_name,".R")), local = TRUE)
-        
+      if(any("MA" == input$state)){
+        source(here::here(paste0("model_run_MA.R")), local = TRUE)
         predictions_1 <- predictions_1 %>% rbind(predictions)
-        return(predictions_1)
       }
+      
+      if(any("RI" == input$state)){
+        source(here::here(paste0("model_run_RI.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("CT" == input$state)){
+        source(here::here(paste0("model_run_CT.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("NY" == input$state)){
+        source(here::here(paste0("model_run_NY.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("NJ" == input$state)){
+        source(here::here(paste0("model_run_NJ.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("DE" == input$state)){
+        source(here::here(paste0("model_run_DE.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("MD" == input$state)){
+        source(here::here(paste0("model_run_Md.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("VA" == input$state)){
+        source(here::here(paste0("model_run_VA.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+      
+      if(any("NC" == input$state)){
+        source(here::here(paste0("model_run_NC.R")), local = TRUE)
+        predictions_1 <- predictions_1 %>% rbind(predictions)
+      }
+        return(predictions_1)
+
     })
     
-    
-    keep_release <- reactive({
+    keep <- reactive({
       keep_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers"))
-      
-      return(keep_release_output)
+        dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
+        dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers")))
+      return(keep_output)
     })
     
     mortality<- reactive({
       mortality_output<- predictions_1() %>% 
         dplyr::filter(Statistic %in% c("release pounds", "dead release pounds", 
                                        "release numbers", "dead release numbers")) %>% 
-        dplyr::select(! "% under harvest target (out of 100 simulations)")
+        dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
+        dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers")))
       return(mortality_output)
     })
     
-    welfare_ntrips<- reactive({
+    welfare<- reactive({
       welfare_output<- predictions_1() %>% 
-        dplyr::filter(Statistic %in% c("CV", "ntrips")) %>% 
-        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Angler Welfare", 
-                                                "ntrips" = "Estimate Trips")) %>% 
-        dplyr::arrange(factor(Statistic, levels = c("Angler Welfare","Estimate Trips"))) %>% 
-        dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
-      
+        dplyr::filter(Statistic %in% c("CV")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
+        dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
+        dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" ))
       return(welfare_output)
+    })
+    
+    ntrips<- reactive({
+      ntrips_output<- predictions_1() %>% 
+        dplyr::filter(Statistic %in% c( "ntrips")) %>% 
+        dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
+        dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
+      return(ntrips_output)
     })
     
     
@@ -4988,12 +5030,16 @@
     
     
     ## Output Tables 
-    output$keep_release_tableout<- renderTable({
-      keep_release()
+    output$keep_tableout<- renderTable({
+      keep()
     })
     
-    output$welfare_trips_tableout<- renderTable({
-      welfare_ntrips()
+    output$welfare_tableout<- renderTable({
+      welfare()
+    })
+    
+    output$ntrips_tableout<- renderTable({
+      ntrips()
     })
     
     output$regtableout <- renderTable({
@@ -5004,12 +5050,15 @@
       mortality()
     })
     
+    
     output$downloadData <- downloadHandler(
       filename = function(){"RecDSToutput.xlsx"},
       content = function(filename) {
         
-        df_list <- list(Regulations=regulations(), Keep_Release=keep_release(), 
-                        Discard_Mortality = mortality(), Angler_Welfare = welfare_ntrips())
+        df_list <- list(Regulations=regulations(), Harvest=keep(), 
+                        Change_Angler_Satisfaction = welfare(),
+                        Estimated_Trips = ntrips(),
+                        Releases = mortality())
         openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
       })
     
