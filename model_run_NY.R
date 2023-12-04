@@ -104,7 +104,7 @@ directed_trips<- directed_trips %>%
     scup_min=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SCUPnyFH_seas3[1]) & day_i <= lubridate::yday(input$SCUPnyFH_seas3[2]) ~ as.numeric(input$SCUPnyFH_3_len), TRUE ~ scup_min),
     scup_bag=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SCUPnyFH_seas4[1]) & day_i <= lubridate::yday(input$SCUPnyFH_seas4[2]) ~ as.numeric(input$SCUPnyFH_4_bag), TRUE ~ scup_bag),
     scup_min=dplyr::case_when(mode == "fh" & day_i >= lubridate::yday(input$SCUPnyFH_seas4[1]) & day_i <= lubridate::yday(input$SCUPnyFH_seas4[2]) ~ as.numeric(input$SCUPnyFH_4_len), TRUE ~ scup_min),
-    
+  
     scup_bag=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SCUPnyPR_seas1[1]) & day_i <= lubridate::yday(input$SCUPnyPR_seas1[2]) ~ as.numeric(input$SCUPnyPR_1_bag), TRUE ~ scup_bag),
     scup_min=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SCUPnyPR_seas1[1]) & day_i <= lubridate::yday(input$SCUPnyPR_seas1[2]) ~ as.numeric(input$SCUPnyPR_1_len), TRUE ~ scup_min),
     scup_bag=dplyr::case_when(mode == "pr" & day_i >= lubridate::yday(input$SCUPnyPR_seas2[1]) & day_i <= lubridate::yday(input$SCUPnyPR_seas2[2]) ~ as.numeric(input$SCUPnyPR_2_bag), TRUE ~ scup_bag),
@@ -114,7 +114,6 @@ directed_trips<- directed_trips %>%
     scup_min=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SCUPnySH_seas1[1]) & day_i <= lubridate::yday(input$SCUPnySH_seas1[2]) ~ as.numeric(input$SCUPnySH_1_len), TRUE ~ scup_min),
     scup_bag=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SCUPnySH_seas2[1]) & day_i <= lubridate::yday(input$SCUPnySH_seas2[2]) ~ as.numeric(input$SCUPnySH_2_bag), TRUE ~ scup_bag),
     scup_min=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SCUPnySH_seas2[1]) & day_i <= lubridate::yday(input$SCUPnySH_seas2[2]) ~ as.numeric(input$SCUPnySH_2_len), TRUE ~ scup_min))
-
 
 
 
@@ -177,7 +176,9 @@ get_predictions_out<- function(x){
                            sf_catch_data_all = c(list(catch_files_NY)))
   
   print("test")
-  print(test)  
+  print(test) 
+  
+  write.csv(directed_trips2, file = paste("directed_trips_NY_", x, ".csv"))
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times

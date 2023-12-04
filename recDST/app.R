@@ -37,7 +37,7 @@
       tabPanel("Results", 
                
                conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                                tags$div("Calculating...This will take ~15 min per state selected.",id="loadmessage")),
+                                tags$div("Calculating...This will take ~15-20 min per state selected.",id="loadmessage")),
                
                downloadButton(outputId = "downloadData", "Download"),
                tableOutput(outputId = "regtableout"),
@@ -1475,7 +1475,7 @@
                                        numericInput(inputId = "BSBnySH_2_bag", label ="Bag Limit",
                                                     min = 0, max = 100, value = 6)),
                                 column(6,
-                                       sliderInput(inputId = "BSBnySH_1_len", label ="Min Length",
+                                       sliderInput(inputId = "BSBnySH_2_len", label ="Min Length",
                                                    min = 5, max = 30, value = 16.5, step = .5)))))
     })
     
@@ -3519,7 +3519,7 @@
       }
       
       if(any("MD" == input$state)){
-        source(here::here(paste0("model_run_Md.R")), local = TRUE)
+        source(here::here(paste0("model_run_MD.R")), local = TRUE)
         predictions_1 <- predictions_1 %>% rbind(predictions)
       }
       
@@ -3849,7 +3849,6 @@
           dat <- dat %>% rbind(SFri, BSBri, SCUPri)
           
       }
-      
       
       if(any("CT" == input$state)){  
         if(input$SF_CT_input_type == "All Modes Combined"){
