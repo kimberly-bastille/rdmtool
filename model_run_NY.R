@@ -10,7 +10,7 @@ sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_pr
 
 bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_prob_star_2022_NY.csv")),  show_col_types = FALSE)
 
-scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_prob_star_2024_NY.csv")),  show_col_types = FALSE)
+scup_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/scup_prob_star_2024_NYa.csv")),  show_col_types = FALSE)
 
 l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Conversion.csv")),  show_col_types = FALSE) %>%
   dplyr::filter(State=="NY") %>% 
@@ -177,8 +177,6 @@ get_predictions_out<- function(x){
   
   print("test")
   print(test) 
-  
-  write.csv(directed_trips2, file = paste("directed_trips_NY_", x, ".csv"))
 }
 #})
 # use furrr package to parallelize the get_predictions_out function 100 times
