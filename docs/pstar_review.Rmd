@@ -1,0 +1,162 @@
+---
+title: "pstar calibration"
+output: html_document
+date: "2024-01-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+
+library(magrittr)
+```
+
+## State Summaries  {.tabset}
+
+```{r}
+MA<- read.csv(file.path(here::here(paste0("pstars/pstar_MA_test1.csv"))))
+RI<- read.csv(file.path(here::here(paste0("pstars/pstar_RI_test1.csv"))))
+CT<- read.csv(file.path(here::here(paste0("pstars/pstar_CT_test2.csv")))) %>% 
+  dplyr::select(!X.1)
+NY<- read.csv(file.path(here::here(paste0("pstars/pstar_NY_test1.csv"))))
+NJ<- read.csv(file.path(here::here(paste0("pstars/pstar_NJ_test1.csv"))))
+DE<- read.csv(file.path(here::here(paste0("pstars/pstar_DE_test1.csv"))))
+MD<- read.csv(file.path(here::here(paste0("pstars/pstar_MD_test1.csv"))))
+VA<- read.csv(file.path(here::here(paste0("pstars/pstar_VA_test1.csv"))))
+NC<- read.csv(file.path(here::here(paste0("pstars/pstar_NC_test1.csv"))))
+
+dat<- rbind(MA, RI, CT, NY, NJ, DE, MD, VA, NC)
+DT::datatable(dat)
+```
+
+
+### MA
+
+```{r}
+
+ggplot2::ggplot(data = MA, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("MA pstars")
+
+ggplot2::ggplot(data = MA, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("MA % harvest difference")
+```
+
+
+### RI 
+
+```{r}
+
+ggplot2::ggplot(data = RI, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("RI pstars")
+
+ggplot2::ggplot(data = RI, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("RI % harvest difference")
+
+
+```
+
+### CT
+
+```{r}
+ggplot2::ggplot(data = CT, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("CT pstars")
+
+ggplot2::ggplot(data = CT, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("CT % harvest difference")
+```
+
+### NY
+
+```{r}
+ggplot2::ggplot(data = NY, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NY pstars")
+
+ggplot2::ggplot(data = NY, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NY % harvest difference")
+```
+
+### NJ
+
+```{r}
+ggplot2::ggplot(data = NJ, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NJ pstars")
+
+ggplot2::ggplot(data = NJ, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NJ % harvest difference")
+```
+
+### DE
+
+```{r}
+ggplot2::ggplot(data = DE, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("DE pstars")
+
+ggplot2::ggplot(data = DE, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("DE % harvest difference")
+```
+
+
+### MD
+
+```{r}
+ggplot2::ggplot(data = MD, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("MD pstars")
+
+ggplot2::ggplot(data = MD, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("MD % harvest difference")
+```
+
+### VA 
+
+```{r}
+ggplot2::ggplot(data = VA, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("VA pstars")
+
+ggplot2::ggplot(data = VA, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("VA % harvest difference")
+```
+
+### NC
+
+```{r}
+ggplot2::ggplot(data = NC, ggplot2::aes(x = p_star_value))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NC pstars")
+
+ggplot2::ggplot(data = NC, ggplot2::aes(x = harvest_diff))+
+  ggplot2::geom_histogram()+
+  ggplot2::facet_grid(species~mode, scales = "free") +
+  ggplot2::ggtitle("NC % harvest difference")
+```
