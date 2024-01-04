@@ -103,9 +103,8 @@ directed_trips<- directed_trips %>%
 
 
 
-
+#for(x in 1:100){
 future::plan(future::multisession, workers = 36)
-#future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
   
   
@@ -163,6 +162,8 @@ get_predictions_out<- function(x){
   
   print("test")
   print(test)  
+  # predictions_out10 <- test %>% 
+  #   dplyr::mutate(draw = x)
   #write.csv(directed_trips2, file = paste0("directed_", x, ".csv"))
 }
 #})
@@ -174,12 +175,15 @@ predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = 
 #predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 
 
+# predictions_out10<- predictions_out10 
+# write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_CT3.csv"))
+
 predictions_out10<- predictions_out10 %>%
   dplyr::filter(!mode == "all")
 
 
 
-StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_CT.xlsx")) %>% 
+StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/baseline_CT3.xlsx")) %>% 
   dplyr::rename(value_SQ = Value)
 
 
