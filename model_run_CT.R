@@ -102,7 +102,7 @@ directed_trips<- directed_trips %>%
     scup_min=dplyr::case_when(mode == "sh" & day_i >= lubridate::yday(input$SCUPctSH_seas2[1]) & day_i <= lubridate::yday(input$SCUPctSH_seas2[2]) ~ as.numeric(input$SCUPctSH_2_len), TRUE ~ scup_min))
 
 
-
+#predictions_out10<- NULL
 #for(x in 1:100){
 future::plan(future::multisession, workers = 36)
 get_predictions_out<- function(x){
@@ -162,8 +162,9 @@ get_predictions_out<- function(x){
   
   print("test")
   print(test)  
-  # predictions_out10 <- test %>% 
-  #   dplyr::mutate(draw = x)
+   # predictions_out10 <- test %>% 
+   #   dplyr::mutate(draw = x) %>% 
+   #   rbind(predictions_out10)
   #write.csv(directed_trips2, file = paste0("directed_", x, ".csv"))
 }
 #})
@@ -175,26 +176,45 @@ predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = 
 #predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 
 
-# predictions_out10<- predictions_out10 
-# write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_CT3.csv"))
+#predictions_out10<- predictions_out10 %>% 
+#  rbind(predictions_out10)
+#write.csv(predictions_out10, file = here::here("data-raw/StatusQuo/baseline_CT3.csv"))
 
 predictions_out10<- predictions_out10 %>%
-  dplyr::filter(!mode == "all")
+ dplyr::filter(!mode == "all")
 
+# predictions_out10 <- predictions_out10 %>% 
+#   dplyr::group_by(Category,mode, keep_release,param,number_weight, state) %>% 
+#   dplyr::summarise(Value = median(Value)) %>% 
+#   dplyr::filter(!number_weight == "Weight_avg") %>% 
+#   dplyr::select(!param) %>% 
+#   dplyr::ungroup()
 
+StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/baseline_CT3.xlsx"))
 
-StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/baseline_CT3.xlsx")) %>% 
+StatusQuo_CT_corrections<- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/CT_SQ_corrections1.xlsx"))
+StatusQuo<-StatusQuo %>% 
+  dplyr::left_join(StatusQuo_CT_corrections, by=c("state", "mode", "Category", "keep_release", "number_weight")) %>% 
+  dplyr::mutate(correction=dplyr::case_when(is.na(correction)~1, TRUE~correction)) %>% 
+  dplyr::mutate(Value=as.numeric(Value), correction=as.numeric(correction),
+                Value=Value*correction) %>% 
   dplyr::rename(value_SQ = Value)
 
+#StatusQuo <- read.csv(here::here("data-raw/StatusQuo/Tracey_SQ_CT.csv")) %>% 
+#  dplyr::mutate(Value = as.numeric(gsub(",", "", Value))) %>% 
+#  dplyr::rename(value_SQ = Value) %>% 
+#  dplyr::select(!X)
 
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
   dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
+  #dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","number_weight","state")) %>% 
   dplyr::filter(Category %in% c("sf", "bsb", "scup"),
                 mode!="all", 
                 keep_release=="keep", 
-                number_weight %in% c("Weight_avg", "Weight") ) %>% 
+                #number_weight %in% c("Weight_avg", "Weight") ) %>% 
+                number_weight %in% c("Weight", "Weight_avg") ) %>% 
   dplyr::select(-param) %>% 
   dplyr::mutate(value_SQ = as.numeric(value_SQ), 
                 value_alt = as.numeric(value_alt))
@@ -207,12 +227,12 @@ predictions_weight <- predictions_merge %>%
 predictions_avg <- predictions_merge %>%
   dplyr::filter(number_weight == "Weight_avg") 
 
-predictions_merge2<- predictions_avg %>% 
+predictions_merge2<- predictions_avg %>%
   dplyr::left_join(predictions_weight, by = c("Category","mode", "state","draw")) %>%
-  dplyr::select(-keep_release.x, -keep_release.y, -number_weight.y) %>% 
+  dplyr::select(-keep_release.x, -keep_release.y, -number_weight.y) %>%
   dplyr::mutate(imputed_value_alt= perc_change_weight/100,
-                imputed_value_alt = value_SQ * imputed_value_alt, 
-                imputed_value_alt=imputed_value_alt+value_SQ) 
+                imputed_value_alt = value_SQ * imputed_value_alt,
+                imputed_value_alt=imputed_value_alt+value_SQ)
 #check = ((imputed_value_alt-value_SQ)/value_SQ)*100)
 
 predictions_merge2<- predictions_merge2 %>% 
@@ -881,3 +901,4 @@ predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_resul
                 "% difference from status-quo outcome (median)" = median_perc_diff, 
                 "% under harvest target (out of 100 simulations)" = reach_target)
 
+## join with Traceys SQ 
