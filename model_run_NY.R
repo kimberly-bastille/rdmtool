@@ -192,7 +192,16 @@ predictions_out10<- predictions_out10 %>%
 
 
 
-StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NY.xlsx")) %>% 
+StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_NY.xlsx")) 
+
+StatusQuo_corrections<- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/All_states_SQ_corrections1.xlsx")) %>% 
+  dplyr::filter(state == state1)
+
+StatusQuo<-StatusQuo %>% 
+  dplyr::left_join(StatusQuo_corrections, by=c("state", "mode", "Category", "keep_release", "number_weight")) %>% 
+  dplyr::mutate(correction=dplyr::case_when(is.na(correction)~1, TRUE~correction)) %>% 
+  dplyr::mutate(Value=as.numeric(Value), correction=as.numeric(correction),
+                Value=Value*correction) %>% 
   dplyr::rename(value_SQ = Value)
 
 
