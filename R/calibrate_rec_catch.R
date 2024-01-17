@@ -35,7 +35,7 @@ calibrate_rec_catch <- function(state1,
   
   n_drawz = 50
   n_catch_draws = 30
-  
+  set.seed(130)
   directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_",state1,".rds")))) %>% 
     tibble::tibble() %>% 
     dplyr::filter(draw == k, 
@@ -69,7 +69,7 @@ calibrate_rec_catch <- function(state1,
     dplyr::select(period2, n_draws, month) %>%
     tidyr::uncount(n_draws) # %>% mutate(sample_id=1:nrow(period_vec))
   
-  sf_catch_data <- read.csv(file.path(here::here(paste0("data-raw/catch/",state1," catch draws 2022 draw4 ", k, ".csv")))) %>% 
+  sf_catch_data <- read.csv(file.path(here::here(paste0("data-raw-calib/catch/",state1," catch draws 2022 draw4 ", k, ".csv")))) %>% 
     dplyr::filter(mode1 == select_mode) %>% 
      dplyr::rename(tot_sf_catch = tot_cat_sf,
                    tot_bsb_catch = tot_cat_bsb,
@@ -98,9 +98,15 @@ calibrate_rec_catch <- function(state1,
     dplyr::ungroup()
   print("postmutate")
   
-  # pstar<- read.csv(file.path(here::here(paste0("pstar_",state1,"_test1.csv")))) %>%
+  # if(state1 == "CT"){
+  #   pstar<- read.csv(file.path(here::here(paste0("pstars/pstar_",state1,"_test3.csv")))) %>%
+  #     dplyr::filter(mode == select_mode,
+  #                   run_number == k)
+  # }else{
+  # pstar<- read.csv(file.path(here::here(paste0("pstars/pstar_",state1,"_test1.csv")))) %>%
   #   dplyr::filter(mode == select_mode,
   #                 run_number == k)
+  # }
   # p_star_sf <- pstar %>%
   #   dplyr::filter(species == "SF")
   # p_star_sf <- p_star_sf$p_star_value
@@ -871,7 +877,7 @@ calibrate_rec_catch <- function(state1,
       dplyr::filter(state == state1)  
     
     #next two commands ensure there are enough observations  per period
-    expand_rows=round((n_drawz/nrow(age_distn)))+1
+    expand_rows=ceiling((n_drawz/nrow(age_distn)))+2
     
     age_distn <- age_distn %>%
       dplyr::slice(rep(1:dplyr::n(), each = expand_rows))   
@@ -886,7 +892,7 @@ calibrate_rec_catch <- function(state1,
       dplyr::filter(state == state1)  
     
     #next two commands ensure there are enough observations per period
-    expand_rows=round(n_drawz/nrow(avid_distn))+1
+    expand_rows=ceiling((n_drawz/nrow(avid_distn)))+2
     
     avid_distn <- avid_distn %>%
       dplyr::slice(rep(1:dplyr::n(), each = expand_rows))   
@@ -1162,7 +1168,7 @@ calibrate_rec_catch <- function(state1,
   
   #return(output)
 
-  ## Calucate_Pstars
+  # Calucate_Pstars
   MRIP_data <-  read.csv(here::here("data-raw/calibration_MRIP_comparison_all_states.csv")) %>%
     dplyr::filter(state==state1,
                   mode1 == select_mode,
