@@ -1,27 +1,24 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-
-
+# Required packages - everything else uses package:: found in r/required_packages.R
 library(shiny)
 library(shinyjs)
 library(dplyr)
-# Define UI for application that draws a histogram
+
+#### Start UI ####
 ui <- fluidPage(
   useShinyjs(),
-  # Application title
   titlePanel("Recreational Fisheries Decision Support Tool"),
-  
+  #### Regulation Selection ####
   tabsetPanel(
     tabPanel( "Regulation Selection",
-              strong(div("REMINDER: (1) select state(s)  (2) Make selections below (3) click run me and then the `Results` tab to run model", style = "color:blue")),
-              shinyWidgets::awesomeCheckboxGroup(
-                inputId = "state",
+              strong(div("REMINDER: (1) select state(s)  (2) Make selections below (3) click run me and then the `Results` tab to run model", style = "color:blue")), # Warning for users
+              shinyWidgets::awesomeCheckboxGroup( # Select which state(s) to run
+                inputId = "state", 
                 label = "State", 
                 choices = c("MA", "RI", "CT", "NY", "NJ", "DE",  "MD", "VA", "NC"),
                 inline = TRUE,
                 status = "danger"),
               
+              # Add UI code for each state
               uiOutput("addMA"),
               uiOutput("addRI"),
               uiOutput("addCT"), 
@@ -32,32 +29,35 @@ ui <- fluidPage(
               uiOutput("addVA"), 
               uiOutput("addNC"),
               
+              #Run Button
               actionButton("runmeplease", "Run Me")),
-    
+    #### Results ####
     tabPanel("Results", 
              
              conditionalPanel(condition="$('html').hasClass('shiny-busy')",
-                              tags$div("Calculating...This will take ~15-20 min per state selected.",id="loadmessage")),
+                              tags$div("Calculating...This will take ~15-20 min per state selected.",id="loadmessage")), #Warning for users
+             ## KB - ADD PROGRESS BUTTON HERE
              
              downloadButton(outputId = "downloadData", "Download"),
+             # Add table outputs
+             ## KB - Make tables DTs - should fix RMD documentation issue
              tableOutput(outputId = "regtableout"),
              tableOutput(outputId = "welfare_tableout"),
              tableOutput(outputId = "keep_tableout"),
-             tableOutput(outputId = "mortalityout"),
+             tableOutput(outputId = "releaseout"),
              tableOutput(outputId = "ntrips_tableout")), 
     
-    
-    tabPanel("Documentation")#, 
-    #htmlOutput("markdown"))
+    #### Documentation ####
+    tabPanel("Documentation") ## KB - ADD DOCUMENTATION
   ))
 
-# Define server logic required to draw a histogram
+####### Start Server ###################
 server <- function(input, output, session) {
   
   library(magrittr) 
   
-  
-  ############### Toggle extra seasons on front end #############
+  ### Toggle extra seasons on UI ###
+  # Allows for extra seasons to show and hide based on click
   shinyjs::onclick("SFMAaddSeason",
                    shinyjs::toggle(id = "SFmaSeason2", anim = TRUE))
   shinyjs::onclick("BSBMAaddSeason",
@@ -120,9 +120,8 @@ server <- function(input, output, session) {
                    shinyjs::toggle(id = "BSBncSeason3", anim = TRUE))
   shinyjs::onclick("SCUPNCaddSeason",
                    shinyjs::toggle(id = "SCUPncSeason2", anim = TRUE))
-  #################################################################
   
-  ##############MASSACHUSETTS ###########################################################
+  ############## MASSACHUSETTS ###########################################################
   output$addMA <- renderUI({
     if(any("MA" == input$state)){
       fluidRow( 
@@ -224,7 +223,7 @@ server <- function(input, output, session) {
         
         column(4, #### SCUP 
                titlePanel("Scup - MA"),
-               sliderInput(inputId = "SCUPmaFH_seas1", label ="For Hire Open Season 1", # Mass for hire season 1
+               sliderInput(inputId = "SCUPmaFH_seas1", label ="For Hire Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("06-30","%m-%d")), 
@@ -237,7 +236,7 @@ server <- function(input, output, session) {
                         sliderInput(inputId = "SCUPmaFH_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
                
-               sliderInput(inputId = "SCUPmaFH_seas2", label ="For Hire Open Season 2", # Mass for hire season 2
+               sliderInput(inputId = "SCUPmaFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("07-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -251,7 +250,7 @@ server <- function(input, output, session) {
                                     min = 5, max = 25, value = 10.5, step = .5))), 
                
                
-               sliderInput(inputId = "SCUPmaPR_seas1", label ="Private Open Season 1", # Massprivate  season 1
+               sliderInput(inputId = "SCUPmaPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -263,7 +262,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPmaPR_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
-               sliderInput(inputId = "SCUPmaSH_seas1", label ="Shore Open Season 1", # Massp shore season 1
+               sliderInput(inputId = "SCUPmaSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -275,6 +274,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPmaSH_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 9.5, step = .5))),
+               
                actionButton("SCUPMAaddSeason", "Add Season"), 
                shinyjs::hidden( div(ID = "SCUPmaSeason2",
                                     sliderInput(inputId = "SCUPmaFH_seas3", label ="For Hire Open Season 3", 
@@ -378,7 +378,7 @@ server <- function(input, output, session) {
       return()
     
     # Depending on input$input_type, we'll generate a different
-    # UI component and send it to the client.
+    # UI component. i.e. when all modes combined is selected only one
     switch(input$BSB_MA_input_type,
            
            "All Modes Combined" = div(sliderInput(inputId = "BSBma_seas1", label ="Open Season 1", 
@@ -611,7 +611,7 @@ server <- function(input, output, session) {
         
         column(4, #### SCUP 
                titlePanel("Scup - RI"),
-               sliderInput(inputId = "SCUPriFH_seas1", label ="For Hire Open Season 1", # Mass for hire season 1
+               sliderInput(inputId = "SCUPriFH_seas1", label ="For Hire Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("08-31","%m-%d")), 
@@ -624,7 +624,7 @@ server <- function(input, output, session) {
                         sliderInput(inputId = "SCUPriFH_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
                
-               sliderInput(inputId = "SCUPriFH_seas2", label ="For Hire Open Season 2", # Mass for hire season 2
+               sliderInput(inputId = "SCUPriFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("09-01","%m-%d"),as.Date("10-31","%m-%d")), 
@@ -636,7 +636,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPriFH_2_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))), 
-               sliderInput(inputId = "SCUPriFH_seas3", label ="For Hire Open Season 3", # Mass for hire season 2
+               sliderInput(inputId = "SCUPriFH_seas3", label ="For Hire Open Season 3", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -649,7 +649,7 @@ server <- function(input, output, session) {
                         sliderInput(inputId = "SCUPriFH_3_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))), 
                
-               sliderInput(inputId = "SCUPriPR_seas1", label ="Private Open Season 1", # Massprivate  season 1
+               sliderInput(inputId = "SCUPriPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -661,7 +661,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPriPR_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
-               sliderInput(inputId = "SCUPriSH_seas1", label ="Shore Open Season 1", # Massp shore season 1
+               sliderInput(inputId = "SCUPriSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -773,7 +773,7 @@ server <- function(input, output, session) {
                                                           min = 5, max = 25, value = 18, step = .5)))))
   })
   
-  ############## Connecticut ###########################################################
+  ############## CONNECTICUT ###########################################################
   output$addCT <- renderUI({
     if(any("CT" == input$state)){
       fluidRow( 
@@ -947,7 +947,7 @@ server <- function(input, output, session) {
         
         column(4, #### SCUP 
                titlePanel("Scup - CT"),
-               sliderInput(inputId = "SCUPctFH_seas1", label ="For Hire Open Season 1", # Mass for hire season 1
+               sliderInput(inputId = "SCUPctFH_seas1", label ="For Hire Open Season 1",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("08-31","%m-%d")), 
@@ -960,7 +960,7 @@ server <- function(input, output, session) {
                         sliderInput(inputId = "SCUPctFH_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
                
-               sliderInput(inputId = "SCUPctFH_seas2", label ="For Hire Open Season 2", # Mass for hire season 2
+               sliderInput(inputId = "SCUPctFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("09-01","%m-%d"),as.Date("10-31","%m-%d")), 
@@ -972,7 +972,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPctFH_2_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))), 
-               sliderInput(inputId = "SCUPctFH_seas3", label ="For Hire Open Season 3", # Mass for hire season 2
+               sliderInput(inputId = "SCUPctFH_seas3", label ="For Hire Open Season 3", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("11-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -985,7 +985,7 @@ server <- function(input, output, session) {
                         sliderInput(inputId = "SCUPctFH_3_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))), 
                
-               sliderInput(inputId = "SCUPctPR_seas1", label ="Private Open Season 1", # Massprivate  season 1
+               sliderInput(inputId = "SCUPctPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -997,7 +997,7 @@ server <- function(input, output, session) {
                  column(5, 
                         sliderInput(inputId = "SCUPctPR_1_len", label = "Min Length",
                                     min = 5, max = 25, value = 10.5, step = .5))),
-               sliderInput(inputId = "SCUPctSH_seas1", label ="Shore Open Season 1", # Massp shore season 1
+               sliderInput(inputId = "SCUPctSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
                            value =c(as.Date("05-01","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -1493,7 +1493,7 @@ server <- function(input, output, session) {
                
                actionButton("SFNJaddSeason", "Add Season"), 
                shinyjs::hidden( div(ID = "SFnjSeason2",
-                                    sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", # New Jersey for hire season 2
+                                    sliderInput(inputId = "SFnjFH_seas2", label ="For Hire Open Season 2", 
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -1509,7 +1509,7 @@ server <- function(input, output, session) {
                                                           min = 0, max = 7, value = 0),
                                              sliderInput(inputId = "SFnjFH_2_lglen", label ="Large Min Length",
                                                          min = 5, max = 50, value = c(18,50), step = .5))),
-                                    sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  # New Jersey private season 2
+                                    sliderInput(inputId = "SFnjPR_seas2", label ="Private/Rental Open Season 2",  
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -1525,7 +1525,7 @@ server <- function(input, output, session) {
                                                           min = 0, max = 7, value = 0),
                                              sliderInput(inputId = "SFnjPR_2_lglen", label ="Large Min Length",
                                                          min = 5, max = 50, value = c(18, 50), step = .5))),
-                                    sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  # New Jersey Shore season 2
+                                    sliderInput(inputId = "SFnjSH_seas2", label ="Shore Open Season 2",  
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -1640,13 +1640,14 @@ server <- function(input, output, session) {
     }
     
   })
+  
   ############# NJ Breakout by mode ######################################
   output$SFnjMode <- renderUI({
     if (is.null(input$SF_NJ_input_type))
       return()
     
     switch(input$SF_NJ_input_type, 
-           "All Modes Combined" = div(sliderInput(inputId = "SFnj_seas1", label ="Open Season 1", # New Jersey for hire season 1
+           "All Modes Combined" = div(sliderInput(inputId = "SFnj_seas1", label ="Open Season 1", 
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
                                                   value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -1662,7 +1663,7 @@ server <- function(input, output, session) {
                                                             min = 0, max = 7, value = 1), 
                                                sliderInput(inputId = "SFnj_1_lglen", label ="Large Min Length",
                                                            min = 5, max = 50, value = c(18,50), step = .5)))), 
-           "Seperated By Mode" = div(sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", # New Jersey for hire season 1
+           "Seperated By Mode" = div(sliderInput(inputId = "SFnjFH_seas1", label ="For Hire Open Season 1", 
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
                                                  value =c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -1678,7 +1679,7 @@ server <- function(input, output, session) {
                                                            min = 0, max = 7, value = 1), 
                                               sliderInput(inputId = "SFnjFH_1_lglen", label ="Large Min Length",
                                                           min = 5, max = 50, value = c(18,50), step = .5))), 
-                                     sliderInput(inputId = "SFnjPR_seas1", label ="Private/Rental Open Season 1",  # New Jersey private season 1
+                                     sliderInput(inputId = "SFnjPR_seas1", label ="Private/Rental Open Season 1",  
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
                                                  value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -1694,7 +1695,7 @@ server <- function(input, output, session) {
                                                            min = 0, max = 7, value = 1), 
                                               sliderInput(inputId = "SFnjPR_1_lglen", label ="Large Min Length",
                                                           min = 5, max = 50, value = c(18, 50), step = .5))),
-                                     sliderInput(inputId = "SFnjSH_seas1", label ="Shore Open Season 1",  # New Jersey Shore season 1
+                                     sliderInput(inputId = "SFnjSH_seas1", label ="Shore Open Season 1",  
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
                                                  value=c(as.Date("05-02","%m-%d"),as.Date("09-27","%m-%d")), 
@@ -1717,8 +1718,6 @@ server <- function(input, output, session) {
     if (is.null(input$BSB_NJ_input_type))
       return()
     
-    # Depending on input$input_type, we'll generate a different
-    # UI component and send it to the client.
     switch(input$BSB_NJ_input_type,
            
            "All Modes Combined" = div(sliderInput(inputId = "BSBnj_seas1", label ="Open Season 1", 
@@ -1928,9 +1927,7 @@ server <- function(input, output, session) {
   output$SCUPnjMode <- renderUI({
     if (is.null(input$SCUP_NJ_input_type))
       return()
-    
-    # Depending on input$input_type, we'll generate a different
-    # UI component and send it to the client.
+
     switch(input$SCUP_NJ_input_type,
            
            "All Modes Combined" = div(sliderInput(inputId = "SCUPnj_seas1", label ="Open Season 1",
@@ -1983,7 +1980,7 @@ server <- function(input, output, session) {
                                                           min = 5, max = 25, value = 10, step = .5)))))
   })
   
-  ### New Jersey Output
+ 
   output$SF_NJ_input_type_text <- renderText({
     input$SF_NJ_input_type
   })
@@ -3483,11 +3480,13 @@ server <- function(input, output, session) {
   
   
   
-  ##################################################################
-  
+  ##### Start of output processing #####
+  #### PREDICTIONS_1 ##############################
   predictions_1 <- eventReactive(input$runmeplease,{
     
     predictions_1 <- NULL
+    
+    #if(any( )) will run all selected check boxes on UI-regulations selection tab
     if(any("MA" == input$state)){
       source(here::here(paste0("model_run_MA.R")), local = TRUE)
       predictions_1 <- predictions_1 %>% rbind(predictions)
@@ -3536,6 +3535,7 @@ server <- function(input, output, session) {
     
   })
   
+  #### keep ####
   keep <- reactive({
     keep_output<- predictions_1() %>% 
       dplyr::filter(Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
@@ -3543,15 +3543,17 @@ server <- function(input, output, session) {
     return(keep_output)
   })
   
-  mortality<- reactive({
-    mortality_output<- predictions_1() %>% 
+  #### release ####
+  release<- reactive({
+    release_output<- predictions_1() %>% 
       dplyr::filter(Statistic %in% c("release pounds", "dead release pounds", 
                                      "release numbers", "dead release numbers")) %>% 
       dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
       dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers")))
-    return(mortality_output)
+    return(release_output)
   })
   
+  #### angler welfare ####
   welfare<- reactive({
     welfare_output<- predictions_1() %>% 
       dplyr::filter(Statistic %in% c("CV")) %>% 
@@ -3561,6 +3563,7 @@ server <- function(input, output, session) {
     return(welfare_output)
   })
   
+  #### estimate trips ####
   ntrips<- reactive({
     ntrips_output<- predictions_1() %>% 
       dplyr::filter(Statistic %in% c( "ntrips")) %>% 
@@ -3569,11 +3572,11 @@ server <- function(input, output, session) {
     return(ntrips_output)
   })
   
-  
+  #### Regulations ####
   regulations <- eventReactive(input$runmeplease,{
     
     dat <- NULL
-    ### MA ###
+    #### MA regs ####
     if(any("MA" == input$state)){  
       if(input$SF_MA_input_type == "All Modes Combined"){
         
@@ -3716,6 +3719,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### RI regs ####
     if(any("RI" == input$state)){  
       if(input$SF_RI_input_type == "All Modes Combined"){
         
@@ -3850,6 +3854,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### CT regs ####
     if(any("CT" == input$state)){  
       if(input$SF_CT_input_type == "All Modes Combined"){
         
@@ -3984,6 +3989,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### NY Regs ####
     if(any("NY" == input$state)){  
       if(input$SF_NY_input_type == "All Modes Combined"){
         
@@ -4139,7 +4145,8 @@ server <- function(input, output, session) {
       dat <- dat %>% rbind(SFny, BSBny, SCUPny)
       
     }
-    
+     
+    #### NJ Regs ####
     if(any("NJ" == input$state)){  
       if(input$SF_NJ_input_type == "All Modes Combined"){
         
@@ -4346,6 +4353,7 @@ server <- function(input, output, session) {
       dat <- dat %>% rbind(SFnj, BSBnj, SCUPnj)
     }
     
+    #### DE Regs ####
     if(any("DE" == input$state)){  
       if(input$SF_DE_input_type == "All Modes Combined"){
         
@@ -4518,6 +4526,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### MD Regs ####
     if(any("MD" == input$state)){  
       if(input$SF_MD_input_type == "All Modes Combined"){
         
@@ -4684,6 +4693,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### VA Regs ####
     if(any("VA" == input$state)){  
       if(input$SF_VA_input_type == "All Modes Combined"){
         
@@ -4851,6 +4861,7 @@ server <- function(input, output, session) {
       
     }
     
+    #### NC Regs ####
     if(any("NC" == input$state)){  
       if(input$SF_NC_input_type == "All Modes Combined"){
         
@@ -5028,7 +5039,7 @@ server <- function(input, output, session) {
   })
   
   
-  ## Output Tables 
+  #### Output Tables #### 
   output$keep_tableout<- renderTable({
     keep()
   })
@@ -5045,11 +5056,11 @@ server <- function(input, output, session) {
     regulations()
   })
   
-  output$mortalityout <- renderTable({
-    mortality()
+  output$releaseout <- renderTable({
+    release()
   })
   
-  
+  #### Download Button ####
   output$downloadData <- downloadHandler(
     filename = function(){"RecDSToutput.xlsx"},
     content = function(filename) {
@@ -5057,10 +5068,11 @@ server <- function(input, output, session) {
       df_list <- list(Regulations=regulations(), Harvest=keep(), 
                       Change_Angler_Satisfaction = welfare(),
                       Estimated_Trips = ntrips(),
-                      Releases = mortality())
+                      Releases = release())
       openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
     })
   
+  ## KB - Add documentation to server side
   # output$markdown <- renderUI({
   #   HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
   # })
