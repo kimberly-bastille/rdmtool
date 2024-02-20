@@ -81,7 +81,7 @@ get_pstars<- function(select_mode, select_state){
         }
         
         if(p_star_bsb < 0) break
-        if((abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 50)) break
+        if((abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 500)) break
       }else{
       
       if(bsb_harvest_harv_diff == "NaN"  & scup_harvest_harv_diff == "NaN" ){
@@ -93,7 +93,7 @@ get_pstars<- function(select_mode, select_state){
           p_star_sf<-p_star_sf -.001
         }
         if(p_star_sf < 0) break
-        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 50)) break
+        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 500)) break
       }else{
       
       
@@ -108,7 +108,7 @@ get_pstars<- function(select_mode, select_state){
         }
         
         if(p_star_scup < 0) break
-        if((abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 50)) break
+        if((abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 500)) break
         
       }else{
         
@@ -131,8 +131,8 @@ get_pstars<- function(select_mode, select_state){
         
         if(p_star_bsb < 0) break
         if(p_star_scup < 0) break
-        if((abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 50) & 
-           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 50)) break
+        if((abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 500) & 
+           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 500)) break
         
       }else{
       
@@ -155,8 +155,8 @@ get_pstars<- function(select_mode, select_state){
         
         if(p_star_sf < 0) break
         if(p_star_scup < 0) break
-        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 50) & 
-           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 50)) break
+        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 500) & 
+           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 500)) break
         
       }else{
       
@@ -179,8 +179,8 @@ get_pstars<- function(select_mode, select_state){
         
         if(p_star_sf < 0) break
         if(p_star_bsb < 0) break
-        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 50) & 
-           (abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 50)) break
+        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 500) & 
+           (abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 500)) break
         
       }else{ 
         
@@ -211,17 +211,15 @@ get_pstars<- function(select_mode, select_state){
         if(p_star_sf < 0) break
         if(p_star_bsb < 0) break
         if(p_star_scup < 0) break
-        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 50) & 
-           (abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 50) & 
-           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 50)) break
+        if((abs(sf_harvest_harv_diff)<2)|(sf_model_mrip_diff < 500) & 
+           (abs(bsb_harvest_harv_diff)<2)|(bsb_model_mrip_diff < 500) & 
+           (abs(scup_harvest_harv_diff)<2)|(scup_model_mrip_diff < 500)) break
         
-      }}}}}}
+      }}}}}}}
      
 
       print(pstar)
 
-
-        }
         pstar_out <- pstar_out %>%
           rbind(pstar)
       }
