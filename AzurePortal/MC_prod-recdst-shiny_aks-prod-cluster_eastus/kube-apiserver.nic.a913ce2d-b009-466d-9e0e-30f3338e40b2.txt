@@ -1,0 +1,52 @@
+{
+    "name": "kube-apiserver.nic.a913ce2d-b009-466d-9e0e-30f3338e40b2",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkInterfaces/kube-apiserver.nic.a913ce2d-b009-466d-9e0e-30f3338e40b2",
+    "etag": "W/\"fe0d6e43-d817-4336-a06b-47e010fcd775\"",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "faa59a4e-d2e1-47fa-9163-5b52ee042f08",
+        "ipConfigurations": [
+            {
+                "name": "privateEndpointIpConfig.dc330f26-1724-4021-8381-8da9c65a8cfb",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkInterfaces/kube-apiserver.nic.a913ce2d-b009-466d-9e0e-30f3338e40b2/ipConfigurations/privateEndpointIpConfig.dc330f26-1724-4021-8381-8da9c65a8cfb",
+                "etag": "W/\"fe0d6e43-d817-4336-a06b-47e010fcd775\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.156.4",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV"
+                    },
+                    "primary": true,
+                    "privateIPAddressVersion": "IPv4",
+                    "privateLinkConnectionProperties": {
+                        "groupId": "",
+                        "requiredMemberName": "",
+                        "fqdns": []
+                    }
+                }
+            }
+        ],
+        "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": [],
+            "internalDomainNameSuffix": "bayi5vinoffulc5xs2w0lvh1ah.bx.internal.cloudapp.net"
+        },
+        "macAddress": "",
+        "enableAcceleratedNetworking": false,
+        "vnetEncryptionSupported": false,
+        "enableIPForwarding": false,
+        "hostedWorkloads": [],
+        "tapConfigurations": [],
+        "privateEndpoint": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/privateEndpoints/kube-apiserver"
+        },
+        "nicType": "Standard",
+        "auxiliaryMode": "None"
+    },
+    "type": "Microsoft.Network/networkInterfaces",
+    "location": "eastus",
+    "kind": "Regular"
+}

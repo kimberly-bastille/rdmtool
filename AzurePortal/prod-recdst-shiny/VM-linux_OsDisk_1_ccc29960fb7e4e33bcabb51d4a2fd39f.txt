@@ -1,0 +1,44 @@
+{
+    "name": "VM-linux_OsDisk_1_ccc29960fb7e4e33bcabb51d4a2fd39f",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Compute/disks/VM-linux_OsDisk_1_ccc29960fb7e4e33bcabb51d4a2fd39f",
+    "type": "Microsoft.Compute/disks",
+    "location": "eastus",
+    "managedBy": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Compute/virtualMachines/VM-linux",
+    "sku": {
+        "name": "Premium_LRS",
+        "tier": "Premium"
+    },
+    "properties": {
+        "osType": "Linux",
+        "hyperVGeneration": "V2",
+        "supportsHibernation": true,
+        "supportedCapabilities": {
+            "diskControllerTypes": "SCSI, NVMe",
+            "acceleratedNetwork": true,
+            "architecture": "x64"
+        },
+        "creationData": {
+            "createOption": "FromImage",
+            "imageReference": {
+                "id": "/Subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/Providers/Microsoft.Compute/Locations/eastus/Publishers/canonical/ArtifactTypes/VMImage/Offers/0001-com-ubuntu-server-jammy/Skus/22_04-lts-gen2/Versions/22.04.202311010"
+            }
+        },
+        "diskSizeGB": 30,
+        "diskIOPSReadWrite": 120,
+        "diskMBpsReadWrite": 25,
+        "encryption": {
+            "type": "EncryptionAtRestWithPlatformKey"
+        },
+        "networkAccessPolicy": "AllowAll",
+        "securityProfile": {
+            "securityType": "TrustedLaunch"
+        },
+        "publicNetworkAccess": "Enabled",
+        "timeCreated": "2023-11-16T18:03:22.7388984+00:00",
+        "provisioningState": "Succeeded",
+        "diskState": "Reserved",
+        "diskSizeBytes": 32213303296,
+        "uniqueId": "ccc29960-fb7e-4e33-bcab-b51d4a2fd39f",
+        "tier": "P4"
+    }
+}

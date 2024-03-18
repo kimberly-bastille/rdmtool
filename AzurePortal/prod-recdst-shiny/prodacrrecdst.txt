@@ -1,0 +1,81 @@
+{
+    "sku": {
+        "name": "Premium",
+        "tier": "Premium"
+    },
+    "type": "Microsoft.ContainerRegistry/registries",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.ContainerRegistry/registries/prodacrrecdst",
+    "name": "prodacrrecdst",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "loginServer": "prodacrrecdst.azurecr.io",
+        "creationDate": "2023-11-16T17:03:56.8576817Z",
+        "provisioningState": "Succeeded",
+        "adminUserEnabled": false,
+        "networkRuleSet": {
+            "defaultAction": "Deny",
+            "virtualNetworkRules": [],
+            "ipRules": [
+                {
+                    "action": "Allow",
+                    "value": "20.42.66.0/24"
+                },
+                {
+                    "action": "Allow",
+                    "value": "20.42.67.0/24"
+                },
+                {
+                    "action": "Allow",
+                    "value": "20.42.74.64/26"
+                },
+                {
+                    "action": "Allow",
+                    "value": "20.62.128.0/26"
+                },
+                {
+                    "action": "Allow",
+                    "value": "40.71.10.216/29"
+                },
+                {
+                    "action": "Allow",
+                    "value": "40.78.226.208/29"
+                },
+                {
+                    "action": "Allow",
+                    "value": "40.78.231.0/24"
+                },
+                {
+                    "action": "Allow",
+                    "value": "40.79.154.104/29"
+                },
+                {
+                    "action": "Allow",
+                    "value": "52.168.112.192/26"
+                },
+                {
+                    "action": "Allow",
+                    "value": "52.168.114.0/24"
+                },
+                {
+                    "action": "Allow",
+                    "value": "52.168.115.0/24"
+                }
+            ]
+        },
+        "policies": {
+            "quarantinePolicy": {
+                "status": "disabled"
+            },
+            "trustPolicy": {
+                "type": "Notary",
+                "status": "disabled"
+            },
+            "retentionPolicy": {
+                "days": 7,
+                "lastUpdatedTime": "2023-11-16T17:04:03.070299+00:00",
+                "status": "disabled"
+            }
+        }
+    }
+}

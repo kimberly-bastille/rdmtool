@@ -1,0 +1,47 @@
+{
+    "name": "NMFS-NEFSC-PRV-RT",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PRV-RT",
+    "etag": "W/\"33be00b4-46cb-4ead-896f-6f763cf57998\"",
+    "type": "Microsoft.Network/routeTables",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "453bfc41-6534-45da-a927-090cecd7a899",
+        "disableBgpRoutePropagation": true,
+        "routes": [
+            {
+                "name": "IPv4-Prv-Default",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PRV-RT/routes/IPv4-Prv-Default",
+                "etag": "W/\"33be00b4-46cb-4ead-896f-6f763cf57998\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "0.0.0.0/0",
+                    "nextHopType": "VirtualAppliance",
+                    "nextHopIpAddress": "10.28.128.11"
+                },
+                "type": "Microsoft.Network/routeTables/routes"
+            },
+            {
+                "name": "IPv6-Prv-Default",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PRV-RT/routes/IPv6-Prv-Default",
+                "etag": "W/\"33be00b4-46cb-4ead-896f-6f763cf57998\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "::/0",
+                    "nextHopType": "VirtualAppliance",
+                    "nextHopIpAddress": "2610:20:90E2:2::11"
+                },
+                "type": "Microsoft.Network/routeTables/routes"
+            }
+        ],
+        "subnets": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV"
+            },
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+            }
+        ]
+    }
+}

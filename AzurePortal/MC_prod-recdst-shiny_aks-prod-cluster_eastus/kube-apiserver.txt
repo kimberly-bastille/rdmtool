@@ -1,0 +1,42 @@
+{
+    "name": "kube-apiserver",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/privateEndpoints/kube-apiserver",
+    "etag": "W/\"823720dd-a8b3-4fbd-8a14-2d6fd4fed2f6\"",
+    "type": "Microsoft.Network/privateEndpoints",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "a48ba2f2-dfde-4738-806d-3d90d4501a9a",
+        "privateLinkServiceConnections": [
+            {
+                "name": "kube-apiserver",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/privateEndpoints/kube-apiserver/privateLinkServiceConnections/kube-apiserver",
+                "etag": "W/\"823720dd-a8b3-4fbd-8a14-2d6fd4fed2f6\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateLinkServiceId": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/prod-recdst-shiny/providers/Microsoft.ContainerService/managedClusters/aks-prod-cluster",
+                    "resolvedPrivateLinkServiceLocation": "",
+                    "groupIds": [
+                        "management"
+                    ],
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Auto Approved",
+                        "actionsRequired": "None"
+                    }
+                },
+                "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections"
+            }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV"
+        },
+        "networkInterfaces": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkInterfaces/kube-apiserver.nic.a913ce2d-b009-466d-9e0e-30f3338e40b2"
+            }
+        ]
+    }
+}

@@ -1,0 +1,54 @@
+{
+    "name": "prodstorageaccountPE-nic",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prodstorageaccountPE-nic",
+    "etag": "W/\"9a7dbdf2-c41e-466a-a05d-ab3175cf4ce2\"",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "77016721-6d0d-490b-b4b6-1041ab10ca86",
+        "ipConfigurations": [
+            {
+                "name": "privateEndpointIpConfig.e1d7721d-4240-4e7a-8fbd-65a7fbad01a5",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prodstorageaccountPE-nic/ipConfigurations/privateEndpointIpConfig.e1d7721d-4240-4e7a-8fbd-65a7fbad01a5",
+                "etag": "W/\"9a7dbdf2-c41e-466a-a05d-ab3175cf4ce2\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.157.6",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+                    },
+                    "primary": true,
+                    "privateIPAddressVersion": "IPv4",
+                    "privateLinkConnectionProperties": {
+                        "groupId": "file",
+                        "requiredMemberName": "file",
+                        "fqdns": [
+                            "proddatarawstg.file.core.windows.net"
+                        ]
+                    }
+                }
+            }
+        ],
+        "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": [],
+            "internalDomainNameSuffix": "bayi5vinoffulc5xs2w0lvh1ah.bx.internal.cloudapp.net"
+        },
+        "macAddress": "",
+        "enableAcceleratedNetworking": false,
+        "vnetEncryptionSupported": false,
+        "enableIPForwarding": false,
+        "hostedWorkloads": [],
+        "tapConfigurations": [],
+        "privateEndpoint": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prodstorageaccountPE"
+        },
+        "nicType": "Standard",
+        "auxiliaryMode": "None"
+    },
+    "type": "Microsoft.Network/networkInterfaces",
+    "location": "eastus",
+    "kind": "Regular"
+}

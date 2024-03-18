@@ -1,0 +1,77 @@
+{
+    "name": "prod-acr-pe.nic.3fc34c02-25aa-4c26-8f2c-e73b3c9b891c",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prod-acr-pe.nic.3fc34c02-25aa-4c26-8f2c-e73b3c9b891c",
+    "etag": "W/\"fec1146c-fc41-4f42-9e2b-87fa72003e27\"",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "6e24b9ac-04f4-43ad-b815-bec92e9f65a9",
+        "ipConfigurations": [
+            {
+                "name": "privateEndpointIpConfig.7914d3d9-74b6-4fdb-bc11-33e4104c91f6",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prod-acr-pe.nic.3fc34c02-25aa-4c26-8f2c-e73b3c9b891c/ipConfigurations/privateEndpointIpConfig.7914d3d9-74b6-4fdb-bc11-33e4104c91f6",
+                "etag": "W/\"fec1146c-fc41-4f42-9e2b-87fa72003e27\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.157.4",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+                    },
+                    "primary": true,
+                    "privateIPAddressVersion": "IPv4",
+                    "privateLinkConnectionProperties": {
+                        "groupId": "registry",
+                        "requiredMemberName": "registry_data_eastus",
+                        "fqdns": [
+                            "prodacrrecdst.eastus.data.azurecr.io"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "privateEndpointIpConfig.5bd5e528-2bab-42c8-bdb5-66a5e8d25a18",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prod-acr-pe.nic.3fc34c02-25aa-4c26-8f2c-e73b3c9b891c/ipConfigurations/privateEndpointIpConfig.5bd5e528-2bab-42c8-bdb5-66a5e8d25a18",
+                "etag": "W/\"fec1146c-fc41-4f42-9e2b-87fa72003e27\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.157.5",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+                    },
+                    "primary": false,
+                    "privateIPAddressVersion": "IPv4",
+                    "privateLinkConnectionProperties": {
+                        "groupId": "registry",
+                        "requiredMemberName": "registry",
+                        "fqdns": [
+                            "prodacrrecdst.azurecr.io"
+                        ]
+                    }
+                }
+            }
+        ],
+        "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": [],
+            "internalDomainNameSuffix": "bayi5vinoffulc5xs2w0lvh1ah.bx.internal.cloudapp.net"
+        },
+        "macAddress": "",
+        "enableAcceleratedNetworking": false,
+        "vnetEncryptionSupported": false,
+        "enableIPForwarding": false,
+        "hostedWorkloads": [],
+        "tapConfigurations": [],
+        "privateEndpoint": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prod-acr-pe"
+        },
+        "nicType": "Standard",
+        "auxiliaryMode": "None"
+    },
+    "type": "Microsoft.Network/networkInterfaces",
+    "location": "eastus",
+    "kind": "Regular"
+}

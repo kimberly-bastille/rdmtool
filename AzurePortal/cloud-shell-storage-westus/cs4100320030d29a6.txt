@@ -1,0 +1,58 @@
+{
+    "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/cloud-shell-storage-westus/providers/Microsoft.Storage/storageAccounts/cs4100320030d3d29a6",
+    "name": "cs4100320030d3d29a6",
+    "type": "Microsoft.Storage/storageAccounts",
+    "location": "westus",
+    "tags": {
+        "ms-resource-usage": "azure-cloud-shell"
+    },
+    "properties": {
+        "keyCreationTime": {
+            "key1": "2023-11-03T14:08:20.3704012Z",
+            "key2": "2023-11-03T14:08:20.3704012Z"
+        },
+        "privateEndpointConnections": [],
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "networkAcls": {
+            "bypass": "AzureServices",
+            "virtualNetworkRules": [],
+            "ipRules": [],
+            "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+            "services": {
+                "file": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-03T14:08:20.4797763Z"
+                },
+                "blob": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-03T14:08:20.4797763Z"
+                }
+            },
+            "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot",
+        "provisioningState": "Succeeded",
+        "creationTime": "2023-11-03T14:08:20.2766516Z",
+        "primaryEndpoints": {
+            "dfs": "https://cs4100320030d3d29a6.dfs.core.windows.net/",
+            "web": "https://cs4100320030d3d29a6.z22.web.core.windows.net/",
+            "blob": "https://cs4100320030d3d29a6.blob.core.windows.net/",
+            "queue": "https://cs4100320030d3d29a6.queue.core.windows.net/",
+            "table": "https://cs4100320030d3d29a6.table.core.windows.net/",
+            "file": "https://cs4100320030d3d29a6.file.core.windows.net/"
+        },
+        "primaryLocation": "westus",
+        "statusOfPrimary": "available"
+    }
+}

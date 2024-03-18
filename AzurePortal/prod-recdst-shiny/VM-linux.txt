@@ -1,0 +1,95 @@
+{
+    "name": "VM-linux",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Compute/virtualMachines/VM-linux",
+    "type": "Microsoft.Compute/virtualMachines",
+    "location": "eastus",
+    "identity": {
+        "type": "SystemAssigned",
+        "principalId": "08966362-26a8-4e56-9fda-c3c1903f3a0a",
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1"
+    },
+    "properties": {
+        "hardwareProfile": {
+            "vmSize": "Standard_D4s_v3"
+        },
+        "provisioningState": "Succeeded",
+        "vmId": "c8cd027c-e5b7-4fa4-bedc-f54518e379f7",
+        "additionalCapabilities": {
+            "hibernationEnabled": false
+        },
+        "storageProfile": {
+            "imageReference": {
+                "publisher": "canonical",
+                "offer": "0001-com-ubuntu-server-jammy",
+                "sku": "22_04-lts-gen2",
+                "version": "latest",
+                "exactVersion": "22.04.202311010"
+            },
+            "osDisk": {
+                "osType": "Linux",
+                "name": "VM-linux_OsDisk_1_ccc29960fb7e4e33bcabb51d4a2fd39f",
+                "createOption": "FromImage",
+                "caching": "ReadWrite",
+                "managedDisk": {
+                    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Compute/disks/VM-linux_OsDisk_1_ccc29960fb7e4e33bcabb51d4a2fd39f"
+                },
+                "deleteOption": "Delete"
+            },
+            "dataDisks": []
+        },
+        "osProfile": {
+            "computerName": "VM-linux",
+            "adminUsername": "kimberlybastille",
+            "linuxConfiguration": {
+                "disablePasswordAuthentication": false,
+                "provisionVMAgent": true,
+                "patchSettings": {
+                    "patchMode": "ImageDefault",
+                    "assessmentMode": "ImageDefault"
+                }
+            },
+            "secrets": [],
+            "allowExtensionOperations": true,
+            "requireGuestProvisionSignal": true
+        },
+        "securityProfile": {
+            "uefiSettings": {
+                "secureBootEnabled": true,
+                "vTpmEnabled": true
+            },
+            "securityType": "TrustedLaunch"
+        },
+        "networkProfile": {
+            "networkInterfaces": [
+                {
+                    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/vm-linux127",
+                    "properties": {
+                        "deleteOption": "Delete"
+                    }
+                }
+            ]
+        },
+        "diagnosticsProfile": {
+            "bootDiagnostics": {
+                "enabled": true
+            }
+        }
+    },
+    "resources": [
+        {
+            "name": "AzurePolicyforLinux",
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Compute/virtualMachines/VM-linux/extensions/AzurePolicyforLinux",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "location": "eastus",
+            "properties": {
+                "autoUpgradeMinorVersion": true,
+                "provisioningState": "Succeeded",
+                "enableAutomaticUpgrade": true,
+                "publisher": "Microsoft.GuestConfiguration",
+                "type": "ConfigurationforLinux",
+                "typeHandlerVersion": "1.0",
+                "settings": {}
+            }
+        }
+    ]
+}

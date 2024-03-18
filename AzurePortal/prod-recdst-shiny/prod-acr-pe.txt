@@ -1,0 +1,41 @@
+{
+    "name": "prod-acr-pe",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prod-acr-pe",
+    "etag": "W/\"ffe9ad91-7fd9-4795-8aa9-4c654fe8bee8\"",
+    "type": "Microsoft.Network/privateEndpoints",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "07c65626-e1ce-4cbc-8fe3-757f355de4d3",
+        "privateLinkServiceConnections": [
+            {
+                "name": "prod-acr-pe_02dfdf22-8f07-4782-83c1-943ea707a067",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prod-acr-pe/privateLinkServiceConnections/prod-acr-pe_02dfdf22-8f07-4782-83c1-943ea707a067",
+                "etag": "W/\"ffe9ad91-7fd9-4795-8aa9-4c654fe8bee8\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateLinkServiceId": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/prod-recdst-shiny/providers/Microsoft.ContainerRegistry/registries/prodacrrecdst",
+                    "groupIds": [
+                        "registry"
+                    ],
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Auto-Approved",
+                        "actionsRequired": "None"
+                    }
+                },
+                "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections"
+            }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+        },
+        "networkInterfaces": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prod-acr-pe.nic.3fc34c02-25aa-4c26-8f2c-e73b3c9b891c"
+            }
+        ]
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "location": "eastus",
+    "tags": {},
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.ManagedIdentity/userAssignedIdentities/webapprouting-aks-prod-cluster",
+    "name": "webapprouting-aks-prod-cluster",
+    "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    "properties": {
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+        "principalId": "b60fe764-8890-460b-94fb-c59fc3c3bc5e",
+        "clientId": "0f2833ef-1622-430e-b160-a65afd834f94"
+    }
+}

@@ -1,0 +1,58 @@
+{
+    "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Storage/storageAccounts/f463a61eb0dab41e5b4681d",
+    "name": "f463a61eb0dab41e5b4681d",
+    "type": "Microsoft.Storage/storageAccounts",
+    "location": "eastus",
+    "tags": {
+        "k8s-azure-created-by": "azure"
+    },
+    "properties": {
+        "keyCreationTime": {
+            "key1": "2023-11-16T19:17:19.5830147Z",
+            "key2": "2023-11-16T19:17:19.5830147Z"
+        },
+        "privateEndpointConnections": [],
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "networkAcls": {
+            "bypass": "AzureServices",
+            "virtualNetworkRules": [],
+            "ipRules": [],
+            "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+            "services": {
+                "file": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-16T19:17:19.6767732Z"
+                },
+                "blob": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-16T19:17:19.6767732Z"
+                }
+            },
+            "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot",
+        "provisioningState": "Succeeded",
+        "creationTime": "2023-11-16T19:17:19.4580101Z",
+        "primaryEndpoints": {
+            "dfs": "https://f463a61eb0dab41e5b4681d.dfs.core.windows.net/",
+            "web": "https://f463a61eb0dab41e5b4681d.z13.web.core.windows.net/",
+            "blob": "https://f463a61eb0dab41e5b4681d.blob.core.windows.net/",
+            "queue": "https://f463a61eb0dab41e5b4681d.queue.core.windows.net/",
+            "table": "https://f463a61eb0dab41e5b4681d.table.core.windows.net/",
+            "file": "https://f463a61eb0dab41e5b4681d.file.core.windows.net/"
+        },
+        "primaryLocation": "eastus",
+        "statusOfPrimary": "available"
+    }
+}

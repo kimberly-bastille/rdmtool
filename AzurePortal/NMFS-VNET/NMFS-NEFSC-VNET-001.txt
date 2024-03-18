@@ -1,0 +1,204 @@
+{
+    "name": "NMFS-NEFSC-VNET-001",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001",
+    "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+    "type": "Microsoft.Network/virtualNetworks",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "d58f3008-710d-454b-8bf7-972da5d4fb07",
+        "addressSpace": {
+            "addressPrefixes": [
+                "10.28.156.0/23",
+                "137.75.101.16/28",
+                "2601:A005:3200::/48"
+            ]
+        },
+        "subnets": [
+            {
+                "name": "NMFS-NEFSC-SN-PRV",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV",
+                "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "10.28.156.0/24",
+                    "routeTable": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PRV-RT"
+                    },
+                    "ipConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/providers/Microsoft.Network/loadBalancers/KUBERNETES-INTERNAL/frontendIPConfigurations/A4D928ED68B194CF3BEB072D4A48BF6D"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/providers/Microsoft.Network/networkInterfaces/KUBE-APISERVER.NIC.A913CE2D-B009-466D-9E0E-30F3338E40B2/ipConfigurations/PRIVATEENDPOINTIPCONFIG.DC330F26-1724-4021-8381-8DA9C65A8CFB"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/AKS-NODEPOOL1-11226262-VMSS/VIRTUALMACHINES/0/NETWORKINTERFACES/AKS-NODEPOOL1-11226262-VMSS/ipConfigurations/IPCONFIG1"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/AKS-NODEPOOL1-11226262-VMSS/VIRTUALMACHINES/1/NETWORKINTERFACES/AKS-NODEPOOL1-11226262-VMSS/ipConfigurations/IPCONFIG1"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/PROVIDERS/MICROSOFT.COMPUTE/VIRTUALMACHINESCALESETS/AKS-NODEPOOL1-11226262-VMSS/VIRTUALMACHINES/2/NETWORKINTERFACES/AKS-NODEPOOL1-11226262-VMSS/ipConfigurations/IPCONFIG1"
+                        }
+                    ],
+                    "privateEndpoints": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_PROD-RECDST-SHINY_AKS-PROD-CLUSTER_EASTUS/providers/Microsoft.Network/privateEndpoints/KUBE-APISERVER"
+                        }
+                    ],
+                    "serviceEndpoints": [],
+                    "delegations": [],
+                    "purpose": "PrivateEndpoints",
+                    "privateEndpointNetworkPolicies": "Disabled",
+                    "privateLinkServiceNetworkPolicies": "Enabled"
+                },
+                "type": "Microsoft.Network/virtualNetworks/subnets"
+            },
+            {
+                "name": "NMFS-NEFSC-SN-PUB",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PUB",
+                "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "137.75.101.16/28",
+                    "routeTable": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PUB-RT"
+                    },
+                    "ipConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/applicationGateways/PROD-APP-GATEWAY/frontendIPConfigurations/APPGWPRIVATEFRONTENDIPIPV4"
+                        },
+                        {
+                            "id": "/subscriptions/a9d20a4f-322e-4db3-80ef-74465d1d91df/resourceGroups/armrg-559f90d3-8b92-48d5-bd26-c4d78ba3385d/providers/Microsoft.Network/loadBalancers/appgwILB/frontendIPConfigurations/appGwPrivateFrontendIpIPv4"
+                        }
+                    ],
+                    "applicationGatewayIPConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/gatewayIPConfigurations/appGatewayIpConfig"
+                        }
+                    ],
+                    "serviceEndpoints": [],
+                    "delegations": [],
+                    "privateEndpointNetworkPolicies": "Disabled",
+                    "privateLinkServiceNetworkPolicies": "Enabled"
+                },
+                "type": "Microsoft.Network/virtualNetworks/subnets"
+            },
+            {
+                "name": "NMFS-NEFSC-SN-PRV-prvendpoints",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints",
+                "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "10.28.157.0/27",
+                    "routeTable": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PRV-RT"
+                    },
+                    "ipConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/networkInterfaces/KEYVAULT-PE.NIC.75380923-FFC7-471D-ADF3-DFF60F13AD88/ipConfigurations/PRIVATEENDPOINTIPCONFIG.DF00CE78-0862-49FC-8134-BC7B4E43BFC8"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/networkInterfaces/PROD-ACR-PE.NIC.3FC34C02-25AA-4C26-8F2C-E73B3C9B891C/ipConfigurations/PRIVATEENDPOINTIPCONFIG.5BD5E528-2BAB-42C8-BDB5-66A5E8D25A18"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/networkInterfaces/PROD-ACR-PE.NIC.3FC34C02-25AA-4C26-8F2C-E73B3C9B891C/ipConfigurations/PRIVATEENDPOINTIPCONFIG.7914D3D9-74B6-4FDB-BC11-33E4104C91F6"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/networkInterfaces/PRODSTORAGEACCOUNTPE-NIC/ipConfigurations/PRIVATEENDPOINTIPCONFIG.E1D7721D-4240-4E7A-8FBD-65A7FBAD01A5"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/networkInterfaces/VM-LINUX127/ipConfigurations/IPCONFIG1"
+                        }
+                    ],
+                    "privateEndpoints": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/privateEndpoints/KEYVAULT-PE"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/privateEndpoints/PROD-ACR-PE"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/privateEndpoints/PRODSTORAGEACCOUNTPE"
+                        }
+                    ],
+                    "serviceEndpoints": [],
+                    "delegations": [],
+                    "purpose": "PrivateEndpoints",
+                    "privateEndpointNetworkPolicies": "Disabled",
+                    "privateLinkServiceNetworkPolicies": "Enabled"
+                },
+                "type": "Microsoft.Network/virtualNetworks/subnets"
+            },
+            {
+                "name": "AzureBastionSubnet",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/AzureBastionSubnet",
+                "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "10.28.157.64/26",
+                    "ipConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/PROD-RECDST-SHINY/providers/Microsoft.Network/bastionHosts/BASTION/bastionHostIpConfigurations/IPCONF"
+                        }
+                    ],
+                    "serviceEndpoints": [],
+                    "delegations": [],
+                    "privateEndpointNetworkPolicies": "Disabled",
+                    "privateLinkServiceNetworkPolicies": "Enabled"
+                },
+                "type": "Microsoft.Network/virtualNetworks/subnets"
+            }
+        ],
+        "virtualNetworkPeerings": [
+            {
+                "name": "EAST-HUB",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/virtualNetworkPeerings/EAST-HUB",
+                "etag": "W/\"5e8a94b9-08a3-423e-b9b9-d14aaf20e9e1\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "resourceGuid": "31a176c6-b9b9-0dc1-33fa-248a9635c409",
+                    "peeringState": "Connected",
+                    "peeringSyncLevel": "FullyInSync",
+                    "remoteVirtualNetwork": {
+                        "id": "/subscriptions/f556ae2d-cc38-4d64-bb12-582f32c04de8/resourceGroups/NWAVE-EAST/providers/Microsoft.Network/virtualNetworks/EAST-HUB"
+                    },
+                    "allowVirtualNetworkAccess": true,
+                    "allowForwardedTraffic": true,
+                    "allowGatewayTransit": false,
+                    "useRemoteGateways": true,
+                    "doNotVerifyRemoteGateways": false,
+                    "peerCompleteVnets": true,
+                    "remoteGateways": [
+                        {
+                            "id": "/subscriptions/f556ae2d-cc38-4d64-bb12-582f32c04de8/resourceGroups/NWAVE-EAST/providers/Microsoft.Network/virtualNetworkGateways/EAST-VNGW"
+                        }
+                    ],
+                    "remoteAddressSpace": {
+                        "addressPrefixes": [
+                            "10.28.128.0/22",
+                            "137.75.100.0/24",
+                            "198.18.6.16/28",
+                            "2610:20:90E2::/59",
+                            "137.75.103.192/26"
+                        ]
+                    },
+                    "remoteVirtualNetworkAddressSpace": {
+                        "addressPrefixes": [
+                            "10.28.128.0/22",
+                            "137.75.100.0/24",
+                            "198.18.6.16/28",
+                            "2610:20:90E2::/59",
+                            "137.75.103.192/26"
+                        ]
+                    },
+                    "routeServiceVips": {}
+                },
+                "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+            }
+        ],
+        "enableDdosProtection": false
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "name": "prodstorageaccountPE",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prodstorageaccountPE",
+    "etag": "W/\"50a2c67c-1ab7-4139-8503-f8fabccd062b\"",
+    "type": "Microsoft.Network/privateEndpoints",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "a85a95c1-fc09-4343-b526-b23cbbe08c16",
+        "privateLinkServiceConnections": [
+            {
+                "name": "prodstorageaccountPE",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prodstorageaccountPE/privateLinkServiceConnections/prodstorageaccountPE",
+                "etag": "W/\"50a2c67c-1ab7-4139-8503-f8fabccd062b\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateLinkServiceId": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Storage/storageAccounts/proddatarawstg",
+                    "groupIds": [
+                        "file"
+                    ],
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Auto-Approved",
+                        "actionsRequired": "None"
+                    }
+                },
+                "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections"
+            }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+        },
+        "networkInterfaces": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/prodstorageaccountPE-nic"
+            }
+        ]
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "location": "eastus",
+    "tags": {},
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.ManagedIdentity/userAssignedIdentities/aks-prod-cluster-agentpool",
+    "name": "aks-prod-cluster-agentpool",
+    "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    "properties": {
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+        "principalId": "bb84750b-eead-454e-bb2d-8928c41ea2d0",
+        "clientId": "c7b2dbc8-894c-458d-9e0b-a6d5509e4d15"
+    }
+}

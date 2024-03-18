@@ -1,0 +1,17 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/nmfs-vnet/providers/Microsoft.Network/privateDnsZones/privatelink.azurecr.io",
+    "name": "privatelink.azurecr.io",
+    "type": "Microsoft.Network/privateDnsZones",
+    "etag": "1570c3e7-f947-4ddc-ad57-cac14af27743",
+    "location": "global",
+    "tags": {},
+    "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+        "numberOfRecordSets": 3,
+        "numberOfVirtualNetworkLinks": 1,
+        "numberOfVirtualNetworkLinksWithRegistration": 0,
+        "provisioningState": "Succeeded"
+    }
+}

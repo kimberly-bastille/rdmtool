@@ -1,0 +1,230 @@
+{
+    "name": "prod-app-gateway",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway",
+    "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+    "type": "Microsoft.Network/applicationGateways",
+    "location": "eastus",
+    "tags": {
+        "EnhancedNetworkControl": "True"
+    },
+    "zones": [
+        "1",
+        "2",
+        "3"
+    ],
+    "identity": {
+        "type": "userAssigned"
+    },
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "5cd6a024-939e-4095-adef-fc1dd4ab8bd1",
+        "sku": {
+            "name": "Standard_v2",
+            "tier": "Standard_v2",
+            "family": "Generation_1"
+        },
+        "operationalState": "Running",
+        "gatewayIPConfigurations": [
+            {
+                "name": "appGatewayIpConfig",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/gatewayIPConfigurations/appGatewayIpConfig",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PUB"
+                    }
+                },
+                "type": "Microsoft.Network/applicationGateways/gatewayIPConfigurations"
+            }
+        ],
+        "sslCertificates": [
+            {
+                "name": "recreationalfisheriesdsta692b92a-efc4-4d5e-a49c-20e03faac231",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/sslCertificates/recreationalfisheriesdsta692b92a-efc4-4d5e-a49c-20e03faac231",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "httpListeners": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/httpslistener"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/sslCertificates"
+            }
+        ],
+        "frontendIPConfigurations": [
+            {
+                "name": "appGwPrivateFrontendIpIPv4",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendIPConfigurations/appGwPrivateFrontendIpIPv4",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "type": "Microsoft.Network/applicationGateways/frontendIPConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "137.75.101.25",
+                    "privateIPAllocationMethod": "Static",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PUB"
+                    },
+                    "httpListeners": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/listener"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/httpslistener"
+                        }
+                    ]
+                }
+            }
+        ],
+        "frontendPorts": [
+            {
+                "name": "port_80",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendPorts/port_80",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "port": 80,
+                    "httpListeners": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/listener"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/frontendPorts"
+            },
+            {
+                "name": "port_443",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendPorts/port_443",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "port": 443,
+                    "httpListeners": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/httpslistener"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/frontendPorts"
+            }
+        ],
+        "backendAddressPools": [
+            {
+                "name": "ingress-aks",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/backendAddressPools/ingress-aks",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "backendAddresses": [
+                        {
+                            "ipAddress": "10.28.156.8"
+                        }
+                    ],
+                    "requestRoutingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/requestRoutingRules/shinyrouterule"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/backendAddressPools"
+            }
+        ],
+        "backendHttpSettingsCollection": [
+            {
+                "name": "backend-settings",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/backendHttpSettingsCollection/backend-settings",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "port": 80,
+                    "protocol": "Http",
+                    "cookieBasedAffinity": "Enabled",
+                    "connectionDraining": {
+                        "enabled": true,
+                        "drainTimeoutInSec": 60
+                    },
+                    "pickHostNameFromBackendAddress": false,
+                    "affinityCookieName": "ApplicationGatewayAffinity",
+                    "requestTimeout": 20,
+                    "requestRoutingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/requestRoutingRules/shinyrouterule"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/backendHttpSettingsCollection"
+            }
+        ],
+        "httpListeners": [
+            {
+                "name": "listener",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/listener",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "frontendIPConfiguration": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendIPConfigurations/appGwPrivateFrontendIpIPv4"
+                    },
+                    "frontendPort": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendPorts/port_80"
+                    },
+                    "protocol": "Http",
+                    "requireServerNameIndication": false
+                },
+                "type": "Microsoft.Network/applicationGateways/httpListeners"
+            },
+            {
+                "name": "httpslistener",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/httpslistener",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "frontendIPConfiguration": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendIPConfigurations/appGwPrivateFrontendIpIPv4"
+                    },
+                    "frontendPort": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/frontendPorts/port_443"
+                    },
+                    "protocol": "Https",
+                    "sslCertificate": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/sslCertificates/recreationalfisheriesdsta692b92a-efc4-4d5e-a49c-20e03faac231"
+                    },
+                    "requireServerNameIndication": false,
+                    "requestRoutingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/requestRoutingRules/shinyrouterule"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/applicationGateways/httpListeners"
+            }
+        ],
+        "urlPathMaps": [],
+        "requestRoutingRules": [
+            {
+                "name": "shinyrouterule",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/requestRoutingRules/shinyrouterule",
+                "etag": "W/\"62513ee9-15f4-4169-9863-f99e3e4e8e12\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "ruleType": "Basic",
+                    "httpListener": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/httpListeners/httpslistener"
+                    },
+                    "backendAddressPool": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/backendAddressPools/ingress-aks"
+                    },
+                    "backendHttpSettings": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/applicationGateways/prod-app-gateway/backendHttpSettingsCollection/backend-settings"
+                    }
+                },
+                "type": "Microsoft.Network/applicationGateways/requestRoutingRules"
+            }
+        ],
+        "probes": [],
+        "redirectConfigurations": [],
+        "enableHttp2": true
+    }
+}

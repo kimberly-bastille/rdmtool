@@ -1,0 +1,17 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/privateDnsZones/96b6a073-73ac-4e84-a698-3d684ea83ef1.privatelink.eastus.azmk8s.io",
+    "name": "96b6a073-73ac-4e84-a698-3d684ea83ef1.privatelink.eastus.azmk8s.io",
+    "type": "Microsoft.Network/privateDnsZones",
+    "etag": "1174f58e-e600-4014-ad23-a261783d2f79",
+    "location": "global",
+    "tags": {},
+    "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+        "numberOfRecordSets": 2,
+        "numberOfVirtualNetworkLinks": 1,
+        "numberOfVirtualNetworkLinksWithRegistration": 0,
+        "provisioningState": "Succeeded"
+    }
+}

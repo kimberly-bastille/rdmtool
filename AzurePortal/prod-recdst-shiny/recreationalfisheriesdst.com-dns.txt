@@ -1,0 +1,19 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/dnszones/recreationalfisheriesdst.com",
+    "name": "recreationalfisheriesdst.com",
+    "type": "Microsoft.Network/dnszones",
+    "etag": "9079723f-3a1e-4bfa-a300-48c6dd653e2f",
+    "location": "global",
+    "tags": {},
+    "properties": {
+        "maxNumberOfRecordSets": 10000,
+        "maxNumberOfRecordsPerRecordSet": null,
+        "nameServers": [
+            "ns1-37.azure-dns.com.",
+            "ns2-37.azure-dns.net.",
+            "ns3-37.azure-dns.org.",
+            "ns4-37.azure-dns.info."
+        ],
+        "numberOfRecordSets": 4
+    }
+}

@@ -1,0 +1,17 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/nmfs-vnet/providers/Microsoft.Network/privateDnsZones/privatelink.file.core.windows.net",
+    "name": "privatelink.file.core.windows.net",
+    "type": "Microsoft.Network/privateDnsZones",
+    "etag": "16b8e238-b70f-420c-a6ea-59c47c69a540",
+    "location": "global",
+    "tags": {},
+    "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+        "numberOfRecordSets": 2,
+        "numberOfVirtualNetworkLinks": 1,
+        "numberOfVirtualNetworkLinksWithRegistration": 0,
+        "provisioningState": "Succeeded"
+    }
+}

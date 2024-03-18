@@ -1,0 +1,164 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.KeyVault/vaults/prodrecdstcertkeyvault",
+    "name": "prodrecdstcertkeyvault",
+    "type": "Microsoft.KeyVault/vaults",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "sku": {
+            "family": "A",
+            "name": "Standard"
+        },
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+        "networkAcls": {
+            "bypass": "AzureServices",
+            "defaultAction": "Deny",
+            "ipRules": [],
+            "virtualNetworkRules": []
+        },
+        "privateEndpointConnections": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.KeyVault/vaults/prodrecdstcertkeyvault/privateEndpointConnections/keyvault-pe_02dfdf22-8f07-4782-83c1-943ea707a0f8",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateEndpoint": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/keyvault-pe"
+                    },
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "actionsRequired": "None"
+                    }
+                }
+            }
+        ],
+        "accessPolicies": [
+            {
+                "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+                "objectId": "c1be29b0-d05f-4063-a25d-1e849f00da15",
+                "permissions": {
+                    "keys": [],
+                    "secrets": [
+                        "Get",
+                        "Set",
+                        "Delete"
+                    ],
+                    "certificates": [
+                        "Get",
+                        "Update",
+                        "Create",
+                        "Import",
+                        "Delete"
+                    ]
+                }
+            },
+            {
+                "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+                "objectId": "94dcfdc1-fdc7-4ee3-b72e-f8300c5d63c3",
+                "permissions": {
+                    "keys": [],
+                    "secrets": [
+                        "Get"
+                    ],
+                    "certificates": []
+                }
+            },
+            {
+                "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+                "objectId": "5568287c-65fc-4ce5-bbe1-9d5f7a48baa1",
+                "permissions": {
+                    "certificates": [
+                        "Get",
+                        "List",
+                        "Update",
+                        "Create",
+                        "Import",
+                        "Delete",
+                        "Recover",
+                        "Backup",
+                        "Restore",
+                        "ManageContacts",
+                        "ManageIssuers",
+                        "GetIssuers",
+                        "ListIssuers",
+                        "SetIssuers",
+                        "DeleteIssuers"
+                    ],
+                    "keys": [],
+                    "secrets": [
+                        "Get",
+                        "List",
+                        "Set",
+                        "Delete",
+                        "Recover",
+                        "Backup",
+                        "Restore"
+                    ]
+                }
+            },
+            {
+                "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+                "objectId": "a1eb0282-3a64-4494-9460-5516d3384629",
+                "permissions": {
+                    "certificates": [
+                        "Get",
+                        "List",
+                        "Update",
+                        "Create",
+                        "Import",
+                        "Delete",
+                        "Recover",
+                        "Backup",
+                        "Restore",
+                        "ManageContacts",
+                        "ManageIssuers",
+                        "GetIssuers",
+                        "ListIssuers",
+                        "SetIssuers",
+                        "DeleteIssuers",
+                        "Purge"
+                    ],
+                    "keys": [
+                        "Get",
+                        "List",
+                        "Update",
+                        "Create",
+                        "Import",
+                        "Delete",
+                        "Recover",
+                        "Backup",
+                        "Restore",
+                        "GetRotationPolicy",
+                        "SetRotationPolicy",
+                        "Rotate",
+                        "Encrypt",
+                        "Decrypt",
+                        "UnwrapKey",
+                        "WrapKey",
+                        "Verify",
+                        "Sign",
+                        "Purge",
+                        "Release"
+                    ],
+                    "secrets": [
+                        "Get",
+                        "List",
+                        "Set",
+                        "Delete",
+                        "Recover",
+                        "Backup",
+                        "Restore",
+                        "Purge"
+                    ]
+                }
+            }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": false,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enableRbacAuthorization": false,
+        "vaultUri": "https://prodrecdstcertkeyvault.vault.azure.net/",
+        "provisioningState": "Succeeded"
+    }
+}

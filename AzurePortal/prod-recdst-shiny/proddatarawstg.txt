@@ -1,0 +1,79 @@
+{
+    "sku": {
+        "name": "Standard_ZRS",
+        "tier": "Standard"
+    },
+    "kind": "StorageV2",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Storage/storageAccounts/proddatarawstg",
+    "name": "proddatarawstg",
+    "type": "Microsoft.Storage/storageAccounts",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "dnsEndpointType": "Standard",
+        "defaultToOAuthAuthentication": false,
+        "publicNetworkAccess": "Enabled",
+        "keyCreationTime": {
+            "key1": "2023-11-16T16:50:03.6278846Z",
+            "key2": "2023-11-16T16:50:03.6278846Z"
+        },
+        "allowCrossTenantReplication": false,
+        "privateEndpointConnections": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Storage/storageAccounts/proddatarawstg/privateEndpointConnections/proddatarawstg.ad2843b5-1dd3-4971-ad6d-a5dfd3426f09",
+                "name": "proddatarawstg.ad2843b5-1dd3-4971-ad6d-a5dfd3426f09",
+                "type": "Microsoft.Storage/storageAccounts/privateEndpointConnections",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateEndpoint": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/prodstorageaccountPE"
+                    },
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "Auto-Approved",
+                        "actionRequired": "None"
+                    }
+                }
+            }
+        ],
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "allowSharedKeyAccess": true,
+        "networkAcls": {
+            "bypass": "AzureServices",
+            "virtualNetworkRules": [],
+            "ipRules": [],
+            "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+            "requireInfrastructureEncryption": false,
+            "services": {
+                "file": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-16T16:50:04.0184817Z"
+                },
+                "blob": {
+                    "keyType": "Account",
+                    "enabled": true,
+                    "lastEnabledTime": "2023-11-16T16:50:04.0184817Z"
+                }
+            },
+            "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot",
+        "provisioningState": "Succeeded",
+        "creationTime": "2023-11-16T16:50:03.4872322Z",
+        "primaryEndpoints": {
+            "dfs": "https://proddatarawstg.dfs.core.windows.net/",
+            "web": "https://proddatarawstg.z13.web.core.windows.net/",
+            "blob": "https://proddatarawstg.blob.core.windows.net/",
+            "queue": "https://proddatarawstg.queue.core.windows.net/",
+            "table": "https://proddatarawstg.table.core.windows.net/",
+            "file": "https://proddatarawstg.file.core.windows.net/"
+        },
+        "primaryLocation": "eastus",
+        "statusOfPrimary": "available"
+    }
+}

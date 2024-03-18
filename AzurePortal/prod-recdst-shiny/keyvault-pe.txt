@@ -1,0 +1,41 @@
+{
+    "name": "keyvault-pe",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/keyvault-pe",
+    "etag": "W/\"6fa52d78-d6e7-4bf5-8bdf-054a7792fcdf\"",
+    "type": "Microsoft.Network/privateEndpoints",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "03dc5aee-916b-41c5-9cc7-dfb7e1575807",
+        "privateLinkServiceConnections": [
+            {
+                "name": "keyvault-pe_02dfdf22-8f07-4782-83c1-943ea707a0f8",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/keyvault-pe/privateLinkServiceConnections/keyvault-pe_02dfdf22-8f07-4782-83c1-943ea707a0f8",
+                "etag": "W/\"6fa52d78-d6e7-4bf5-8bdf-054a7792fcdf\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateLinkServiceId": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.KeyVault/vaults/prodrecdstcertkeyvault",
+                    "groupIds": [
+                        "vault"
+                    ],
+                    "privateLinkServiceConnectionState": {
+                        "status": "Approved",
+                        "description": "",
+                        "actionsRequired": "None"
+                    }
+                },
+                "type": "Microsoft.Network/privateEndpoints/privateLinkServiceConnections"
+            }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+        },
+        "networkInterfaces": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/keyvault-pe.nic.75380923-ffc7-471d-adf3-dff60f13ad88"
+            }
+        ]
+    }
+}

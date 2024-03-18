@@ -1,0 +1,12 @@
+{
+    "location": "eastus",
+    "tags": {},
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/prod-recdst-shiny/providers/Microsoft.ManagedIdentity/userAssignedIdentities/prod-app-gateway-MI",
+    "name": "prod-app-gateway-MI",
+    "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    "properties": {
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+        "principalId": "5568287c-65fc-4ce5-bbe1-9d5f7a48baa1",
+        "clientId": "fdf8e7a4-6fca-417e-a2c0-6faedfd53f98"
+    }
+}

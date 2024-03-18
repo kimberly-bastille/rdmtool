@@ -1,0 +1,12 @@
+{
+    "location": "eastus",
+    "tags": {},
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/prod-recdst-shiny/providers/Microsoft.ManagedIdentity/userAssignedIdentities/prod-aks-MI",
+    "name": "prod-aks-MI",
+    "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+    "properties": {
+        "tenantId": "47e5c632-88ac-4dcc-a5aa-295e4c1d9ac1",
+        "principalId": "212e7007-b538-4e52-8aab-83d26040afc4",
+        "clientId": "d5bc1e10-16be-414f-abac-4152fe07c95e"
+    }
+}

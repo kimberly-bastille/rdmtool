@@ -1,0 +1,180 @@
+{
+    "name": "kubernetes-internal",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal",
+    "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+    "type": "Microsoft.Network/loadBalancers",
+    "location": "eastus",
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "c96e226f-2fa2-45a6-90cd-4978d6646285",
+        "frontendIPConfigurations": [
+            {
+                "name": "a4d928ed68b194cf3beb072d4a48bf6d",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/frontendIPConfigurations/a4d928ed68b194cf3beb072d4a48bf6d",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "type": "Microsoft.Network/loadBalancers/frontendIPConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.156.8",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV"
+                    },
+                    "loadBalancingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-80"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-443"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-10254"
+                        }
+                    ]
+                }
+            }
+        ],
+        "backendAddressPools": [
+            {
+                "name": "kubernetes",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/backendAddressPools/kubernetes",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "backendIPConfigurations": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/0/networkInterfaces/aks-nodepool1-11226262-vmss/ipConfigurations/ipconfig1"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/1/networkInterfaces/aks-nodepool1-11226262-vmss/ipConfigurations/ipconfig1"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/2/networkInterfaces/aks-nodepool1-11226262-vmss/ipConfigurations/ipconfig1"
+                        }
+                    ],
+                    "loadBalancingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-80"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-443"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-10254"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/loadBalancers/backendAddressPools"
+            }
+        ],
+        "loadBalancingRules": [
+            {
+                "name": "a4d928ed68b194cf3beb072d4a48bf6d-TCP-80",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-80",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "type": "Microsoft.Network/loadBalancers/loadBalancingRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "frontendIPConfiguration": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/frontendIPConfigurations/a4d928ed68b194cf3beb072d4a48bf6d"
+                    },
+                    "frontendPort": 80,
+                    "backendPort": 80,
+                    "enableFloatingIP": true,
+                    "idleTimeoutInMinutes": 4,
+                    "protocol": "Tcp",
+                    "loadDistribution": "Default",
+                    "disableOutboundSnat": true,
+                    "backendAddressPool": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/backendAddressPools/kubernetes"
+                    },
+                    "probe": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/probes/a4d928ed68b194cf3beb072d4a48bf6d-TCP-30101"
+                    }
+                }
+            },
+            {
+                "name": "a4d928ed68b194cf3beb072d4a48bf6d-TCP-443",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-443",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "type": "Microsoft.Network/loadBalancers/loadBalancingRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "frontendIPConfiguration": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/frontendIPConfigurations/a4d928ed68b194cf3beb072d4a48bf6d"
+                    },
+                    "frontendPort": 443,
+                    "backendPort": 443,
+                    "enableFloatingIP": true,
+                    "idleTimeoutInMinutes": 4,
+                    "protocol": "Tcp",
+                    "loadDistribution": "Default",
+                    "disableOutboundSnat": true,
+                    "backendAddressPool": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/backendAddressPools/kubernetes"
+                    },
+                    "probe": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/probes/a4d928ed68b194cf3beb072d4a48bf6d-TCP-30101"
+                    }
+                }
+            },
+            {
+                "name": "a4d928ed68b194cf3beb072d4a48bf6d-TCP-10254",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-10254",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "type": "Microsoft.Network/loadBalancers/loadBalancingRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "frontendIPConfiguration": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/frontendIPConfigurations/a4d928ed68b194cf3beb072d4a48bf6d"
+                    },
+                    "frontendPort": 10254,
+                    "backendPort": 10254,
+                    "enableFloatingIP": true,
+                    "idleTimeoutInMinutes": 4,
+                    "protocol": "Tcp",
+                    "loadDistribution": "Default",
+                    "disableOutboundSnat": true,
+                    "backendAddressPool": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/backendAddressPools/kubernetes"
+                    },
+                    "probe": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/probes/a4d928ed68b194cf3beb072d4a48bf6d-TCP-30101"
+                    }
+                }
+            }
+        ],
+        "probes": [
+            {
+                "name": "a4d928ed68b194cf3beb072d4a48bf6d-TCP-30101",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/probes/a4d928ed68b194cf3beb072d4a48bf6d-TCP-30101",
+                "etag": "W/\"3ba98fca-a2a6-4941-9573-4fff3b2e0303\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "protocol": "Http",
+                    "port": 30101,
+                    "requestPath": "/healthz",
+                    "intervalInSeconds": 5,
+                    "numberOfProbes": 2,
+                    "loadBalancingRules": [
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-80"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-443"
+                        },
+                        {
+                            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/loadBalancers/kubernetes-internal/loadBalancingRules/a4d928ed68b194cf3beb072d4a48bf6d-TCP-10254"
+                        }
+                    ]
+                },
+                "type": "Microsoft.Network/loadBalancers/probes"
+            }
+        ],
+        "inboundNatRules": [],
+        "inboundNatPools": []
+    },
+    "sku": {
+        "name": "Standard"
+    }
+}

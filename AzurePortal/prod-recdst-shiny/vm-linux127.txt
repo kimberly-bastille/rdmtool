@@ -1,0 +1,49 @@
+{
+    "name": "vm-linux127",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/vm-linux127",
+    "etag": "W/\"203263e2-0a40-414a-be9d-fc506b41d2f0\"",
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "037f738b-9843-4c51-8cc0-d482e2318fa2",
+        "ipConfigurations": [
+            {
+                "name": "ipconfig1",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/vm-linux127/ipConfigurations/ipconfig1",
+                "etag": "W/\"203263e2-0a40-414a-be9d-fc506b41d2f0\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.157.8",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+                    },
+                    "primary": true,
+                    "privateIPAddressVersion": "IPv4"
+                }
+            }
+        ],
+        "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": []
+        },
+        "macAddress": "60-45-BD-EE-3F-DF",
+        "enableAcceleratedNetworking": true,
+        "vnetEncryptionSupported": false,
+        "enableIPForwarding": false,
+        "networkSecurityGroup": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkSecurityGroups/VM-linux-nsg"
+        },
+        "primary": true,
+        "virtualMachine": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Compute/virtualMachines/VM-linux"
+        },
+        "hostedWorkloads": [],
+        "tapConfigurations": [],
+        "nicType": "Standard",
+        "auxiliaryMode": "None"
+    },
+    "type": "Microsoft.Network/networkInterfaces",
+    "location": "eastus",
+    "kind": "Regular"
+}

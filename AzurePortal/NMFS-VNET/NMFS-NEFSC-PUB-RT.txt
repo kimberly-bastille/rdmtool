@@ -1,0 +1,44 @@
+{
+    "name": "NMFS-NEFSC-PUB-RT",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PUB-RT",
+    "etag": "W/\"015b8ac3-f4fe-4c75-a05b-df2ec9bd7ea5\"",
+    "type": "Microsoft.Network/routeTables",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "2d7c0c83-70e0-4bfa-9fc5-12e20d59facd",
+        "disableBgpRoutePropagation": true,
+        "routes": [
+            {
+                "name": "IPv4-Pub-Default",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PUB-RT/routes/IPv4-Pub-Default",
+                "etag": "W/\"015b8ac3-f4fe-4c75-a05b-df2ec9bd7ea5\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "0.0.0.0/0",
+                    "nextHopType": "VirtualAppliance",
+                    "nextHopIpAddress": "137.75.100.11"
+                },
+                "type": "Microsoft.Network/routeTables/routes"
+            },
+            {
+                "name": "IPv6-Pub-Default",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/routeTables/NMFS-NEFSC-PUB-RT/routes/IPv6-Pub-Default",
+                "etag": "W/\"015b8ac3-f4fe-4c75-a05b-df2ec9bd7ea5\"",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "addressPrefix": "::/0",
+                    "nextHopType": "VirtualAppliance",
+                    "nextHopIpAddress": "2610:20:90E2::11"
+                },
+                "type": "Microsoft.Network/routeTables/routes"
+            }
+        ],
+        "subnets": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PUB"
+            }
+        ]
+    }
+}

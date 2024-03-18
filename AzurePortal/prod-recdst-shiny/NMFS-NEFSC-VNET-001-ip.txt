@@ -1,0 +1,23 @@
+{
+    "name": "NMFS-NEFSC-VNET-001-ip",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/publicIPAddresses/NMFS-NEFSC-VNET-001-ip",
+    "etag": "W/\"810ad4a4-34bc-4ecc-ade1-23dad3dd38df\"",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "df8a83d3-f45c-43cf-bbfd-f517bd5a4874",
+        "ipAddress": "20.51.168.197",
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "ipTags": [],
+        "ipConfiguration": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/bastionHosts/bastion/bastionHostIpConfigurations/IpConf"
+        }
+    },
+    "type": "Microsoft.Network/publicIPAddresses",
+    "sku": {
+        "name": "Standard"
+    }
+}

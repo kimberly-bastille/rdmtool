@@ -1,0 +1,158 @@
+{
+    "name": "aks-agentpool-70788409-nsg",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg",
+    "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+    "type": "Microsoft.Network/networkSecurityGroups",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "78a5c7b0-30de-486b-99a8-9b968c94ce16",
+        "securityRules": [],
+        "defaultSecurityRules": [
+            {
+                "name": "AllowVnetInBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/AllowVnetInBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Allow inbound traffic from all VMs in VNET",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "VirtualNetwork",
+                    "destinationAddressPrefix": "VirtualNetwork",
+                    "access": "Allow",
+                    "priority": 65000,
+                    "direction": "Inbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            },
+            {
+                "name": "AllowAzureLoadBalancerInBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/AllowAzureLoadBalancerInBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Allow inbound traffic from azure load balancer",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "AzureLoadBalancer",
+                    "destinationAddressPrefix": "*",
+                    "access": "Allow",
+                    "priority": 65001,
+                    "direction": "Inbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            },
+            {
+                "name": "DenyAllInBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/DenyAllInBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Deny all inbound traffic",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Deny",
+                    "priority": 65500,
+                    "direction": "Inbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            },
+            {
+                "name": "AllowVnetOutBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/AllowVnetOutBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Allow outbound traffic from all VMs to all VMs in VNET",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "VirtualNetwork",
+                    "destinationAddressPrefix": "VirtualNetwork",
+                    "access": "Allow",
+                    "priority": 65000,
+                    "direction": "Outbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            },
+            {
+                "name": "AllowInternetOutBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/AllowInternetOutBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Allow outbound traffic from all VMs to Internet",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "Internet",
+                    "access": "Allow",
+                    "priority": 65001,
+                    "direction": "Outbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            },
+            {
+                "name": "DenyAllOutBound",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Network/networkSecurityGroups/aks-agentpool-70788409-nsg/defaultSecurityRules/DenyAllOutBound",
+                "etag": "W/\"2ee92e8b-1979-4055-bb91-9d26f4808325\"",
+                "type": "Microsoft.Network/networkSecurityGroups/defaultSecurityRules",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "description": "Deny all outbound traffic",
+                    "protocol": "*",
+                    "sourcePortRange": "*",
+                    "destinationPortRange": "*",
+                    "sourceAddressPrefix": "*",
+                    "destinationAddressPrefix": "*",
+                    "access": "Deny",
+                    "priority": 65500,
+                    "direction": "Outbound",
+                    "sourcePortRanges": [],
+                    "destinationPortRanges": [],
+                    "sourceAddressPrefixes": [],
+                    "destinationAddressPrefixes": []
+                }
+            }
+        ],
+        "networkInterfaces": [
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/2/networkInterfaces/aks-nodepool1-11226262-vmss"
+            },
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/1/networkInterfaces/aks-nodepool1-11226262-vmss"
+            },
+            {
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/0/networkInterfaces/aks-nodepool1-11226262-vmss"
+            }
+        ]
+    }
+}

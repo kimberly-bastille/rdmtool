@@ -1,0 +1,34 @@
+{
+    "name": "bastion",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/bastionHosts/bastion",
+    "etag": "W/\"7fadf2ae-5f8b-4396-a590-ee678cf2ebb3\"",
+    "type": "Microsoft.Network/bastionHosts",
+    "location": "eastus",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "dnsName": "bst-1086fcb6-487a-4ed9-808e-1aa48ff014b1.bastion.azure.com",
+        "scaleUnits": 2,
+        "ipConfigurations": [
+            {
+                "name": "IpConf",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/bastionHosts/bastion/bastionHostIpConfigurations/IpConf",
+                "etag": "W/\"7fadf2ae-5f8b-4396-a590-ee678cf2ebb3\"",
+                "type": "Microsoft.Network/bastionHosts/bastionHostIpConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "publicIPAddress": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/publicIPAddresses/NMFS-NEFSC-VNET-001-ip"
+                    },
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/AzureBastionSubnet"
+                    }
+                }
+            }
+        ]
+    },
+    "sku": {
+        "name": "Standard"
+    }
+}

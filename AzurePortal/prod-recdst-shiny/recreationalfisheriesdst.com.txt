@@ -1,0 +1,28 @@
+{
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.DomainRegistration/domains/recreationalfisheriesdst.com",
+    "name": "recreationalfisheriesdst.com",
+    "type": "Microsoft.DomainRegistration/domains",
+    "location": "global",
+    "tags": {},
+    "properties": {
+        "registrationStatus": "Active",
+        "provisioningState": "Succeeded",
+        "nameServers": [
+            "ns1-37.azure-dns.com",
+            "ns2-37.azure-dns.net",
+            "ns3-37.azure-dns.org",
+            "ns4-37.azure-dns.info"
+        ],
+        "privacy": true,
+        "createdTime": "2023-11-16T15:10:25",
+        "expirationTime": "2024-11-16T15:10:25",
+        "autoRenew": false,
+        "readyForDnsRecordManagement": true,
+        "managedHostNames": [],
+        "domainNotRenewableReasons": [
+            "ExpirationNotInRenewalTimeRange"
+        ],
+        "dnsType": "AzureDns",
+        "dnsZoneId": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourcegroups/prod-recdst-shiny/providers/Microsoft.Network/dnszones/recreationalfisheriesdst.com"
+    }
+}

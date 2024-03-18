@@ -1,0 +1,54 @@
+{
+    "name": "keyvault-pe.nic.75380923-ffc7-471d-adf3-dff60f13ad88",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/keyvault-pe.nic.75380923-ffc7-471d-adf3-dff60f13ad88",
+    "etag": "W/\"55f22bd1-2f07-4128-aebb-cea65af9600d\"",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded",
+        "resourceGuid": "7f9b6e3a-7d4f-4df1-9f95-48317451e3be",
+        "ipConfigurations": [
+            {
+                "name": "privateEndpointIpConfig.df00ce78-0862-49fc-8134-bc7b4e43bfc8",
+                "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/networkInterfaces/keyvault-pe.nic.75380923-ffc7-471d-adf3-dff60f13ad88/ipConfigurations/privateEndpointIpConfig.df00ce78-0862-49fc-8134-bc7b4e43bfc8",
+                "etag": "W/\"55f22bd1-2f07-4128-aebb-cea65af9600d\"",
+                "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                "properties": {
+                    "provisioningState": "Succeeded",
+                    "privateIPAddress": "10.28.157.9",
+                    "privateIPAllocationMethod": "Dynamic",
+                    "subnet": {
+                        "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/NMFS-VNET/providers/Microsoft.Network/virtualNetworks/NMFS-NEFSC-VNET-001/subnets/NMFS-NEFSC-SN-PRV-prvendpoints"
+                    },
+                    "primary": true,
+                    "privateIPAddressVersion": "IPv4",
+                    "privateLinkConnectionProperties": {
+                        "groupId": "vault",
+                        "requiredMemberName": "default",
+                        "fqdns": [
+                            "prodrecdstcertkeyvault.vault.azure.net"
+                        ]
+                    }
+                }
+            }
+        ],
+        "dnsSettings": {
+            "dnsServers": [],
+            "appliedDnsServers": [],
+            "internalDomainNameSuffix": "bayi5vinoffulc5xs2w0lvh1ah.bx.internal.cloudapp.net"
+        },
+        "macAddress": "",
+        "enableAcceleratedNetworking": false,
+        "vnetEncryptionSupported": false,
+        "enableIPForwarding": false,
+        "hostedWorkloads": [],
+        "tapConfigurations": [],
+        "privateEndpoint": {
+            "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/prod-recdst-shiny/providers/Microsoft.Network/privateEndpoints/keyvault-pe"
+        },
+        "nicType": "Standard",
+        "auxiliaryMode": "None"
+    },
+    "type": "Microsoft.Network/networkInterfaces",
+    "location": "eastus",
+    "kind": "Regular"
+}

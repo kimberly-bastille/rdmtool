@@ -1,0 +1,35 @@
+{
+    "name": "pvc-aa7aeb36-6448-45d0-98c7-088bfb59eace",
+    "id": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/mc_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/disks/pvc-aa7aeb36-6448-45d0-98c7-088bfb59eace",
+    "type": "Microsoft.Compute/disks",
+    "location": "eastus",
+    "tags": {
+        "k8s-azure-created-by": "kubernetes-azure-dd",
+        "kubernetes.io-created-for-pv-name": "pvc-aa7aeb36-6448-45d0-98c7-088bfb59eace",
+        "kubernetes.io-created-for-pvc-name": "redis-data-redis-node-1",
+        "kubernetes.io-created-for-pvc-namespace": "shinyproxy"
+    },
+    "managedBy": "/subscriptions/508f70be-d0c8-49ec-991c-8bc6d302e2cb/resourceGroups/MC_prod-recdst-shiny_aks-prod-cluster_eastus/providers/Microsoft.Compute/virtualMachineScaleSets/aks-nodepool1-11226262-vmss/virtualMachines/aks-nodepool1-11226262-vmss_1",
+    "sku": {
+        "name": "StandardSSD_LRS",
+        "tier": "Standard"
+    },
+    "properties": {
+        "creationData": {
+            "createOption": "Empty"
+        },
+        "diskSizeGB": 8,
+        "diskIOPSReadWrite": 500,
+        "diskMBpsReadWrite": 100,
+        "encryption": {
+            "type": "EncryptionAtRestWithPlatformKey"
+        },
+        "networkAccessPolicy": "AllowAll",
+        "publicNetworkAccess": "Enabled",
+        "timeCreated": "2023-11-17T16:04:26.3791846+00:00",
+        "provisioningState": "Succeeded",
+        "diskState": "Attached",
+        "diskSizeBytes": 8589934592,
+        "uniqueId": "c4987099-c751-43cf-b0e5-0a93b0be2044"
+    }
+}
