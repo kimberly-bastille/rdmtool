@@ -56,7 +56,7 @@ server <- function(input, output, session) {
   
   library(magrittr) 
   
-  ### Toggle extra seasons on UI ###
+  #### Toggle extra seasons on UI ####
   # Allows for extra seasons to show and hide based on click
   shinyjs::onclick("SFMAaddSeason",
                    shinyjs::toggle(id = "SFmaSeason2", anim = TRUE))
@@ -121,6 +121,7 @@ server <- function(input, output, session) {
   shinyjs::onclick("SCUPNCaddSeason",
                    shinyjs::toggle(id = "SCUPncSeason2", anim = TRUE))
   
+  #### Output$addSTATE ####
   ############## MASSACHUSETTS ###########################################################
   output$addMA <- renderUI({
     if(any("MA" == input$state)){

@@ -121,9 +121,9 @@ get_predictions_out<- function(x){
                   period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::select(!c("landing_sf_new","landing_scup_new","landing_bsb_new","tot_cat_bsb_new" ))
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_CT_",x,"_test1.rds")))
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_CT_",x,"_test.rds")))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_CT_",x,"_test1.rds")))
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_CT_",x,"_test.rds")))
   
   # calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
   # cost_files_all_base <- split(costs_new_all, costs_new_all$state)
@@ -172,8 +172,9 @@ get_predictions_out<- function(x){
 # This will spit out a dataframe with 100 predictions 
 
 
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 
 
 #predictions_out10<- predictions_out10 %>% 
@@ -220,6 +221,12 @@ predictions_merge <- predictions_out10 %>% #predictions_out10 %>%
   dplyr::select(-param) %>% 
   dplyr::mutate(value_SQ = as.numeric(value_SQ), 
                 value_alt = as.numeric(value_alt))
+
+all_dat <- predictions_merge %>% 
+  dplyr::select(!c("X1", "correction")) %>% 
+  dplyr::rename(region = state, 
+                species = Category, 
+                state = paste())
 
 predictions_weight <- predictions_merge %>%
   dplyr::filter(number_weight == "Weight") %>%
