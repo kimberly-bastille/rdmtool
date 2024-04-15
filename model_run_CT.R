@@ -211,7 +211,31 @@ StatusQuo<-StatusQuo %>%
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
-  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
+  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) 
+
+all_dat <- predictions_merge %>% 
+  dplyr::select(!c("X1", "correction", "param")) %>%
+  dplyr::mutate(Category = dplyr::recode(Category,  "bsb" = "Black Sea Bass", 
+                                         "sf" = "Summer Flounder", 
+                                         "scup" = "Scup"), 
+                keep_release = dplyr::recode(keep_release,  "keep" = "harvest", 
+                                             "Discmortality" = "dead release"), 
+                number_weight = dplyr::recode(number_weight,  "Weight" = "pounds", 
+                                              "Number" = "numbers"), 
+                mode = dplyr::recode(mode,  "fh" = "For Hire", 
+                                     "pr" = "Private", 
+                                     "sh" = "Shore"), 
+                stat = paste(keep_release, number_weight), 
+                median_perc_diff = "NA",
+                reach_target = "NA") %>% 
+dplyr::rename(region = state, 
+              species = Category, 
+              median_value_alt = value_alt,
+              median_value_SQ = value_SQ) %>% 
+  dplyr::select(!c("keep_release", "number_weight"))
+
+
+predictions_merge <- predictions_merge %>% 
   #dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","number_weight","state")) %>% 
   dplyr::filter(Category %in% c("sf", "bsb", "scup"),
                 mode!="all", 
@@ -221,12 +245,6 @@ predictions_merge <- predictions_out10 %>% #predictions_out10 %>%
   dplyr::select(-param) %>% 
   dplyr::mutate(value_SQ = as.numeric(value_SQ), 
                 value_alt = as.numeric(value_alt))
-
-all_dat <- predictions_merge %>% 
-  dplyr::select(!c("X1", "correction")) %>% 
-  dplyr::rename(region = state, 
-                species = Category, 
-                state = paste())
 
 predictions_weight <- predictions_merge %>%
   dplyr::filter(number_weight == "Weight") %>%
@@ -899,8 +917,10 @@ predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_resul
                 mode = dplyr::recode(mode, "fh" = "For Hire", "pr" = "Private", "sh" = "Shore"), 
                 median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
                 median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
-                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE)) %>% 
-  dplyr::select(region, stat, mode, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
+                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE), 
+                draw = "Summary") %>% 
+  dplyr::select(region, stat, mode, draw, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
+  rbind(all_dat) %>% 
   dplyr::rename("State" = region,
                 "Statistic" = stat,
                 "Mode" = mode, 
@@ -909,5 +929,6 @@ predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_resul
                 "Alternative option value" = median_value_alt, 
                 "% difference from status-quo outcome (median)" = median_perc_diff, 
                 "% under harvest target (out of 100 simulations)" = reach_target)
+  
 
 ## join with Traceys SQ 
