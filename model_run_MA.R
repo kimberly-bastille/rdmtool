@@ -1,11 +1,12 @@
 ##############################
-### MA Rec model run  ########
+#### MA Rec model run  ########
 ##############################
 
 print("start model_MA")
 state1 = "MA"
 predictions_all = list()
 
+#### Read in size data ####
 sf_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/fluke_prob_star_2024_MA.csv")),  show_col_types = FALSE) 
 
 bsb_size_dat <- readr::read_csv(file.path(here::here("data-raw/size_data/bsb_prob_star_2022_MA.csv")),  show_col_types = FALSE)
@@ -16,7 +17,7 @@ l_w_conversion <-readr::read_csv(file.path(here::here("data-raw/size_data/L_W_Co
   dplyr::filter(State=="MA") %>% 
   dplyr::mutate(ln_a = as.numeric(ln_a))
 
-
+#### directed trips ####
 directed_trips<-readRDS(file.path(here::here(paste0("data-raw/directed_trips/directed_trips_MA.rds")))) 
 
 if(input$SF_MA_input_type == "All Modes Combined"){
@@ -107,7 +108,7 @@ if(input$BSB_MA_input_type == "All Modes Combined"){
 
 
 
-
+#### Start Parallel Processing ####
 future::plan(future::multisession, workers = 36)
 #future::plan(future::multisession, workers = 3)
 get_predictions_out<- function(x){
@@ -126,21 +127,16 @@ get_predictions_out<- function(x){
                   period2 = paste0(month, "_", day, "_", mode1)) %>% 
     dplyr::select(!c("landing_sf_new","landing_scup_new","landing_bsb_new","tot_cat_bsb_new" ))
   
-  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_MA_",x,"_test1.rds")))
+  calibration_output_by_period<- readRDS(here::here(paste0("data-raw/calibration/pds_MA_",x,"_test.rds")))
   
-  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_MA_",x,"_test1.rds")))
-  
-  # calibration_data_table_base <- split(calibration_output_by_period, calibration_output_by_period$state)
-  # cost_files_all_base <- split(costs_new_all, costs_new_all$state)
-  
+  costs_new_all<- readRDS(here::here(paste0("data-raw/calibration/costs_MA_",x,"_test.rds")))
   
   directed_trips2 <- directed_trips %>% 
     dplyr::filter(draw == x) %>% 
     dplyr::mutate(day = stringr::str_extract(day, "^\\d{2}"), 
-                  #month = as.numeric(month), 
                   period2 = paste0(month24, "-", day, "-", mode))
   
-  ######### Setup ##########################################
+
   sf_size_data <- sf_size_dat %>% 
     dplyr::filter(draw == x) #Change to X for model for sf and scup
   
@@ -151,7 +147,7 @@ get_predictions_out<- function(x){
     dplyr::filter(draw == x)
   
   
-  ##Run the catch function
+  ## Run the predict catch function
   source(here::here("R/predict_rec_catch3.R"))
   
   test<- predict_rec_catch(state1 = c("MA"),
@@ -167,22 +163,17 @@ get_predictions_out<- function(x){
   
   print("test")
   print(test)  
-  #write.csv(directed_trips2, file = paste0("directed_", x, ".csv"))
 }
-#})
+
 # use furrr package to parallelize the get_predictions_out function 100 times
 # This will spit out a dataframe with 100 predictions 
-
-
-predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
-#predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
-
+#predictions_out10<- furrr::future_map_dfr(1:100, ~get_predictions_out(.), .id = "draw")
+predictions_out10<- furrr::future_map_dfr(1:3, ~get_predictions_out(.), .id = "draw")
 
 predictions_out10<- predictions_out10 %>%
   dplyr::filter(!mode == "all")
 
-
-
+#### read in SQ values and corrections ####
 StatusQuo <- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/SQ_projections_11_9_MA.xlsx"))
 
 StatusQuo_corrections<- openxlsx::read.xlsx(here::here("data-raw/StatusQuo/All_states_SQ_corrections1.xlsx")) %>% 
@@ -203,6 +194,41 @@ predictions_merge <- predictions_out10 %>% #predictions_out10 %>%
                 mode!="all", 
                 keep_release=="keep", 
                 number_weight %in% c("Weight_avg", "Weight") ) %>% 
+  dplyr::select(-param) %>% 
+  dplyr::mutate(value_SQ = as.numeric(value_SQ), 
+                value_alt = as.numeric(value_alt))
+
+print("pre param join")
+all_dat <- predictions_merge %>% 
+  dplyr::select(!c("correction", "param")) %>%
+  dplyr::mutate(Category = dplyr::recode(Category,  "bsb" = "Black Sea Bass", 
+                                         "sf" = "Summer Flounder", 
+                                         "scup" = "Scup"), 
+                keep_release = dplyr::recode(keep_release,  "keep" = "harvest", 
+                                             "Discmortality" = "dead release"), 
+                number_weight = dplyr::recode(number_weight,  "Weight" = "pounds", 
+                                              "Number" = "numbers"), 
+                mode = dplyr::recode(mode,  "fh" = "For Hire", 
+                                     "pr" = "Private", 
+                                     "sh" = "Shore"), 
+                stat = paste(keep_release, number_weight), 
+                median_perc_diff = "NA",
+                reach_target = "NA") %>% 
+  dplyr::rename(region = state, 
+                species = Category, 
+                median_value_alt = value_alt,
+                median_value_SQ = value_SQ) %>% 
+  dplyr::select(!c("keep_release", "number_weight"))
+
+print("post param join")
+
+predictions_merge <- predictions_merge %>% 
+  #dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","number_weight","state")) %>% 
+  dplyr::filter(Category %in% c("sf", "bsb", "scup"),
+                mode!="all", 
+                keep_release=="keep", 
+                #number_weight %in% c("Weight_avg", "Weight") ) %>% 
+                number_weight %in% c("Weight", "Weight_avg") ) %>% 
   dplyr::select(-param) %>% 
   dplyr::mutate(value_SQ = as.numeric(value_SQ), 
                 value_alt = as.numeric(value_alt))
@@ -701,25 +727,6 @@ predictions_harv_num_merge <- alt %>%
   dplyr::mutate(value_SQ = as.numeric(value_SQ),
                 value_alt = as.numeric(value_alt))
 
-# predictions_harv_num_merge_MA <- predictions_harv_num_merge %>% 
-#   dplyr::filter(state=="MA") %>%
-#   dplyr::mutate(value_SQ=value_SQ-diff, value_alt=value_alt-diff) %>% 
-#   dplyr::mutate(perc_diff=((value_alt_adj-value_SQ_adj)/value_SQ_adj)*100) %>%
-#   dplyr::mutate(perc_diff=dplyr::case_when(is.nan(perc_diff) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~perc_diff)) %>% 
-#   dplyr::mutate(imputed_value_alt=dplyr::case_when(is.nan(imputed_value_alt) & value_SQ_adj==0 & value_alt_adj==0~0, TRUE~imputed_value_alt)) %>% 
-#   dplyr::select(Category, mode, keep_release, number_weight, value_SQ, imputed_value_alt, state, draw) %>% 
-#   dplyr::rename(value_alt=imputed_value_alt)
-# 
-# 
-# 
-# predictions_harv_num_merge<-predictions_harv_num_merge %>% 
-#   dplyr::filter(state!="MA")
-# 
-# predictions_harv_num_merge<-rbind(predictions_harv_num_merge, predictions_harv_num_merge_NJ)
-
-
-
-
 ###########################
 #state-level output
 state_harv_num_output<- predictions_harv_num_merge %>% 
@@ -861,7 +868,7 @@ state_mode_harv_num_results<- state_mode_harv_num_results %>%
 rm(lb_value_alt,lb_perc_diff,lb_value_SQ, ub_value_alt, ub_perc_diff,
    ub_value_SQ,median_value_alt,median_perc_diff,median_value_SQ)
 
-
+#### predictions ####
 predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_results,
                                state_harvest_results, state_mode_harvest_results,release_ouput) %>% 
   dplyr::mutate(reach_target = as.character(reach_target),
@@ -878,8 +885,10 @@ predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_resul
                 mode = dplyr::recode(mode, "fh" = "For Hire", "pr" = "Private", "sh" = "Shore"), 
                 median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
                 median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
-                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE)) %>% 
-  dplyr::select(region, stat, mode, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
+                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE), 
+                draw = "Summary") %>%
+  dplyr::select(region, stat, mode, draw, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
+  rbind(all_dat) %>% 
   dplyr::rename("State" = region,
                 "Statistic" = stat,
                 "Mode" = mode, 

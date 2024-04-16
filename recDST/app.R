@@ -45,7 +45,8 @@ ui <- fluidPage(
              tableOutput(outputId = "welfare_tableout"),
              tableOutput(outputId = "keep_tableout"),
              tableOutput(outputId = "releaseout"),
-             tableOutput(outputId = "ntrips_tableout")), 
+             tableOutput(outputId = "ntrips_tableout"), 
+             plotOutput(outputId = "fig")), 
     
     #### Documentation ####
     tabPanel("Documentation") ## KB - ADD DOCUMENTATION
@@ -5109,7 +5110,7 @@ server <- function(input, output, session) {
   })
   
   output$fig <- renderPlot({
-    dat<- harvest_draws()
+    dat<- keep_draws()
     
     dat<- dat %>% 
       dplyr::filter(draw != "Summary", 
@@ -5118,7 +5119,7 @@ server <- function(input, output, session) {
     
     dat %>% 
       ggplot2::ggplot()+
-      ggplot2::geom_violin(ggplot2::aes(x = `State`, y = as.numeric(`Alternative option value`)))+
+      ggplot2::geom_violin(ggplot2::aes(x = `State`, y = as.numeric(`Alternative option value`, color = `State`)))+
       ggplot2::facet_wrap(Mode~Species, scales = "free_y")
     
       

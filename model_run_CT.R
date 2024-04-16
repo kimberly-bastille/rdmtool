@@ -203,18 +203,13 @@ StatusQuo<-StatusQuo %>%
                 Value=Value*correction) %>% 
   dplyr::rename(value_SQ = Value)
 
-#StatusQuo <- read.csv(here::here("data-raw/StatusQuo/Tracey_SQ_CT.csv")) %>% 
-#  dplyr::mutate(Value = as.numeric(gsub(",", "", Value))) %>% 
-#  dplyr::rename(value_SQ = Value) %>% 
-#  dplyr::select(!X)
-
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
   dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) 
 
 all_dat <- predictions_merge %>% 
-  dplyr::select(!c("X1", "correction", "param")) %>%
+  dplyr::select(!c("correction", "param")) %>%
   dplyr::mutate(Category = dplyr::recode(Category,  "bsb" = "Black Sea Bass", 
                                          "sf" = "Summer Flounder", 
                                          "scup" = "Scup"), 
