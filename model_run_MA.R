@@ -189,16 +189,8 @@ StatusQuo<-StatusQuo %>%
 predictions_merge <- predictions_out10 %>% #predictions_out10 %>% 
   dplyr::rename(value_alt= Value) %>% 
   dplyr::mutate(draw = as.numeric(draw)) %>% 
-  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) %>% 
-  dplyr::filter(Category %in% c("sf", "bsb", "scup"),
-                mode!="all", 
-                keep_release=="keep", 
-                number_weight %in% c("Weight_avg", "Weight") ) %>% 
-  dplyr::select(-param) %>% 
-  dplyr::mutate(value_SQ = as.numeric(value_SQ), 
-                value_alt = as.numeric(value_alt))
+  dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","param" ,"number_weight","state", "draw")) 
 
-print("pre param join")
 all_dat <- predictions_merge %>% 
   dplyr::select(!c("correction", "param")) %>%
   dplyr::mutate(Category = dplyr::recode(Category,  "bsb" = "Black Sea Bass", 
@@ -219,8 +211,6 @@ all_dat <- predictions_merge %>%
                 median_value_alt = value_alt,
                 median_value_SQ = value_SQ) %>% 
   dplyr::select(!c("keep_release", "number_weight"))
-
-print("post param join")
 
 predictions_merge <- predictions_merge %>% 
   #dplyr::left_join(StatusQuo, by = c("Category","mode", "keep_release","number_weight","state")) %>% 
