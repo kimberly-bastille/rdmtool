@@ -311,8 +311,9 @@ state_harvest_output <- state_harvest_output %>%
   dplyr::ungroup() 
 
 state_harvest_output<- state_harvest_output %>% 
-  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~.9*value_SQ_sum, TRUE~NA), 
-                harv_target=dplyr::case_when(Category=="sf"~.72*value_SQ_sum, TRUE~harv_target)) %>% 
+  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~scup_percent_change*value_SQ_sum, TRUE~NA), 
+                #harv_target=dplyr::case_when(Category=="bsb"~bsb_percent_change*value_SQ_sum, TRUE~harv_target),
+                harv_target=dplyr::case_when(Category=="sf"~sf_percent_change*value_SQ_sum, TRUE~harv_target)) %>% 
   dplyr::mutate(reach_target=dplyr::case_when(imputed_value_alt_sum<=harv_target  ~1, TRUE~0))
 
 categories_state=list()
@@ -385,8 +386,9 @@ state_mode_harvest_output <- state_mode_harvest_output %>%
   dplyr::arrange(domain,perc_diff) 
 
 state_mode_harvest_output<- state_mode_harvest_output %>% 
-  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~.9*value_SQ_sum, TRUE~NA), 
-                harv_target=dplyr::case_when(Category=="sf"~.72*value_SQ_sum, TRUE~harv_target)) %>% 
+  dplyr::mutate(harv_target=dplyr::case_when(Category=="scup"~scup_percent_change*value_SQ_sum, TRUE~NA), 
+                #harv_target=dplyr::case_when(Category=="bsb"~bsb_percent_change*value_SQ_sum, TRUE~harv_target),
+                harv_target=dplyr::case_when(Category=="sf"~sf_percent_change*value_SQ_sum, TRUE~harv_target)) %>%  
   dplyr::mutate(reach_target=dplyr::case_when(imputed_value_alt_sum<=harv_target~1, TRUE~0))
 
 categories_state_mode=list()

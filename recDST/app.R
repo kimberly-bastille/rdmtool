@@ -57,6 +57,11 @@ server <- function(input, output, session) {
   
   library(magrittr) 
   
+  ### Percent Change Approach
+  sf_percent_change <- .72
+  #bsb_percent_change <- 0
+  scup_percent_change <- .9
+  
   #### Toggle extra seasons on UI ####
   # Allows for extra seasons to show and hide based on click
   shinyjs::onclick("SFMAaddSeason",
@@ -5112,15 +5117,20 @@ server <- function(input, output, session) {
   output$fig <- renderPlot({
     dat<- keep_draws()
     
-    dat<- dat %>% 
+    draws<- dat %>% 
       dplyr::filter(draw != "Summary", 
+                    Statistic %in% c("harvest pounds"))
+    
+    summary <-  dat %>% 
+      dplyr::filter(draw == "Summary", 
                     Statistic %in% c("harvest pounds"))
     
     
     dat %>% 
       ggplot2::ggplot()+
       ggplot2::geom_violin(ggplot2::aes(x = `State`, y = as.numeric(`Alternative option value`, color = `State`)))+
-      ggplot2::facet_wrap(Mode~Species, scales = "free_y")
+      ggplot2::facet_wrap(Mode~Species, scales = "free_y")+
+      ggplot2::geom_hline(yintercept = summary$`Alternative option value`)
     
       
     
