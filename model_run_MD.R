@@ -935,9 +935,6 @@ predictions<- plyr::rbind.fill(state_mode_harv_num_results, state_harv_num_resul
   plyr::rbind.fill(state_CV_results, state_mode_CV_results) %>% 
   dplyr::mutate(species = dplyr::recode(species, "bsb"= "Black Sea Bass", "sf" = "Summer Flounder", "scup" = "Scup"), 
                 mode = dplyr::recode(mode, "fh" = "For Hire", "pr" = "Private", "sh" = "Shore"), 
-                median_perc_diff = prettyNum(median_perc_diff, big.mark = ",", scientific = FALSE),
-                median_value_alt = prettyNum(median_value_alt, big.mark = ",", scientific = FALSE), 
-                median_value_SQ = prettyNum(median_value_SQ, big.mark = ",", scientific = FALSE), 
                 draw = "Summary") %>% 
   dplyr::select(region, stat, mode, draw, species, median_value_SQ, median_value_alt, median_perc_diff, reach_target) %>% 
   rbind(all_dat) %>% 

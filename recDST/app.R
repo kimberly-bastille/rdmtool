@@ -49,7 +49,9 @@ ui <- fluidPage(
              plotOutput(outputId = "fig")), 
     
     #### Documentation ####
-    tabPanel("Documentation") ## KB - ADD DOCUMENTATION
+    tabPanel("Documentation", 
+             uiOutput('markdown')) 
+    
   ))
 
 ####### Start Server ###################
@@ -3538,6 +3540,17 @@ server <- function(input, output, session) {
       source(here::here(paste0("model_run_NC.R")), local = TRUE)
       predictions_1 <- predictions_1 %>% rbind(predictions)
     }
+    
+    predictions_coastwide<- predictions_1 %>% 
+      dplyr::group_by(Statistic, Mode, Species, draw) %>%
+      dplyr::summarise(`Status-quo value (median)` = sum(as.numeric(`Status-quo value (median)`)), 
+                       `Alternative option value` = sum(as.numeric(`Alternative option value`))) %>% 
+      dplyr::mutate(State = "All selected", 
+                    `% difference from status-quo outcome (median)` = "NOT SURE WHAT TO DO HERE",  
+                    `% under harvest target (out of 100 simulations)` = "SAME")
+    
+    predictions_1 <- predictions_1 %>% rbind(predictions_coastwide)
+    
     return(predictions_1)
     
   })
@@ -3545,41 +3558,51 @@ server <- function(input, output, session) {
   #### keep ####
   keep <- reactive({
     keep_output<- predictions_1() %>% 
-      dplyr::filter(draw == "Summary", 
+      dplyr::filter(draw %in% c("Summary", "All selected"), 
                     Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
-      dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers")))
+      dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers"))) %>% 
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(keep_output)
   })
   
   #### release ####
   release<- reactive({
     release_output<- predictions_1() %>% 
-      dplyr::filter(draw == "Summary",
+      dplyr::filter(draw %in% c("Summary", "All_selected"),
                     Statistic %in% c("release pounds", "dead release pounds", 
                                      "release numbers", "dead release numbers")) %>% 
       dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
-      dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers")))
+      dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers"))) %>% 
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(release_output)
   })
   
   #### angler welfare ####
   welfare<- reactive({
     welfare_output<- predictions_1() %>% 
-      dplyr::filter(draw == "Summary",
+      dplyr::filter(draw %in% c("Summary", "All_selected"),
                     Statistic %in% c("CV")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
       dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
-      dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" ))
+      dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" )) %>% 
+      dplyr::mutate(`Difference relative to status-quo 2024 (median)` = prettyNum(`Difference relative to status-quo 2024 (median)`, big.mark = ",", scientific = FALSE)) 
+      
     return(welfare_output)
   })
   
   #### estimate trips ####
   ntrips<- reactive({
-    ntrips_output<- predictions_1() %>% 
-      dplyr::filter(draw == "Summary",
+    ntrips_output<- predictions%>% 
+      dplyr::filter(draw %in% c("Summary", "All selected"),
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
       dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
+      dplyr::mutate( `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) 
+      
     return(ntrips_output)
   })
   
@@ -3589,7 +3612,10 @@ server <- function(input, output, session) {
     keep_draws_output<- predictions_1() %>% 
       dplyr::filter(draw != "Summary", 
                     Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
-      dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers")))
+      dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers"))) %>% 
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(keep_draws_output)
   })
   
@@ -3600,7 +3626,10 @@ server <- function(input, output, session) {
                     Statistic %in% c("release pounds", "dead release pounds", 
                                      "release numbers", "dead release numbers")) %>% 
       dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
-      dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers")))
+      dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers"))) %>% 
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(release_draws_output)
   })
   
@@ -3610,17 +3639,21 @@ server <- function(input, output, session) {
       dplyr::filter(draw != "Summary",
                     Statistic %in% c("CV")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
-      dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
+      dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>%
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE)) %>% 
       dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" ))
     return(welfare_draws_output)
   })
   
   #### estimate trips ####
   ntrips_draws<- reactive({
-    ntrips_draws_output<- predictions_1() %>% 
+    ntrips_draws_output<- predictions %>% 
       dplyr::filter(draw != "Summary",
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
+      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) %>% 
       dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
     return(ntrips_draws_output)
   })
@@ -5147,10 +5180,9 @@ server <- function(input, output, session) {
       openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
     })
   
-  ## KB - Add documentation to server side
-  # output$markdown <- renderUI({
-  #   HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
-  # })
+  output$markdown <- renderUI({
+    HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
+  })
   
 }
 
