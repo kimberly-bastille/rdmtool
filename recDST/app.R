@@ -3596,12 +3596,12 @@ server <- function(input, output, session) {
   
   #### estimate trips ####
   ntrips<- reactive({
-    ntrips_output<- predictions%>% 
+    ntrips_output<- predictions_1() %>% 
       dplyr::filter(draw %in% c("Summary", "All selected"),
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
-      dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
-      dplyr::mutate( `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) 
+      dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)")) %>% 
+      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) 
       
     return(ntrips_output)
   })
