@@ -18,6 +18,9 @@ ui <- fluidPage(
                 inline = TRUE,
                 status = "danger"),
               
+              #Run Button
+              actionButton("runmeplease", "Run Me"), 
+              
               # Add UI code for each state
               uiOutput("addMA"),
               uiOutput("addRI"),
@@ -27,10 +30,7 @@ ui <- fluidPage(
               uiOutput("addDE"),
               uiOutput("addMD"),
               uiOutput("addVA"), 
-              uiOutput("addNC"),
-              
-              #Run Button
-              actionButton("runmeplease", "Run Me")),
+              uiOutput("addNC")),
     #### Results ####
     tabPanel("Results", 
              
