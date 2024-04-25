@@ -50,7 +50,7 @@ ui <- fluidPage(
     
     #### Documentation ####
     tabPanel("Documentation", 
-             uiOutput('markdown')) 
+             htmlOutput("documentation"))
     
   ))
 
@@ -5180,9 +5180,10 @@ server <- function(input, output, session) {
       openxlsx::write.xlsx(x = df_list , file = filename, row.names = FALSE)
     })
   
-  output$markdown <- renderUI({
-    HTML(markdown::markdownToHTML(knitr::knit(here::here('docs/documentation.Rmd'), quiet = TRUE)))
-  })
+  getPage<-function() {
+    return(includeHTML(here::here("docs/documentation.html")))
+  }
+  output$documentation<-renderUI({getPage()})
   
 }
 
