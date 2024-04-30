@@ -3542,17 +3542,22 @@ server <- function(input, output, session) {
     }
     
     predictions_coastwide<- predictions_1 %>% 
+      dplyr::filter(draw == "Summary") %>% 
       dplyr::group_by(Statistic, Mode, Species, draw) %>%
       dplyr::summarise(`Status-quo value (median)` = sum(as.numeric(`Status-quo value (median)`)), 
                        `Alternative option value` = sum(as.numeric(`Alternative option value`))) %>% 
       dplyr::mutate(State = "All selected", 
-                    `% difference from status-quo outcome (median)` = "NOT SURE WHAT TO DO HERE",  
-                    `% under harvest target (out of 100 simulations)` = "SAME")
+                    `% difference from status-quo outcome (median)` = dplyr::case_when(Statistic != "CV" ~ (as.numeric(`Alternative option value`) - as.numeric(`Status-quo value (median)`))/ as.numeric(`Status-quo value (median)`), 
+                                                                                     TRUE ~ as.numeric(`Alternative option value`) - as.numeric(`Status-quo value (median)`)),
+                    `% under harvest target (out of 100 simulations)` = "NA", 
+                    `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE),
+                    `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
+                    `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     
     predictions_1 <- predictions_1 %>% rbind(predictions_coastwide)
     
     return(predictions_1)
-    
+  
   })
   
   #### keep ####
@@ -3589,7 +3594,7 @@ server <- function(input, output, session) {
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
       dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
       dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" )) %>% 
-      dplyr::mutate(`Difference relative to status-quo 2024 (median)` = prettyNum(`Difference relative to status-quo 2024 (median)`, big.mark = ",", scientific = FALSE)) 
+      dplyr::mutate(`Difference relative to status-quo 2024 (median)` = prettyNum(`Difference relative to status-quo 2024 (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE)) 
       
     return(welfare_output)
   })
@@ -3601,7 +3606,7 @@ server <- function(input, output, session) {
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
       dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)")) %>% 
-      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) 
+      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", format = "f", digits = 2,  scientific = FALSE)) 
       
     return(ntrips_output)
   })
@@ -3613,7 +3618,7 @@ server <- function(input, output, session) {
       dplyr::filter(draw != "Summary", 
                     Statistic %in% c("harvest pounds", "harvest numbers")) %>% 
       dplyr::arrange(factor(Statistic, levels = c("harvest pounds", "harvest numbers"))) %>% 
-      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE),
                      `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
                      `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(keep_draws_output)
@@ -3627,7 +3632,7 @@ server <- function(input, output, session) {
                                      "release numbers", "dead release numbers")) %>% 
       dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
       dplyr::arrange(factor(Statistic, levels = c("release pounds", "release numbers", "dead release pounds", "dead release numbers"))) %>% 
-      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE),
                      `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
                      `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
     return(release_draws_output)
@@ -3640,7 +3645,7 @@ server <- function(input, output, session) {
                     Statistic %in% c("CV")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
       dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>%
-      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", scientific = FALSE),
+      dplyr::mutate( `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE),
                      `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
                      `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE)) %>% 
       dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" ))
@@ -3653,7 +3658,7 @@ server <- function(input, output, session) {
       dplyr::filter(draw != "Summary",
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
-      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE)) %>% 
+      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", format = "f", digits = 2, scientific = FALSE)) %>% 
       dplyr::select(! c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)"))
     return(ntrips_draws_output)
   })
