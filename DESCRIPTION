@@ -1,13 +1,16 @@
 Package: rdmtool
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Recreational Fisheries Decision Support Tool Shiny Application
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Kimberly Bastille
+Maintainer: <kimberly.bastille@noaa.gov>
+Description: This package holds the code used to build the Recreational Fisheries Decision Support Tool. This tool allows recreational fisheries managers to interact with Andrew (Lou) Carr-Harris's Recreation Demand Model for Summer Flounder, Black Sea Bass, and Scup in the U.S. Mid-Atlantic region. 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Depends: 
     R (>= 2.10)
+Imports:
+    magrittr
+VignetteBuilder: knitr
+RoxygenNote: 7.3.1
