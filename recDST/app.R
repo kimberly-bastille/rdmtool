@@ -134,6 +134,7 @@ server <- function(input, output, session) {
   output$addMA <- renderUI({
     if(any("MA" == input$state)){
       fluidRow( 
+        style = "background-color: #FBB4AE;",
         column(4,
                titlePanel("Summer Flounder - MA"),
                
@@ -243,7 +244,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 40)),
                  column(5, 
                         sliderInput(inputId = "SCUPmaFH_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                
                sliderInput(inputId = "SCUPmaFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
@@ -256,7 +257,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPmaFH_2_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                
                
                sliderInput(inputId = "SCUPmaPR_seas1", label ="Private Open Season 1", 
@@ -270,7 +271,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPmaPR_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                sliderInput(inputId = "SCUPmaSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -393,7 +394,7 @@ server <- function(input, output, session) {
            "All Modes Combined" = div(sliderInput(inputId = "BSBma_seas1", label ="Open Season 1", 
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
-                                                  value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                                  value=c(as.Date("05-18","%m-%d"),as.Date("09-03","%m-%d")), 
                                                   timeFormat = "%m-%d", ticks = FALSE),
                                       fluidRow(
                                         column(4,
@@ -407,7 +408,7 @@ server <- function(input, output, session) {
            "Seperated By Mode" = div(sliderInput(inputId = "BSBmaFH_seas1", label =" For Hire Open Season 1", 
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                                 value=c(as.Date("05-18","%m-%d"),as.Date("09-03","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -419,7 +420,7 @@ server <- function(input, output, session) {
                                      sliderInput(inputId = "BSBmaPR_seas1", label ="Private/Rental Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                                 value=c(as.Date("05-18","%m-%d"),as.Date("09-03","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -431,7 +432,7 @@ server <- function(input, output, session) {
                                      sliderInput(inputId = "BSBmaSH_seas1", label ="Shore Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-20","%m-%d"),as.Date("09-07","%m-%d")), 
+                                                 value=c(as.Date("05-18","%m-%d"),as.Date("09-03","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -450,6 +451,7 @@ server <- function(input, output, session) {
   output$addRI <- renderUI({
     if(any("RI" == input$state)){
       fluidRow( 
+        style = "background-color: #B3CDE3;",
         column(4,
                titlePanel("Summer Flounder - RI"),
                
@@ -631,7 +633,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPriFH_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                
                sliderInput(inputId = "SCUPriFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
@@ -644,7 +646,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 40)),
                  column(5, 
                         sliderInput(inputId = "SCUPriFH_2_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                sliderInput(inputId = "SCUPriFH_seas3", label ="For Hire Open Season 3", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -656,7 +658,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPriFH_3_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                
                sliderInput(inputId = "SCUPriPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
@@ -669,7 +671,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPriPR_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                sliderInput(inputId = "SCUPriSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -735,57 +737,58 @@ server <- function(input, output, session) {
            "All Modes Combined" = div(sliderInput(inputId = "SFri_seas1", label ="Open Season 1",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
-                                                  value=c(as.Date("05-03","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                  value=c(as.Date("04-01","%m-%d"),as.Date("12-31","%m-%d")), 
                                                   timeFormat = "%m-%d", ticks = FALSE),
                                       fluidRow(
                                         column(4,
                                                numericInput(inputId = "SFri_1_bag", label ="Bag Limit",
-                                                            min = 0, max = 100, value = 4)),
+                                                            min = 0, max = 100, value = 6)),
                                         column(6,
                                                sliderInput(inputId = "SFri_1_len", label ="Min Length",
-                                                           min = 5, max = 25, value = 18, step = .5)))), 
+                                                           min = 5, max = 25, value = 19, step = .5)))), 
            "Seperated By Mode" = div(sliderInput(inputId = "SFriFH_seas1", label ="For Hire Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-03","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                 value=c(as.Date("04-01","%m-%d"),as.Date("12-31","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFriFH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 6)),
                                        column(6,
                                               sliderInput(inputId = "SFriFH_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18, step = .5))) ,
+                                                          min = 5, max = 25, value = 19, step = .5))) ,
                                      sliderInput(inputId = "SFriPR_seas1", label ="Private Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-03","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                 value=c(as.Date("04-01","%m-%d"),as.Date("12-31","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFriPR_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 6)),
                                        column(6,
                                               sliderInput(inputId = "SFriPR_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18, step = .5))) ,
+                                                          min = 5, max = 25, value = 19, step = .5))) ,
                                      sliderInput(inputId = "SFriSH_seas1", label ="Shore Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-03","%m-%d"),as.Date("12-31","%m-%d")), 
+                                                 value=c(as.Date("04-01","%m-%d"),as.Date("12-31","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFriSH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 6)),
                                        column(6,
                                               sliderInput(inputId = "SFriSH_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18, step = .5)))))
+                                                          min = 5, max = 25, value = 19, step = .5)))))
   })
   
   ############## CONNECTICUT ###########################################################
   output$addCT <- renderUI({
     if(any("CT" == input$state)){
       fluidRow( 
+        style = "background-color: #CCEBC5;",
         column(4,
                titlePanel("Summer Flounder - CT"),
                
@@ -838,7 +841,7 @@ server <- function(input, output, session) {
                sliderInput(inputId = "BSBctFH_seas1", label ="For Hire Open Season 1",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
-                           value=c(as.Date("05-19","%m-%d"),as.Date("08-31","%m-%d")), 
+                           value=c(as.Date("05-18","%m-%d"),as.Date("08-31","%m-%d")), 
                            timeFormat = "%m-%d", ticks = FALSE),
                fluidRow(
                  column(4,
@@ -863,7 +866,7 @@ server <- function(input, output, session) {
                sliderInput(inputId = "BSBctPR_seas1", label ="Private Open Season 1",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
-                           value=c(as.Date("05-19","%m-%d"),as.Date("06-23","%m-%d")), 
+                           value=c(as.Date("05-18","%m-%d"),as.Date("06-23","%m-%d")), 
                            timeFormat = "%m-%d", ticks = FALSE),
                fluidRow(
                  column(4,
@@ -876,7 +879,7 @@ server <- function(input, output, session) {
                sliderInput(inputId = "BSBctPR_seas2", label ="Private Open Season 2",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
-                           value=c(as.Date("07-08","%m-%d"),as.Date("12-01","%m-%d")), 
+                           value=c(as.Date("07-08","%m-%d"),as.Date("11-28","%m-%d")), 
                            timeFormat = "%m-%d", ticks = FALSE),
                fluidRow(
                  column(4,
@@ -889,7 +892,7 @@ server <- function(input, output, session) {
                sliderInput(inputId = "BSBctSH_seas1", label ="Shore Open Season 1",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
-                           value=c(as.Date("05-19","%m-%d"),as.Date("06-23","%m-%d")), 
+                           value=c(as.Date("05-18","%m-%d"),as.Date("06-23","%m-%d")), 
                            timeFormat = "%m-%d", ticks = FALSE),
                fluidRow(
                  column(4,
@@ -902,7 +905,7 @@ server <- function(input, output, session) {
                sliderInput(inputId = "BSBctSH_seas2", label ="Shore Open Season 2",
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
-                           value=c(as.Date("07-09","%m-%d"),as.Date("12-01","%m-%d")), 
+                           value=c(as.Date("07-08","%m-%d"),as.Date("11-28","%m-%d")), 
                            timeFormat = "%m-%d", ticks = FALSE),
                fluidRow(
                  column(4,
@@ -967,7 +970,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPctFH_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                
                sliderInput(inputId = "SCUPctFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
@@ -980,7 +983,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 40)),
                  column(5, 
                         sliderInput(inputId = "SCUPctFH_2_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                sliderInput(inputId = "SCUPctFH_seas3", label ="For Hire Open Season 3", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -992,7 +995,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPctFH_3_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                
                sliderInput(inputId = "SCUPctPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
@@ -1005,7 +1008,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPctPR_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                sliderInput(inputId = "SCUPctSH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -1124,6 +1127,7 @@ server <- function(input, output, session) {
   output$addNY <- renderUI({
     if(any("NY" == input$state)){
       fluidRow( 
+        style = "background-color: #DECBE4;",
         column(4,
                titlePanel("Summer Flounder - NY"),
                
@@ -1233,7 +1237,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPnyFH_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                
                sliderInput(inputId = "SCUPnyFH_seas2", label ="For Hire Open Season 2", 
                            min = as.Date("01-01","%m-%d"),
@@ -1246,7 +1250,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 40)),
                  column(5, 
                         sliderInput(inputId = "SCUPnyFH_2_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                sliderInput(inputId = "SCUPnyFH_seas3", label ="For Hire Open Season 3", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -1258,7 +1262,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPnyFH_3_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))), 
+                                    min = 5, max = 25, value = 11, step = .5))), 
                
                sliderInput(inputId = "SCUPnyPR_seas1", label ="Private Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
@@ -1271,7 +1275,7 @@ server <- function(input, output, session) {
                                      min = 0, max = 100, value = 30)),
                  column(5, 
                         sliderInput(inputId = "SCUPnyPR_1_len", label = "Min Length",
-                                    min = 5, max = 25, value = 10.5, step = .5))),
+                                    min = 5, max = 25, value = 11, step = .5))),
                sliderInput(inputId = "SCUPnySH_seas1", label ="Shore Open Season 1", 
                            min = as.Date("01-01","%m-%d"),
                            max = as.Date("12-31","%m-%d"),
@@ -1492,6 +1496,7 @@ server <- function(input, output, session) {
   output$addNJ <- renderUI({
     if(any("NJ" == input$state)){
       fluidRow( 
+        style = "background-color: #FED9A6;",
         column(4,
                titlePanel("Summer Flounder - NJ"),
                
@@ -2014,6 +2019,7 @@ server <- function(input, output, session) {
   output$addDE <- renderUI({
     if(any("DE" == input$state)){
       fluidRow( 
+        style = "background-color: #FFFFCC;",
         column(4,
                titlePanel("Summer Flounder - DE"),
                
@@ -2336,7 +2342,7 @@ server <- function(input, output, session) {
                                       fluidRow(
                                         column(4,
                                                numericInput(inputId = "SCUPde_1_bag", label ="Bag Limit",
-                                                            min = 0, max = 100, value = 40)),
+                                                            min = 0, max = 100, value = 30)),
                                         column(6,
                                                sliderInput(inputId = "SCUPde_1_len", label ="Min Length",
                                                            min = 5, max = 25, value = 9, step = .5)))), 
@@ -2348,7 +2354,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPdeFH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPdeFH_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5))) ,
@@ -2360,7 +2366,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPdePR_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPdePR_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5))) ,
@@ -2372,7 +2378,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPdeSH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPdeSH_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5)))))
@@ -2384,6 +2390,7 @@ server <- function(input, output, session) {
   output$addMD <- renderUI({
     if(any("MD" == input$state)){
       fluidRow( 
+        style = "background-color: #E5D8BD;",
         column(4,
                titlePanel("Summer Flounder - MD"),
                
@@ -2754,6 +2761,7 @@ server <- function(input, output, session) {
   output$addVA <- renderUI({
     if(any("VA" == input$state)){
       fluidRow( 
+        style = "background-color: #FDDAEC;",
         column(4,
                titlePanel("Summer Flounder - VA"),
                
@@ -3123,6 +3131,7 @@ server <- function(input, output, session) {
   output$addNC <- renderUI({
     if(any("NC" == input$state)){
       fluidRow( 
+        style = "background-color: #F2F2F2;",
         column(4,
                titlePanel("Summer Flounder - NC"),
                
@@ -3278,7 +3287,7 @@ server <- function(input, output, session) {
            "All Modes Combined" = div(sliderInput(inputId = "SFnc_seas1", label ="Open Season 1",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
-                                                  value=c(as.Date("09-01","%m-%d"),as.Date("09-30","%m-%d")), 
+                                                  value=c(as.Date("08-16","%m-%d"),as.Date("09-30","%m-%d")), 
                                                   timeFormat = "%m-%d", ticks = FALSE),
                                       fluidRow(
                                         column(4,
@@ -3290,7 +3299,7 @@ server <- function(input, output, session) {
            "Seperated By Mode" = div(sliderInput(inputId = "SFncFH_seas1", label ="For Hire Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("09-01","%m-%d"),as.Date("09-30","%m-%d")), 
+                                                 value=c(as.Date("08-16","%m-%d"),as.Date("09-30","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -3302,7 +3311,7 @@ server <- function(input, output, session) {
                                      sliderInput(inputId = "SFncPR_seas1", label ="Private Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("09-01","%m-%d"),as.Date("09-30","%m-%d")), 
+                                                 value=c(as.Date("08-16","%m-%d"),as.Date("09-30","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -3314,7 +3323,7 @@ server <- function(input, output, session) {
                                      sliderInput(inputId = "SFncSH_seas1", label ="Shore Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("09-01","%m-%d"),as.Date("09-30","%m-%d")), 
+                                                 value=c(as.Date("08-16","%m-%d"),as.Date("09-30","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
@@ -3445,7 +3454,7 @@ server <- function(input, output, session) {
                                       fluidRow(
                                         column(4,
                                                numericInput(inputId = "SCUPnc_1_bag", label ="Bag Limit",
-                                                            min = 0, max = 100, value = 40)),
+                                                            min = 0, max = 100, value = 30)),
                                         column(6,
                                                sliderInput(inputId = "SCUPnc_1_len", label ="Min Length",
                                                            min = 5, max = 25, value = 9, step = .5)))), 
@@ -3457,7 +3466,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPncFH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPncFH_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5))) ,
@@ -3469,7 +3478,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPncPR_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPncPR_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5))) ,
@@ -3481,7 +3490,7 @@ server <- function(input, output, session) {
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SCUPncSH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 40)),
+                                                           min = 0, max = 100, value = 30)),
                                        column(6,
                                               sliderInput(inputId = "SCUPncSH_1_len", label ="Min Length",
                                                           min = 5, max = 25, value = 9, step = .5)))))
