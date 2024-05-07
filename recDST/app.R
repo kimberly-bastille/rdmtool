@@ -137,14 +137,46 @@ server <- function(input, output, session) {
         style = "background-color: #FBB4AE;",
         column(4,
                titlePanel("Summer Flounder - MA"),
-               
-               selectInput("SF_MA_input_type", "Regulations combined or seperated by mode?",
-                           c("All Modes Combined", "Seperated By Mode")),
-               uiOutput("SFmaMode"),
+               sliderInput(inputId = "SFmaFH_seas1", label ="For Hire Open Season 1", 
+                           min = as.Date("01-01","%m-%d"),
+                           max = as.Date("12-31","%m-%d"),
+                           value =c(as.Date("05-24","%m-%d"),as.Date("09-23","%m-%d")), 
+                           timeFormat = "%m-%d", ticks = FALSE),
+               fluidRow(
+                 column(4,
+                        numericInput(inputId = "SFmaFH_1_bag", label = "Bag Limit",
+                                     min = 0, max = 100, value = 5)),
+                 column(5, 
+                        sliderInput(inputId = "SFmaFH_1_len", label = "Min Length",
+                                    min = 5, max = 25, value = 17.5, step = .5))),
+               sliderInput(inputId = "SFmaPR_seas1", label ="Private Open Season 1", 
+                           min = as.Date("01-01","%m-%d"),
+                           max = as.Date("12-31","%m-%d"),
+                           value =c(as.Date("05-24","%m-%d"),as.Date("09-23","%m-%d")), 
+                           timeFormat = "%m-%d", ticks = FALSE),
+               fluidRow(
+                 column(4,
+                        numericInput(inputId = "SFmaPR_1_bag", label = "Bag Limit",
+                                     min = 0, max = 100, value = 5)),
+                 column(5, 
+                        sliderInput(inputId = "SFmaPR_1_len", label = "Min Length",
+                                    min = 5, max = 25, value = 17.5, step = .5))),
+               sliderInput(inputId = "SFmaSH_seas1", label ="Shore Open Season 1", 
+                           min = as.Date("01-01","%m-%d"),
+                           max = as.Date("12-31","%m-%d"),
+                           value =c(as.Date("05-24","%m-%d"),as.Date("09-23","%m-%d")), 
+                           timeFormat = "%m-%d", ticks = FALSE),
+               fluidRow(
+                 column(4,
+                        numericInput(inputId = "SFmaSH_1_bag", label = "Bag Limit",
+                                     min = 0, max = 100, value = 5)),
+                 column(5, 
+                        sliderInput(inputId = "SFmaSH_1_len", label = "Min Length",
+                                    min = 5, max = 25, value = 16.5, step = .5))),
                
                actionButton("SFMAaddSeason", "Add Season"), 
-               shinyjs::hidden( div(ID = "SFmaSeason2",
-                                    sliderInput(inputId = "SFmaFH_seas2", label ="For Hire Open Season 2",
+               shinyjs::hidden( div(ID = "SFSeason2",
+                                    sliderInput(inputId = "SFmaFH_seas2", label ="For Hire Open Season 2", 
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -152,11 +184,11 @@ server <- function(input, output, session) {
                                     fluidRow(
                                       column(4,
                                              numericInput(inputId = "SFmaFH_2_bag", label ="Bag Limit",
-                                                          min = 0, max = 100, value = 0)),
+                                                          min = 0, max = 20, value = 0)), 
                                       column(6,
                                              sliderInput(inputId = "SFmaFH_2_len", label ="Min Length",
-                                                         min = 5, max = 25, value = 16.5, step = .5))), 
-                                    sliderInput(inputId = "SFmaPR_seas2", label ="Private Open Season 2",
+                                                         min = 3, max = 25, value = 10, step = .5))), 
+                                    sliderInput(inputId = "SFmaPR_seas2", label ="Private Open Season 2", 
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -164,11 +196,11 @@ server <- function(input, output, session) {
                                     fluidRow(
                                       column(4,
                                              numericInput(inputId = "SFmaPR_2_bag", label ="Bag Limit",
-                                                          min = 0, max = 100, value = 0)),
+                                                          min = 0, max = 20, value = 0)), 
                                       column(6,
                                              sliderInput(inputId = "SFmaPR_2_len", label ="Min Length",
-                                                         min = 5, max = 25, value = 16.5, step = .5))), 
-                                    sliderInput(inputId = "SFmaSH_seas2", label ="Shore Open Season 2",
+                                                         min = 3, max = 25, value = 10, step = .5))), 
+                                    sliderInput(inputId = "SFmaSH_seas2", label ="Shore Open Season 2", 
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
@@ -176,10 +208,10 @@ server <- function(input, output, session) {
                                     fluidRow(
                                       column(4,
                                              numericInput(inputId = "SFmaSH_2_bag", label ="Bag Limit",
-                                                          min = 0, max = 100, value = 0)),
+                                                          min = 0, max = 20, value = 0)), 
                                       column(6,
                                              sliderInput(inputId = "SFmaSH_2_len", label ="Min Length",
-                                                         min = 5, max = 25, value = 16.5, step = .5)))))),
+                                                         min = 3, max = 25, value = 10, step = .5)))))),
         
         column(4, 
                titlePanel("Black Sea Bass - MA"),
@@ -797,42 +829,42 @@ server <- function(input, output, session) {
                uiOutput("SFctMode"),
                
                actionButton("SFCTaddSeason", "Add Season"), 
-               shinyjs::hidden( div(ID = "SFctSeason2",
-                                    sliderInput(inputId = "SFctFH_seas2", label ="For Hire Open Season 2",
+               shinyjs::hidden( div(ID = "SFctSeason3",
+                                    sliderInput(inputId = "SFctFH_seas3", label ="For Hire Open Season 3",
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
                                                 timeFormat = "%m-%d", ticks = FALSE),
                                     fluidRow(
                                       column(4,
-                                             numericInput(inputId = "SFctFH_2_bag", label ="Bag Limit",
+                                             numericInput(inputId = "SFctFH_3_bag", label ="Bag Limit",
                                                           min = 0, max = 100, value = 0)),
                                       column(6,
-                                             sliderInput(inputId = "SFctFH_2_len", label ="Min Length",
+                                             sliderInput(inputId = "SFctFH_3_len", label ="Min Length",
                                                          min = 5, max = 25, value = 18.5, step = .5))), 
-                                    sliderInput(inputId = "SFctPR_seas2", label ="Private Open Season 2",
+                                    sliderInput(inputId = "SFctPR_seas3", label ="Private Open Season 3",
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
                                                 timeFormat = "%m-%d", ticks = FALSE),
                                     fluidRow(
                                       column(4,
-                                             numericInput(inputId = "SFctPR_2_bag", label ="Bag Limit",
+                                             numericInput(inputId = "SFctPR_3_bag", label ="Bag Limit",
                                                           min = 0, max = 100, value = 0)),
                                       column(6,
-                                             sliderInput(inputId = "SFctPR_2_len", label ="Min Length",
+                                             sliderInput(inputId = "SFctPR_3_len", label ="Min Length",
                                                          min = 5, max = 25, value = 18.5, step = .5))), 
-                                    sliderInput(inputId = "SFctSH_seas2", label ="Shore Open Season 2",
+                                    sliderInput(inputId = "SFctSH_seas3", label ="Shore Open Season 3",
                                                 min = as.Date("01-01","%m-%d"),
                                                 max = as.Date("12-31","%m-%d"),
                                                 value=c(as.Date("12-31","%m-%d"),as.Date("12-31","%m-%d")), 
                                                 timeFormat = "%m-%d", ticks = FALSE),
                                     fluidRow(
                                       column(4,
-                                             numericInput(inputId = "SFctSH_2_bag", label ="Bag Limit",
+                                             numericInput(inputId = "SFctSH_3_bag", label ="Bag Limit",
                                                           min = 0, max = 100, value = 0)),
                                       column(6,
-                                             sliderInput(inputId = "SFctSH_2_len", label ="Min Length",
+                                             sliderInput(inputId = "SFctSH_3_len", label ="Min Length",
                                                          min = 5, max = 25, value = 18.5, step = .5)))))),
         
         column(4, 
@@ -1074,51 +1106,100 @@ server <- function(input, output, session) {
            "All Modes Combined" = div(sliderInput(inputId = "SFct_seas1", label ="Open Season 1",
                                                   min = as.Date("01-01","%m-%d"),
                                                   max = as.Date("12-31","%m-%d"),
-                                                  value=c(as.Date("05-01","%m-%d"),as.Date("10-09","%m-%d")), 
+                                                  value=c(as.Date("05-04","%m-%d"),as.Date("08-01","%m-%d")), 
                                                   timeFormat = "%m-%d", ticks = FALSE),
                                       fluidRow(
                                         column(4,
                                                numericInput(inputId = "SFct_1_bag", label ="Bag Limit",
-                                                            min = 0, max = 100, value = 4)),
+                                                            min = 0, max = 100, value = 3)),
                                         column(6,
                                                sliderInput(inputId = "SFct_1_len", label ="Min Length",
-                                                           min = 5, max = 25, value = 18.5, step = .5)))), 
+                                                           min = 5, max = 25, value = 19, step = .5))), 
+                                      sliderInput(inputId = "SFct_seas2", label ="Open Season 2",
+                                                  min = as.Date("01-01","%m-%d"),
+                                                  max = as.Date("12-31","%m-%d"),
+                                                  value=c(as.Date("08-02","%m-%d"),as.Date("10-15","%m-%d")), 
+                                                  timeFormat = "%m-%d", ticks = FALSE),
+                                      fluidRow(
+                                        column(4,
+                                               numericInput(inputId = "SFct_2_bag", label ="Bag Limit",
+                                                            min = 0, max = 100, value = 3)),
+                                        column(6,
+                                               sliderInput(inputId = "SFct_2_len", label ="Min Length",
+                                                           min = 5, max = 25, value = 19.5, step = .5)))), 
            "Seperated By Mode" = div(sliderInput(inputId = "SFctFH_seas1", label ="For Hire Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-01","%m-%d"),as.Date("10-09","%m-%d")), 
+                                                 value=c(as.Date("05-04","%m-%d"),as.Date("08-01","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFctFH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 3)),
                                        column(6,
                                               sliderInput(inputId = "SFctFH_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18.5, step = .5))) ,
+                                                          min = 5, max = 25, value = 19, step = .5))) ,
                                      sliderInput(inputId = "SFctPR_seas1", label ="Private Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-01","%m-%d"),as.Date("10-09","%m-%d")), 
+                                                 value=c(as.Date("05-04","%m-%d"),as.Date("08-01","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFctPR_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 3)),
                                        column(6,
                                               sliderInput(inputId = "SFctPR_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18.5, step = .5))) ,
+                                                          min = 5, max = 25, value = 19, step = .5))) ,
                                      sliderInput(inputId = "SFctSH_seas1", label ="Shore Open Season 1",
                                                  min = as.Date("01-01","%m-%d"),
                                                  max = as.Date("12-31","%m-%d"),
-                                                 value=c(as.Date("05-01","%m-%d"),as.Date("10-09","%m-%d")), 
+                                                 value=c(as.Date("05-04","%m-%d"),as.Date("08-01","%m-%d")), 
                                                  timeFormat = "%m-%d", ticks = FALSE),
                                      fluidRow(
                                        column(4,
                                               numericInput(inputId = "SFctSH_1_bag", label ="Bag Limit",
-                                                           min = 0, max = 100, value = 4)),
+                                                           min = 0, max = 100, value = 3)),
                                        column(6,
                                               sliderInput(inputId = "SFctSH_1_len", label ="Min Length",
-                                                          min = 5, max = 25, value = 18.5, step = .5)))))
+                                                          min = 5, max = 25, value = 19, step = .5))), 
+                                     sliderInput(inputId = "SFctFH_seas2", label ="For Hire Open Season 2",
+                                                 min = as.Date("01-01","%m-%d"),
+                                                 max = as.Date("12-31","%m-%d"),
+                                                 value=c(as.Date("08-02","%m-%d"),as.Date("10-15","%m-%d")), 
+                                                 timeFormat = "%m-%d", ticks = FALSE),
+                                     fluidRow(
+                                       column(4,
+                                              numericInput(inputId = "SFctFH_2_bag", label ="Bag Limit",
+                                                           min = 0, max = 100, value = 4)),
+                                       column(6,
+                                              sliderInput(inputId = "SFctFH_2_len", label ="Min Length",
+                                                          min = 5, max = 25, value = 19.5, step = .5))) ,
+                                     sliderInput(inputId = "SFctPR_seas2", label ="Private Open Season 2",
+                                                 min = as.Date("01-01","%m-%d"),
+                                                 max = as.Date("12-31","%m-%d"),
+                                                 value=c(as.Date("08-02","%m-%d"),as.Date("10-15","%m-%d")), 
+                                                 timeFormat = "%m-%d", ticks = FALSE),
+                                     fluidRow(
+                                       column(4,
+                                              numericInput(inputId = "SFctPR_2_bag", label ="Bag Limit",
+                                                           min = 0, max = 100, value = 4)),
+                                       column(6,
+                                              sliderInput(inputId = "SFctPR_2_len", label ="Min Length",
+                                                          min = 5, max = 25, value = 19.5, step = .5))) ,
+                                     sliderInput(inputId = "SFctSH_seas2", label ="Shore Open Season 2",
+                                                 min = as.Date("01-01","%m-%d"),
+                                                 max = as.Date("12-31","%m-%d"),
+                                                 value=c(as.Date("08-02","%m-%d"),as.Date("10-15","%m-%d")), 
+                                                 timeFormat = "%m-%d", ticks = FALSE),
+                                     fluidRow(
+                                       column(4,
+                                              numericInput(inputId = "SFctSH_2_bag", label ="Bag Limit",
+                                                           min = 0, max = 100, value = 2)),
+                                       column(6,
+                                              sliderInput(inputId = "SFctSH_2_len", label ="Min Length",
+                                                          min = 5, max = 25, value = 19.5, step = .5)))))
+          
   })
   
   
@@ -3679,53 +3760,34 @@ server <- function(input, output, session) {
     dat <- NULL
     #### MA regs ####
     if(any("MA" == input$state)){  
-      if(input$SF_MA_input_type == "All Modes Combined"){
-        
-        SFmaseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("All"),
-                                  Season = paste(input$SFma_seas1[1], "-", input$SFma_seas1[2]),
-                                  BagLimit = paste(input$SFma_1_bag),
-                                  Length = paste(input$SFma_1_len))
-        SFmaFHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("For Hire"),
-                                    Season = paste(input$SFmaFH_seas2[1], "-", input$SFmaFH_seas2[2]),
-                                    BagLimit = paste(input$SFmaFH_2_bag),
-                                    Length = paste(input$SFmaFH_2_len))
-        SFmaPRseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Private"),
-                                    Season = paste(input$SFmaPR_seas2[1], "-", input$SFmaPR_seas2[2]),
-                                    BagLimit = paste(input$SFmaPR_2_bag),
-                                    Length = paste(input$SFmaPR_2_len))
-        SFmaSHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Shore"),
-                                    Season = paste(input$SFmaSH_seas2[1], "-", input$SFmaSH_seas2[2]),
-                                    BagLimit = paste(input$SFmaSH_2_bag),
-                                    Length = paste(input$SFmaSH_2_len))
-        SFma <- rbind(SFmaseason1, SFmaFHseason2, SFmaPRseason2, SFmaSHseason2)
-      } else {
-        SFmaFHseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+      SFmaFHseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("For Hire"),
                                     Season = paste(input$SFmaFH_seas1[1], "-", input$SFmaFH_seas1[2]),
                                     BagLimit = paste(input$SFmaFH_1_bag),
                                     Length = paste(input$SFmaFH_1_len))
-        SFmaPRseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Private"),
+      SFmaPRseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Private"),
                                     Season = paste(input$SFmaPR_seas1[1], "-", input$SFmaPR_seas1[2]),
                                     BagLimit = paste(input$SFmaPR_1_bag),
                                     Length = paste(input$SFmaPR_1_len))
-        SFmaSHseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Shore"),
+      SFmaSHseason1 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Shore"),
                                     Season = paste(input$SFmaSH_seas1[1], "-", input$SFmaSH_seas1[2]),
                                     BagLimit = paste(input$SFmaSH_1_bag),
                                     Length = paste(input$SFmaSH_1_len))
-        SFmaFHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+      
+      SFmaFHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("For Hire"),
                                     Season = paste(input$SFmaFH_seas2[1], "-", input$SFmaFH_seas2[2]),
                                     BagLimit = paste(input$SFmaFH_2_bag),
                                     Length = paste(input$SFmaFH_2_len))
-        SFmaPRseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Private"),
+      SFmaPRseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Private"),
                                     Season = paste(input$SFmaPR_seas2[1], "-", input$SFmaPR_seas2[2]),
                                     BagLimit = paste(input$SFmaPR_2_bag),
                                     Length = paste(input$SFmaPR_2_len))
-        SFmaSHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Shore"),
+      SFmaSHseason2 <- data.frame(State = c("MA"), Species = c("Summer Flounder"), Mode = c("Shore"),
                                     Season = paste(input$SFmaSH_seas2[1], "-", input$SFmaSH_seas2[2]),
                                     BagLimit = paste(input$SFmaSH_2_bag),
                                     Length = paste(input$SFmaSH_2_len))
-        
-        SFma <- rbind(SFmaFHseason1,SFmaFHseason2, SFmaPRseason1,SFmaPRseason2, SFmaSHseason1,SFmaSHseason2)
-      }
+
+      
+      SFma <- rbind(SFmaFHseason1, SFmaFHseason2, SFmaPRseason1,  SFmaPRseason2, SFmaSHseason1,  SFmaSHseason2)
       
       if(input$BSB_MA_input_type == "All Modes Combined"){
         BSBmaseason1 <- data.frame(State = c("MA"), Species = c("Black Sea Bass"), Mode = c("All"),
@@ -3963,19 +4025,23 @@ server <- function(input, output, session) {
                                   Season = paste(input$SFct_seas1[1], "-", input$SFct_seas1[2]),
                                   BagLimit = paste(input$SFct_1_bag),
                                   Length = paste(input$SFct_1_len))
-        SFctFHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
-                                    Season = paste(input$SFctFH_seas2[1], "-", input$SFctFH_seas2[2]),
-                                    BagLimit = paste(input$SFctFH_2_bag),
-                                    Length = paste(input$SFctFH_2_len))
-        SFctPRseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
-                                    Season = paste(input$SFctPR_seas2[1], "-", input$SFctPR_seas2[2]),
-                                    BagLimit = paste(input$SFctPR_2_bag),
-                                    Length = paste(input$SFctPR_2_len))
-        SFctSHseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
-                                    Season = paste(input$SFctSH_seas2[1], "-", input$SFctSH_seas2[2]),
-                                    BagLimit = paste(input$SFctSH_2_bag),
-                                    Length = paste(input$SFctSH_2_len))
-        SFct <- rbind(SFctseason1, SFctFHseason2, SFctPRseason2, SFctSHseason2)
+        SFctseason2 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("All"),
+                                  Season = paste(input$SFct_seas2[1], "-", input$SFct_seas2[2]),
+                                  BagLimit = paste(input$SFct_2_bag),
+                                  Length = paste(input$SFct_2_len))
+        SFctFHseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                    Season = paste(input$SFctFH_seas3[1], "-", input$SFctFH_seas3[2]),
+                                    BagLimit = paste(input$SFctFH_3_bag),
+                                    Length = paste(input$SFctFH_3_len))
+        SFctPRseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                    Season = paste(input$SFctPR_seas3[1], "-", input$SFctPR_seas3[2]),
+                                    BagLimit = paste(input$SFctPR_3_bag),
+                                    Length = paste(input$SFctPR_3_len))
+        SFctSHseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                    Season = paste(input$SFctSH_seas3[1], "-", input$SFctSH_seas3[2]),
+                                    BagLimit = paste(input$SFctSH_3_bag),
+                                    Length = paste(input$SFctSH_3_len))
+        SFct <- rbind(SFctseason1, SFctseason2, SFctFHseason3, SFctPRseason3, SFctSHseason3)
       } else {
         SFctFHseason1 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
                                     Season = paste(input$SFctFH_seas1[1], "-", input$SFctFH_seas1[2]),
@@ -4001,8 +4067,20 @@ server <- function(input, output, session) {
                                     Season = paste(input$SFctSH_seas2[1], "-", input$SFctSH_seas2[2]),
                                     BagLimit = paste(input$SFctSH_2_bag),
                                     Length = paste(input$SFctSH_2_len))
+        SFctFHseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("For Hire"),
+                                    Season = paste(input$SFctFH_seas3[1], "-", input$SFctFH_seas3[2]),
+                                    BagLimit = paste(input$SFctFH_3_bag),
+                                    Length = paste(input$SFctFH_3_len))
+        SFctPRseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Private"),
+                                    Season = paste(input$SFctPR_seas3[1], "-", input$SFctPR_seas3[2]),
+                                    BagLimit = paste(input$SFctPR_3_bag),
+                                    Length = paste(input$SFctPR_3_len))
+        SFctSHseason3 <- data.frame(State = c("CT"), Species = c("Summer Flounder"), Mode = c("Shore"),
+                                    Season = paste(input$SFctSH_seas3[1], "-", input$SFctSH_seas3[2]),
+                                    BagLimit = paste(input$SFctSH_3_bag),
+                                    Length = paste(input$SFctSH_3_len))
         
-        SFct <- rbind(SFctFHseason1,SFctFHseason2, SFctPRseason1,SFctPRseason2, SFctSHseason1,SFctSHseason2)
+        SFct <- rbind(SFctFHseason1,SFctFHseason2,SFctFHseason3, SFctPRseason1,SFctPRseason2,SFctPRseason3, SFctSHseason1,SFctSHseason2, SFctSHseason3)
       }
       
       
