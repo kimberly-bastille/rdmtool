@@ -116,7 +116,7 @@ global yearlist  1982 1983 1984 1985 1986 1987 1988 1989 ///
 					   2010 2011 2012 2013 2014 2015 2016 2017 2018 2019 2020 
 global yearlist  2017 2018 2019 2020 
 
-global yearlist  2022 
+global yearlist  2021 2022 2023 
 global wavelist 1 2 3 4 5 6
 
 
