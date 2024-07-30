@@ -41,7 +41,7 @@ keep if inlist(st,23, 33, 25)
 tempfile tc1
 save `tc1'
  
-keep if $calibration_year
+keep if $projection_year
  
 gen st2 = string(st,"%02.0f")
 
@@ -665,7 +665,7 @@ drop domain2
 
 mvencode tot_ntrip*, mv(0) over
 
-save "$input_code_cd\catch per trip1.dta", replace 
+save "$input_code_cd\catch per trip1 - projection.dta", replace 
 
 
 /*
@@ -702,23 +702,6 @@ merge 1:1 mode disp species using `sim'
 	*a) 50 trips per day of the fishing season, each with 30 draws of catch-per-trip
 	*b) demographics for each trip that are constant across catch draws
 	
-*Will add age and avidities here
-import excel using "$input_code_cd\population ages.xlsx", clear firstrow
-keep if region=="MENY"
-replace wtd_fre=round(wtd_fre)
-expand wtd_fre
-keep age
-tempfile ages 
-save `ages', replace 
-
-import excel using "$input_code_cd\population avidity.xlsx", clear firstrow
-keep if region=="MENY"
-replace wtd_fre=round(wtd_fre)
-expand wtd_fre
-keep days_fished
-tempfile avidities 
-save `avidities', replace 
-
 import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
 gen wave = 1 if inlist(month, 1, 2)
 replace wave=2 if inlist(month, 3, 4)
@@ -768,7 +751,7 @@ foreach d of local doms{
 	levelsof dtrip, local(dtrip) 
 	levelsof domain1, local(dom1) clean
 
-	u "$input_code_cd\catch per trip1.dta", clear 
+	u "$input_code_cd\catch per trip1 - projection.dta", clear 
 	drop if disp=="catch"
 	drop domain
 	destring month, replace
@@ -924,34 +907,7 @@ foreach d of local doms{
 	rename nfishhaddrel hadd_rel
 	rename nfishhaddkeep hadd_keep
 
-	preserve
-	u `ages', clear 
-	sample 50, count
-	gen tripid=_n
-	tempfile ages2
-	save `ages2', replace	
-	restore 
-	
-	preserve
-	u `avidities', clear 
-	sample 50, count
-	gen tripid=_n
-	tempfile avidities2
-	save `avidities2', replace	
-	restore 
-	
-	merge m:1 tripid using `ages2', keep(3) nogen
-	merge m:1 tripid using `avidities2', keep(3) nogen
-
-	gen cost=rnormal($fh_cost_est, $fh_cost_sd) if mode=="fh" & catch_draw==1
-	replace cost=rnormal($pr_cost_est, $pr_cost_sd) if mode=="pr" & catch_draw==1
-	replace cost=rnormal($sh_cost_est, $sh_cost_sd) if mode=="sh" & catch_draw==1
-
-	egen mean_cost=mean(cost), by(tripid)
-	
-	drop cost
-	rename mean_cost cost 
-	
+		
 	
 	tempfile domainz`d'
 	save `domainz`d'', replace
@@ -966,7 +922,7 @@ dsconcat $domainz
 order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch 
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
-export delimited using "$draw_file_cd\catch_draws`i'.csv", replace 
+export delimited using "$draw_file_cd\catch_draws_projection`i'.csv", replace 
 
 }
 

@@ -495,16 +495,16 @@ replace hadd_min=17 if  day>=$hadd_start_date2 & day<=$hadd_end_date2
 
 *Cod regs
 replace cod_bag=1 if  day>=$cod_start_date1_pr & day<=$cod_end_date1_pr & inlist(mode, "pr", "sh")
-replace hadd_min=22 if  day>=$cod_start_date1_pr & day<=$cod_end_date1_pr & inlist(mode, "pr", "sh")
+replace cod_min=22 if  day>=$cod_start_date1_pr & day<=$cod_end_date1_pr & inlist(mode, "pr", "sh")
 
 replace cod_bag=1 if  day>=$cod_start_date2_pr & day<=$cod_end_date2_pr & inlist(mode, "pr", "sh")
-replace hadd_min=22 if  day>=$cod_start_date2_pr & day<=$cod_end_date2_pr & inlist(mode, "pr", "sh")
+replace cod_min=22 if  day>=$cod_start_date2_pr & day<=$cod_end_date2_pr & inlist(mode, "pr", "sh")
 
 replace cod_bag=1 if  day>=$cod_start_date1_fh & day<=$cod_end_date1_fh & inlist(mode, "fh")
-replace hadd_min=22 if  day>=$cod_start_date1_fh & day<=$cod_end_date1_fh & inlist(mode, "fh")
+replace cod_min=22 if  day>=$cod_start_date1_fh & day<=$cod_end_date1_fh & inlist(mode, "fh")
 
 replace cod_bag=1 if  day>=$cod_start_date2_fh & day<=$cod_end_date2_fh & inlist(mode, "fh")
-replace hadd_min=22 if  day>=$cod_start_date2_fh & day<=$cod_end_date2_fh & inlist(mode, "fh")
+replace cod_min=22 if  day>=$cod_start_date2_fh & day<=$cod_end_date2_fh & inlist(mode, "fh")
 
 
 tempfile regulations
@@ -615,7 +615,8 @@ return list
 
 drop check 
 
-export delimited using "$input_code_cd\calendar 2024 adjustments.csv",  replace 
+export delimited using "$input_code_cd\next year calendar adjustments.csv",  replace 
+*import delimited using "$input_code_cd\next year calendar adjustments.csv",  clear  
 
 
 
