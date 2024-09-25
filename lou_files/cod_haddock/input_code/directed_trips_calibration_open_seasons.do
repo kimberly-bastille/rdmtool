@@ -87,6 +87,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -108,7 +109,7 @@ destring month1, replace
 gen date=mdy( month1, day1, year)
 format date %td
 
-gen season="op" if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
+gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
 replace season="cl" if season==""
 
 
@@ -189,7 +190,9 @@ rename b dtrip
 
 keep if area_s=="GOM"
 
-keep dtrip season mode 
+rename ll ll_dtrip 
+rename ul ul_dtrip
+keep dtrip season mode  ul_dtrip ll_dtrip
 
 save  "$draw_file_cd\MRIP_dtrip_totals_open_season.dta", replace 
 

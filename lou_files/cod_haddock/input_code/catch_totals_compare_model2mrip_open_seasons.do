@@ -11,10 +11,12 @@ tempfile mrip
 save `mrip', replace 
 
 import delimited using "$draw_file_cd\simulated_catch_totals_open_season.csv", clear 
+*import delimited using "$draw_file_cd\simulated_catch_totals_open_season_truncated.csv", clear 
+
 gen season="op" if open==1
 replace season="cl" if open==0
 merge m:1 mode season using `mrip'
-
+drop if _merge==1
 drop _merge 
 
 collapse (mean) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch cod_catch_mrip ///
@@ -36,6 +38,11 @@ foreach v of local vars{
 }
 
 order mode season *perc* cod_keep* *cod_rel* *cod_catch* *hadd_keep* *hadd_rel* *hadd_catch* *dtrip*
+browse mode season cod_keep_model cod_keep_mrip diff_cod_keep perc_diff_cod_keep
+browse mode season cod_catch_model cod_catch_mrip diff_cod_catch perc_diff_cod_catch
+browse mode season hadd_keep_model hadd_keep_mrip diff_hadd_keep perc_diff_hadd_keep
+browse mode season hadd_catch_model hadd_catch_mrip diff_hadd_catch perc_diff_hadd_catch
+browse mode season *dtrip*
 
 **differences over all modes
 
@@ -46,7 +53,7 @@ mvencode dtrip, mv(0) override
 drop _merge
 rename dtrip dtrip_mrip
 
-collapse (sum) cod_catch_mrip cod_keep_mrip cod_rel_mrip hadd_catch_mrip hadd_keep_mrip hadd_rel_mrip dtrip_mrip, by(season)
+collapse (sum) cod_catch_mrip cod_keep_mrip cod_rel_mrip hadd_catch_mrip hadd_keep_mrip hadd_rel_mrip dtrip_mrip, by(mode)
 gen tab=1
 
 tempfile mrip 
@@ -56,9 +63,9 @@ import delimited using "$draw_file_cd\simulated_catch_totals_open_season.csv", c
 gen season="op" if open==1
 replace season="cl" if open==0
 
-collapse (sum) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch dtrip, by(draw season)
+collapse (sum) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch dtrip, by(draw mode)
 gen tab=1
-merge m:1 tab season using `mrip'
+merge m:1 tab mode using `mrip'
 
 
 drop _merge 
@@ -66,7 +73,7 @@ drop _merge
 
 						
 collapse (mean) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch cod_catch_mrip ///
-						cod_keep_mrip cod_rel_mrip hadd_catch_mrip hadd_keep_mrip hadd_rel_mrip dtrip dtrip_mrip, by( season)
+						cod_keep_mrip cod_rel_mrip hadd_catch_mrip hadd_keep_mrip hadd_rel_mrip dtrip dtrip_mrip, by( mode)
 
 rename tot_cod_keep cod_keep_model
 rename tot_cod_rel cod_rel_model
@@ -83,5 +90,10 @@ foreach v of local vars{
 	
 }
 
-order  season *perc* cod_keep* *cod_rel* *cod_catch* *hadd_keep* *hadd_rel* *hadd_catch* *dtrip*
+order   *perc* cod_keep* *cod_rel* *cod_catch* *hadd_keep* *hadd_rel* *hadd_catch* *dtrip*
 
+browse mode  cod_keep_model cod_keep_mrip diff_cod_keep perc_diff_cod_keep
+browse mode  cod_catch_model cod_catch_mrip diff_cod_catch perc_diff_cod_catch
+browse mode  hadd_keep_model hadd_keep_mrip diff_hadd_keep perc_diff_hadd_keep
+browse mode  hadd_catch_model hadd_catch_mrip diff_hadd_catch perc_diff_hadd_catch
+browse mode  *dtrip*

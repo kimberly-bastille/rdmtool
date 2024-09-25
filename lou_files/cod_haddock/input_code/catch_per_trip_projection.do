@@ -724,9 +724,11 @@ encode domain1, gen(domain3)
 tempfile trips
 save `trips', replace
 
-forv i=1/150{
+ forv i=1/150{
 
 u `trips', clear  
+*local i=2
+
 keep if draw==`i'
 *keep if draw==1
 
@@ -739,8 +741,7 @@ levelsof domain3 /*if inlist(domain1, "fh_01jun2022")*/, local(doms)
 foreach d of local doms{
 
 	u `trips2', clear 
-	*local i=1
-	*local d=362
+	*local d=415
 	keep if domain3==`d'
 	levelsof mode, local(md) clean
 	levelsof month, local(mnth)
@@ -761,9 +762,33 @@ foreach d of local doms{
 	gen domain=mode+"_"+month
 	gen domain2=mode+"_"+month+"_"+species
 	order domain*
-
+	
+	*In some cases there are no catch recorded in the projected catch-per-trip during calibration periods with catch. 
+	*In these cases, use catch-per-trip from the calibration period 
+	
+	count if domain=="`dom'"
+	if `r(N)'==0{
+		
+	u "$input_code_cd\catch per trip1.dta", clear 
+	drop if disp=="catch"
+	drop domain
+	destring month, replace
+	tostring month, gen(month1)
+	drop month 
+	rename month1 month 
+	gen domain=mode+"_"+month
+	gen domain2=mode+"_"+month+"_"+species
+	order domain*
+	keep if domain=="`dom'"
+	
+	}
+	
+	else{
 	keep if domain=="`dom'"
 
+	}
+	
+	
 	tempfile base`d' 
 	save `base`d'', replace 
 	
@@ -907,14 +932,11 @@ foreach d of local doms{
 	rename nfishhaddrel hadd_rel
 	rename nfishhaddkeep hadd_keep
 
-		
-	
 	tempfile domainz`d'
 	save `domainz`d'', replace
 	global domainz "$domainz "`domainz`d''" " 
 
 }
-
 
 clear
 dsconcat $domainz
@@ -922,11 +944,101 @@ dsconcat $domainz
 order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch 
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
+
 export delimited using "$draw_file_cd\catch_draws_projection`i'.csv", replace 
 
 }
 
 
 
-*import delimited using "$draw_file_cd\catch_draws55.csv", clear 
+*Now for each of these files, make sure that there are catch draws for periods with directed trips but no catch 
 
+global drawz
+forv i=1/150{
+*local i=1
+import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
+keep if draw==`i'
+keep day day_i mode dtrip 
+duplicates drop 
+tempfile draws
+save `draws', replace 
+
+
+import delimited using "$draw_file_cd\catch_draws_projection`i'.csv", clear 
+tempfile basedraws
+save `basedraws', replace 
+
+rename dtrip dtrip_catchfile
+keep day day_i mode dtrip 
+duplicates drop 
+
+merge 1:1 day day_i mode using `draws'
+
+keep if _merge==2
+gen domain=mode+"_"+day
+sort  mode day
+
+tempfile base2
+save `base2', replace 
+
+global domainz
+levelsof domain, local(doms)
+foreach d of local doms{
+
+u `base2', clear 
+
+keep if domain=="`d'"
+expand 1500
+egen tripid = seq(), f(1) t(50)
+bysort tripid: gen catch_draw=_n
+
+gen draw=`i'
+tempfile domainz`d'
+save `domainz`d'', replace
+global domainz "$domainz "`domainz`d''" " 
+}
+
+dsconcat $domainz
+append using  `basedraws'
+mvencode cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch, mv(0) override
+drop _merge month wave domain dtrip_catchfile dtrip
+export delimited using "$draw_file_cd\catch_draws_projection`i'_full.csv", replace 
+
+ }
+ 
+forv i=1/150{
+
+import delimited using "$draw_file_cd\catch_draws_projection`i'_full.csv", clear 
+gen day1 = substr(day, 1, 2)
+gen month1= substr(day, 3, 3)
+gen month="1" if month1=="jan"
+replace month="2" if month1=="feb"
+replace month="3" if  month1=="mar"
+replace month="4" if   month1=="apr"
+replace month="5" if  month1=="may"
+replace month="6" if  month1=="jun"
+replace month="7" if  month1=="jul"
+replace month="8" if  month1=="aug"
+replace month="9" if  month1=="sep"
+replace month="10" if  month1=="oct"
+replace month="11" if  month1=="nov"
+replace month="12" if  month1=="dec"
+gen period2 = month+ "_"+ day1+ "_"+ mode
+destring month, replace 
+destring day1, replace 
+export delimited using "$draw_file_cd\catch_draws_projection`i'_full.csv", replace 
+}
+
+forv i=1/150{
+
+import delimited using "$draw_file_cd\catch_draws_projection`i'_full.csv", clear 
+tostring day1, replace 
+tostring month, replace 
+drop period2
+gen period2 = month+ "_"+ day1+ "_"+ mode
+destring month, replace 
+destring day1, replace 
+export delimited using "$draw_file_cd\catch_draws_projection`i'_full.csv", replace 
+
+
+}

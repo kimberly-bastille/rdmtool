@@ -91,6 +91,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -101,7 +102,7 @@ replace area_s="GOM" if st2=="23" | st2=="33"
 replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
 
-gen my_dom_id_string=area_s+"_"+month1+"_"+kod+"_"+mode1+"_"+ dom_id
+gen my_dom_id_string=area_s+"_"+year2+"_"+month1+"_"+kod+"_"+mode1+"_"+ dom_id
 
 replace my_dom_id_string=ltrim(rtrim(my_dom_id_string))
 /*convert this string to a number */
@@ -172,16 +173,17 @@ gen pse=(se/b)*100
 
 split my, parse(_)
 rename my_dom_id_string1 area_s
-rename my_dom_id_string2 month1
-rename my_dom_id_string3 kod
-rename my_dom_id_string4 mode
-rename my_dom_id_string5 dom_id
-keep if  dom_id=="1"
+rename my_dom_id_string2 year
+rename my_dom_id_string3 month1
+rename my_dom_id_string4 kod
+rename my_dom_id_string5 mode
+rename my_dom_id_string6 dom_id
 drop my_dom_id_string
 rename b dtrip
 
 keep if dom_id=="1"
 keep if area_s=="GOM"
+*drop if area_s=="GBS"
 
 su dtrip
 return list
@@ -410,7 +412,8 @@ drop dtrip sum_days  se  _merge tab
 sort  draw mode day 
 rename trips_per_day dtrip
 
-
+browse if draw==1
+sort day 
 *collapse (mean) trips_per_day, by(mode day_i)
 *su trips_per_day
 *return list
@@ -478,7 +481,7 @@ twoway scatter trips_per_day domain2  if state=="MD" & mode=="pr" , msize(tiny) 
 			
 
 
-*Now create the baseline regulations for fishing year 2022
+*Now create the baseline regulations for the calibration period
 gen cod_bag=0 
 gen cod_min=100
 
@@ -493,19 +496,26 @@ replace hadd_min=17 if  day>=$hadd_start_date1 & day<=$hadd_end_date1
 replace hadd_bag=20 if  day>=$hadd_start_date2 & day<=$hadd_end_date2
 replace hadd_min=17 if  day>=$hadd_start_date2 & day<=$hadd_end_date2
 
+replace hadd_bag=15 if  day>=$hadd_start_date3_fh & day<=$hadd_end_date3_fh & inlist(mode, "fh")
+replace hadd_min=18 if  day>=$hadd_start_date3_fh & day<=$hadd_end_date3_fh  & inlist(mode, "fh")
+
+replace hadd_bag=10 if  day>=$hadd_start_date3_pr & day<=$hadd_end_date3_pr & inlist(mode, "pr", "sh")
+replace hadd_min=17 if  day>=$hadd_start_date3_pr & day<=$hadd_end_date3_pr  & inlist(mode, "pr", "sh")
+
+
 *Cod regs
-replace cod_bag=1 if  day>=$cod_start_date1_pr & day<=$cod_end_date1_pr & inlist(mode, "pr", "sh")
-replace cod_min=22 if  day>=$cod_start_date1_pr & day<=$cod_end_date1_pr & inlist(mode, "pr", "sh")
+replace cod_bag=1 if  day>=$cod_start_date1 & day<=$cod_end_date1 
+replace cod_min=22 if  day>=$cod_start_date1 & day<=$cod_end_date1 
 
-replace cod_bag=1 if  day>=$cod_start_date2_pr & day<=$cod_end_date2_pr & inlist(mode, "pr", "sh")
-replace cod_min=22 if  day>=$cod_start_date2_pr & day<=$cod_end_date2_pr & inlist(mode, "pr", "sh")
+replace cod_bag=1 if  day>=$cod_start_date2 & day<=$cod_end_date2 
+replace cod_min=22 if  day>=$cod_start_date2 & day<=$cod_end_date2 
 
-replace cod_bag=1 if  day>=$cod_start_date1_fh & day<=$cod_end_date1_fh & inlist(mode, "fh")
-replace cod_min=22 if  day>=$cod_start_date1_fh & day<=$cod_end_date1_fh & inlist(mode, "fh")
 
-replace cod_bag=1 if  day>=$cod_start_date2_fh & day<=$cod_end_date2_fh & inlist(mode, "fh")
-replace cod_min=22 if  day>=$cod_start_date2_fh & day<=$cod_end_date2_fh & inlist(mode, "fh")
+*gen doy = doy(day)
+drop day_i
 
+gen day1=day(day)
+gen month1=month(day)
 
 tempfile regulations
 save `regulations', replace 
@@ -523,9 +533,14 @@ format day_y2 %td
 tsset day_y2
 tsfill, full
 
+
+gen day1=day(day_y2)
+gen month1=month(day_y2)
+gen year_y2=year(day_y2)
+
 drop if day_y2==td(29feb2024)
 
-gen day_i=_n
+*gen doy=doy(day_y2)
 
 gen dow_y2 = dow(day_y2)  
 
@@ -537,9 +552,7 @@ replace kod_y2="we" if $fed_holidays_y2
 
 
 
-gen month_y2=month(day_y2)				
-gen month2_y2= string(month,"%02.0f")
-drop month_y2
+gen month2_y2= string(month1,"%02.0f")
 rename month2_y2 month_y2
 gen mode="sh"
 expand 2, gen(dup)
@@ -551,17 +564,65 @@ drop dup
 
 
 
-merge 1:m  mode day_i using `regulations'
+merge 1:m  mode day1 month1 using `regulations'
 drop _merge 
-order year mode month kod dow day day_i draw cod_bag cod_min hadd_bag hadd_min day_y2 dow_y2 kod_y2 month_y2
-sort year mode day_i draw
+order year mode month kod dow day  draw cod_bag cod_min hadd_bag hadd_min day_y2 dow_y2 kod_y2 month_y2
+sort  mode day draw
+
+
+*Create status quo regualtions 
+
+*Now create the baseline regulations for the calibration period
+gen cod_bag_y2=0 
+gen cod_min_y2=100
+
+gen hadd_bag_y2=0
+gen hadd_min_y2=100
+
+/*
+The recreational sub-ACL for GoM cod is 192 mt for FY 2023. The recreational sub-ACL for GOM haddock is 610 mt. Regulations were implemented in August of 2023, so part of the year had a haddock limit of 20 fish at 17".
+
+Haddock:
+For-Hire sector: 15 fish with an 18" minimum size.
+Private Anglers: 10 fish with a 17" minimum size.
+Open May1-Feb 28 and April 1- April 30. Closed for the month of March.
+
+Cod:
+1 fish, 22"
+Open Sept 1-October 31 for all anglers.
+*/
+*Hadd regs 
+replace hadd_bag_y2=15 if  day_y2>=td(01may2024) & day_y2<=td(28feb2025)  & inlist(mode, "fh")
+replace hadd_bag_y2=15 if  day_y2>=td(01apr2025) & day_y2<=td(30apr2025) & inlist(mode, "fh")
+
+replace hadd_bag_y2=10 if  day_y2>=td(01may2024) & day_y2<=td(28feb2025)  & inlist(mode, "pr", "sh")
+replace hadd_bag_y2=10 if  day_y2>=td(01apr2025) & day_y2<=td(30apr2025) & inlist(mode, "pr", "sh")
+
+replace hadd_min_y2=18 if  hadd_bag_y2!=0 & inlist(mode, "fh")
+replace hadd_min_y2=17 if  hadd_bag_y2!=0 & inlist(mode, "pr", "sh")
+
+
+*Cod regs
+replace cod_bag_y2=1 if  day_y2>=td(01sep2024) & day_y2<=td(31oct2024) 
+replace cod_min_y2=22 if  cod_bag_y2!=0 
+
 export delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  replace 
+import delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  clear  
+
+
+replace cod_min = cod_min*2.54
+replace hadd_min = hadd_min*2.54
+replace cod_min_y2 = cod_min_y2*2.54
+replace hadd_min_y2 = hadd_min_y2*2.54
+
+export delimited using "$input_code_cd\directed_trips_calib_150draws_cm.csv",  replace 
 
 
 
 **Now adjust for the differences in directed trips due to changes in kod between calibration year y and  y+1
 import delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  clear  
-tostring month, gen(month1)
+tostring month, gen(month1_y1)
+tostring month_y2, gen(month1_y2)
 
 tempfile base 
 save `base', replace 
@@ -569,14 +630,13 @@ save `base', replace
 global drawz
 
 levelsof draw, local(drawss)
-
 foreach d of local drawss{
 
 u `base', clear
 
 keep if draw==`d'
-gen domain_y1=mode+"_"+month1+"_"+kod
-gen domain_y2=mode+"_"+month1+"_"+kod_y2
+gen domain_y1=mode+"_"+month1_y1+"_"+kod
+gen domain_y2=mode+"_"+month1_y2+"_"+kod_y2
 
 gen dtrip_y2=dtrip if domain_y1==domain_y2 
 
@@ -587,7 +647,6 @@ foreach p of local domains{
 	replace dtrip_y2=`r(mean)' if  domain_y2=="`p'" & dtrip_y2==.
 	
 }
-
 collapse (sum) dtrip dtrip_y2, by(month mode)
 gen expansion_factor = dtrip_y2/dtrip
 gen draw=`d'
@@ -601,7 +660,7 @@ dsconcat $drawz
 
 browse if dtrip==0 & dtrip_y2!=0
 browse
-mvencode expansion_factor, mv(0) override
+mvencode expansion_factor, mv(1) override
 
 su dtrip
 return list
@@ -609,7 +668,7 @@ return list
 su dtrip_y2
 return list
 
-gen check =dtrip_y2*expansion
+gen check =dtrip*expansion
 su check
 return list
 

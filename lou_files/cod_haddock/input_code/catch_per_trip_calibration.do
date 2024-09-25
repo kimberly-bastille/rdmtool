@@ -4,8 +4,6 @@
 cd $mrip_data_cd
 
 clear
-cd "C:\Users\andrew.carr-harris\Desktop\MRIP_data"
-
 mata: mata clear
 
 tempfile tl1 cl1
@@ -83,6 +81,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -683,20 +682,26 @@ collapse (mean) sum_nfish2*, by(species disp mode )
 tempfile sim 
 save `sim', replace 
 
-import delimited using "$draw_file_cd\MRIP_catch_totals.csv", clear 
+import delimited using "$draw_file_cd\MRIP_catch_totals_open_season.csv", clear 
 drop ll* ul* 
-ds mode, not
-renvarlab `r(varlist)', prefix(tab_)
-reshape long tab_, i(mode) j(new) string
+ds mode season, not
+renvarlab `r(varlist)', prefix(mrip_)
+reshape long mrip_, i(mode season) j(new) string
 split new, parse(_)
 rename new1 species
 rename new2 disp
 drop new3 new
+collapse (sum) mrip_, by(species disp mode)
 drop if disp=="catch"
 merge 1:1 mode disp species using `sim'
+gen diff=sum-mrip
+gen pdiff=((sum-mrip)/mrip)*100
+
+collapse (sum) mrip_ sum, by(species  mode)
+gen diff=sum-mrip
+gen pdiff=((sum-mrip)/mrip)*100
 
 */
-
 
 *Now create a file for each draw that contains:
 	*a) 50 trips per day of the fishing season, each with 30 draws of catch-per-trip
@@ -741,8 +746,8 @@ encode domain1, gen(domain3)
 tempfile trips
 save `trips', replace
 
-forv i=1/150{
-
+qui forv i=1/150{
+*local i=1
 u `trips', clear  
 keep if draw==`i'
 *keep if draw==1
@@ -757,7 +762,7 @@ foreach d of local doms{
 
 	u `trips2', clear 
 	*local i=1
-	*local d=362
+	*local d=188
 	keep if domain3==`d'
 	levelsof mode, local(md) clean
 	levelsof month, local(mnth)
@@ -967,10 +972,127 @@ order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
 export delimited using "$draw_file_cd\catch_draws`i'.csv", replace 
+*export delimited using "$draw_file_cd\catch_draws1_test.csv", replace 
 
 }
 
 
+*Now for each of these files, make sure that there are catch draws for periods with directed trips but no catch 
 
-*import delimited using "$draw_file_cd\catch_draws55.csv", clear 
+global drawz
+  forv i=1/150{
+
+import excel using "$input_code_cd\population ages.xlsx", clear firstrow
+keep if region=="MENY"
+replace wtd_fre=round(wtd_fre)
+expand wtd_fre
+keep age
+tempfile ages 
+save `ages', replace 
+
+import excel using "$input_code_cd\population avidity.xlsx", clear firstrow
+keep if region=="MENY"
+replace wtd_fre=round(wtd_fre)
+expand wtd_fre
+keep days_fished
+tempfile avidities 
+
+save `avidities', replace 
+preserve
+u `ages', clear 
+sample 50, count
+gen tripid=_n
+tempfile ages2
+save `ages2', replace	
+restore 
+	
+preserve
+u `avidities', clear 
+sample 50, count
+gen tripid=_n
+tempfile avidities2
+save `avidities2', replace	
+restore 
+
+import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
+keep if draw==`i'
+keep day day_i mode dtrip 
+duplicates drop 
+tempfile draws
+save `draws', replace 
+
+
+import delimited using "$draw_file_cd\catch_draws`i'.csv", clear 
+tempfile basedraws
+save `basedraws', replace 
+
+rename dtrip dtrip_catchfile
+keep day day_i mode dtrip 
+duplicates drop 
+
+merge 1:1 day day_i mode using `draws'
+
+keep if _merge==2
+gen domain=mode+"_"+day
+sort  mode day
+
+tempfile base2
+save `base2', replace 
+
+global domainz
+levelsof domain, local(doms)
+foreach d of local doms{
+
+u `base2', clear 
+
+keep if domain=="`d'"
+expand 1500
+egen tripid = seq(), f(1) t(50)
+bysort tripid: gen catch_draw=_n
+
+merge m:1 tripid using `ages2', keep(3) nogen
+merge m:1 tripid using `avidities2', keep(3) nogen
+
+gen cost=rnormal($fh_cost_est, $fh_cost_sd) if mode=="fh" & catch_draw==1
+replace cost=rnormal($pr_cost_est, $pr_cost_sd) if mode=="pr" & catch_draw==1
+replace cost=rnormal($sh_cost_est, $sh_cost_sd) if mode=="sh" & catch_draw==1
+
+egen mean_cost=mean(cost), by(tripid)
+	
+drop cost
+rename mean_cost cost 
+gen draw=`i'
+tempfile domainz`d'
+save `domainz`d'', replace
+global domainz "$domainz "`domainz`d''" " 
+}
+
+dsconcat $domainz
+append using  `basedraws'
+mvencode cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch, mv(0) override
+drop _merge month wave domain dtrip_catchfile dtrip
+
+gen day1 = substr(day, 1, 2)
+gen month1= substr(day, 3, 3)
+gen month="1" if month1=="jan"
+replace month="2" if month1=="feb"
+replace month="3" if  month1=="mar"
+replace month="4" if   month1=="apr"
+replace month="5" if  month1=="may"
+replace month="6" if  month1=="jun"
+replace month="7" if  month1=="jul"
+replace month="8" if  month1=="aug"
+replace month="9" if  month1=="sep"
+replace month="10" if  month1=="oct"
+replace month="11" if  month1=="nov"
+replace month="12" if  month1=="dec"
+gen period2 = month+ "_"+ day1+ "_"+ mode
+destring month, replace 
+destring day1, replace 
+
+
+export delimited using "$draw_file_cd\catch_draws`i'_full.csv", replace 
+
+ }
+ 
 

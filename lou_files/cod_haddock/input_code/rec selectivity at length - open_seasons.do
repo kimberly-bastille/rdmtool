@@ -1,10 +1,13 @@
 
 
+*Set the global length to pull either ionches or centimeters from MRIP
+*global length_bin l_cm_bin
+global length_bin l_in_bin
+
 *MRIP release data 
 cd $mrip_data_cd
 
 clear
-cd "C:\Users\andrew.carr-harris\Desktop\MRIP_data"
 
 mata: mata clear
 
@@ -49,6 +52,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -95,19 +99,13 @@ drop mymo
 gen l_in_bin=floor(lngth*0.03937) */
 
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
-replace l_in_bin=0 if !inlist(common_dom, "c", "h")
+replace $length_bin =0 if !inlist(common_dom, "c", "h")
 
 
 sort year w2 strat_id psu_id id_code
 
 keep if area_s=="M"
 drop if common_dom=="z"
-
-
-/*
-replace common_dom="had" if common_dom=="haddock"
-replace common_dom="cod" if common_dom=="atlanticcod"
-*/
 
 
 *create a variable indicating if the observation came from a month where the season was open or closed
@@ -117,24 +115,34 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-/*
-gen season="op" if common_dom=="h"
-replace season="op" if common_dom=="c" & ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
-replace season="cl" if common_dom=="c" & season==""
-*/
-gen season="op" if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
-replace season="cl" if season==""
 
+gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
+replace season="cl" if season==""
 
 gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
 encode my_dom_id_string, gen(my_dom_id)
 
-*preserve
 
 svyset psu_id [pweight= wp_size], strata(var_id) singleunit(certainty)
 
-svy: tab l_in_bin my_dom_id_string, count
+***for cod, use unweighted b2 data, weighted a+b1
+***for haddock, use weighted b2 data, weighted a+b1
+
+preserve
+keep my_dom_id my_dom_id_string season common_dom $length_bin
+keep if common_dom=="c"
+gen species="cod" if common_dom=="c"
+replace species="hadd" if common_dom=="h"
+replace season="closed" if season=="cl"
+replace season="open" if season=="op"
+gen nfish_b2=1
+collapse (sum) nfish_b2, by(season species $length_bin)
+tempfile codb2
+save `codb2', replace
+restore
+
+svy: tab $length_bin my_dom_id_string, count
 /*save some stuff  -matrix of proportions, row names, column names, estimate of total population size*/
 mat eP=e(Prop)
 mat eR=e(Row)'
@@ -153,12 +161,12 @@ svmat eP, names(col)
 /*read in the "row" */
 svmat eR
 order eR
-rename eR l_in_bin
+rename eR $length_bin
 
 
-ds l_in, not
+ds $length_bin, not
 renvarlab `r(varlist)', prefix(tab_)
-reshape long tab_, i(l_in_bin) j(new) string	
+reshape long tab_, i($length_bin) j(new) string	
 split new, parse(_)
 rename new1 species
 rename new2 season
@@ -169,26 +177,11 @@ replace season="closed" if season=="cl"
 replace season="open" if season=="op"
 
 drop new
-*gen year=$last_full_calender_year
 rename tab nfish_b2	
-sort  season species l_in
+drop if species=="cod"
+append using `codb2'
+sort  season species $length_bin
 
-*Need to have lengths for for all mode-months used in the simulation 
-/*
-preserve
-import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
-keep if dtrip!=0
-keep  month 
-duplicates drop 
-sort  month
-duplicates drop 
-tempfile months 
-save `months', replace 
-restore
-
-merge m:1  month using `months'
-drop _merge 
-*/
 
 tempfile b2
 save `b2', replace 
@@ -198,7 +191,6 @@ save `b2', replace
 cd $mrip_data_cd
 
 clear
-cd "C:\Users\andrew.carr-harris\Desktop\MRIP_data"
 
 mata: mata clear
 
@@ -241,6 +233,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -287,8 +280,8 @@ drop mymo
 gen l_in_bin=floor(lngth*0.03937) */
 
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
-replace l_in_bin=0 if !inlist(common_dom, "c", "h")
-
+replace $length_bin = 0 if !inlist(common_dom, "c", "h")
+*replace l_in_bin=l_in_bin+.5 if inlist(common_dom, "c", "h")
 
 sort year w2 strat_id psu_id id_code
 
@@ -307,12 +300,8 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-/*
-gen season="op" if common_dom=="h"
-replace season="op" if common_dom=="c" & ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
-replace season="cl" if common_dom=="c" & season==""
-*/
-gen season="op" if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
+
+gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
 replace season="cl" if season==""
 
 gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
@@ -324,7 +313,7 @@ encode my_dom_id_string, gen(my_dom_id)
 
 svyset psu_id [pweight= wp_size], strata(var_id) singleunit(certainty)
 
-svy: tab l_in_bin my_dom_id_string, count
+svy: tab $length_bin my_dom_id_string, count
 /*save some stuff  -matrix of proportions, row names, column names, estimate of total population size*/
 mat eP=e(Prop)
 mat eR=e(Row)'
@@ -343,12 +332,12 @@ svmat eP, names(col)
 /*read in the "row" */
 svmat eR
 order eR
-rename eR l_in_bin
+rename eR $length_bin
 
 
-ds l_in, not
+ds $length_bin, not
 renvarlab `r(varlist)', prefix(tab_)
-reshape long tab_, i(l_in_bin) j(new) string	
+reshape long tab_, i($length_bin) j(new) string	
 split new, parse(_)
 rename new1 species
 rename new2 season
@@ -358,36 +347,23 @@ replace species="hadd" if species=="h"
 replace season="closed" if season=="cl"
 replace season="open" if season=="op"
 
-*gen year=$last_full_calender_year
 
 rename tab nfish_ab1	
-sort  season species l_in
+sort  season species $length_bin
 
-*Need to have lengths for for all mode-months used in the simulation 
-/*
-preserve
-import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
-keep if dtrip!=0
-keep  month 
-duplicates drop 
-sort  month
-duplicates drop 
-tempfile months 
-save `months', replace 
-restore
 
-merge m:1 month using `months'
-drop _merge 
-*/
-merge 1:1 l_in_bin species season using `b2'
+merge 1:1 $length_bin species season using `b2'
+
+sort species  season l
+
 
 gen panel_var=species+"_"+season
 encode panel_var, gen(panel_var2)
-xtset panel_var2 l_in_bin
+xtset panel_var2 $length_bin
 tsfill, full
 mvencode nfish*, mv(0) over
-keep l_in nfish* species season
-order species season  l_in nfish* 
+keep $length_bin nfish* species season
+order species season  $length_bin nfish* 
 
 egen sum_ab1=sum(nfish_ab1), by(species season ) 
 egen sum_b2=sum(nfish_b2), by(species season ) 
@@ -404,7 +380,6 @@ save `props', replace
 cd $mrip_data_cd
 
 clear
-cd "C:\Users\andrew.carr-harris\Desktop\MRIP_data"
 
 mata: mata clear
 
@@ -442,8 +417,6 @@ tempfile tc1
 save `tc1'
  
 keep if $calibration_year
-*keep if year==2022
-
 
 destring month, gen(mymo)
 drop month
@@ -491,6 +464,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -512,12 +486,8 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-/*
-gen season="op" if common_dom=="h"
-replace season="op" if common_dom=="c" & ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
-replace season="cl" if common_dom=="c" & season==""
-*/
-gen season="op" if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
+
+gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
 replace season="cl" if season==""
 
 
@@ -601,7 +571,7 @@ local vars hadd_catch hadd_keep hadd_rel cod_catch cod_keep cod_rel
 foreach v of local vars{
 u `base', clear 
 
-gen open=1 if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh ))
+gen open=1 if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 ))
 
 preserve
 svy: total `v' if  open==1, over(my_dom_id)
@@ -616,10 +586,8 @@ merge 1:1 my_dom_id2 using `domains'
 drop rname my_dom_id2 _merge 
 order my_dom_id_string
 
-*rename b `v'
 gen var="`v'"
 gen season="open"
-*rename rname my_dom_id_string
 
 keep my_dom_id_string var b se ll ul season
 
@@ -639,10 +607,8 @@ merge 1:1 my_dom_id2 using `domains'
 drop rname my_dom_id2 _merge 
 order my_dom_id_string
 
-*rename b `v'
 gen var="`v'"
 gen season="closed"
-*rename rname my_dom_id_string
 
 keep my_dom_id_string var b se ll ul season
 append using `cod_open'
@@ -654,114 +620,6 @@ global catchez "$catchez "`catchez`v''" "
 }
 
 dsconcat $catchez
-*append using `hadd_catch'
-
-
-
-
-/*
-*estimate keep, release and total catch separately for cod and haddock b/c of differing open season
-
-global catchez
-
-local vars hadd_catch hadd_keep hadd_rel
-foreach v of local vars{
-u `base', clear 
-svy: total `v' , over(my_dom_id)
-xsvmat, from(r(table)') rownames(rname) names(col) norestor
-
-split rname, parse("@")
-drop rname1
-split rname2, parse(.)
-drop rname2 rname22
-rename rname21 my_dom_id2
-merge 1:1 my_dom_id2 using `domains'
-drop rname my_dom_id2 _merge 
-order my_dom_id_string
-
-*rename b `v'
-gen var="`v'"
-gen season="open"
-
-*rename rname my_dom_id_string
-
-keep my_dom_id_string var b se ll ul season
-
-tempfile catchez`v'
-save `catchez`v'', replace
-global catchez "$catchez "`catchez`v''" " 
-
-}
-
-dsconcat $catchez
-tempfile hadd_catch
-save `hadd_catch', replace 
-
-
-global catchez
-local vars cod_catch cod_keep cod_rel
-foreach v of local vars{
-u `base', clear 
-
-gen open=1 if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh ))
-
-preserve
-svy: total `v' if  open==1, over(my_dom_id)
-xsvmat, from(r(table)') rownames(rname) names(col) norestor
-
-split rname, parse("@")
-drop rname1
-split rname2, parse(.)
-drop rname2 rname22
-rename rname21 my_dom_id2
-merge 1:1 my_dom_id2 using `domains'
-drop rname my_dom_id2 _merge 
-order my_dom_id_string
-
-*rename b `v'
-gen var="`v'"
-gen season="open"
-*rename rname my_dom_id_string
-
-keep my_dom_id_string var b se ll ul season
-
-tempfile cod_open
-save `cod_open'
-restore 
-
-svy: total `v' if open!=1, over(my_dom_id)
-xsvmat, from(r(table)') rownames(rname) names(col) norestor
-
-split rname, parse("@")
-drop rname1
-split rname2, parse(.)
-drop rname2 rname22
-rename rname21 my_dom_id2
-merge 1:1 my_dom_id2 using `domains'
-drop rname my_dom_id2 _merge 
-order my_dom_id_string
-
-*rename b `v'
-gen var="`v'"
-gen season="closed"
-*rename rname my_dom_id_string
-
-keep my_dom_id_string var b se ll ul season
-append using `cod_open'
-
-tempfile catchez`v'
-save `catchez`v'', replace
-global catchez "$catchez "`catchez`v''" " 
-
-}
-
-dsconcat $catchez
-append using `hadd_catch'
-
-*/
-
-
-
 
 
 keep season  b var
@@ -780,14 +638,14 @@ replace nfish_ab1=prop_ab1*bkeep
 replace nfish_b2=prop_b2*brel
 mvencode nfish_ab1  nfish_b2, mv(0) override
 gen nfish_catch=nfish_ab1+nfish_b2
-order  species season l_in nfish_catch
-collapse (sum) nfish_catch nfish_ab1 nfish_b2, by( species season l_in)
-collapse (sum) nfish_catch  , by( species season l_in)
+order  species season $length_bin nfish_catch
+collapse (sum) nfish_catch nfish_ab1 nfish_b2, by( species season $length_bin)
+collapse (sum) nfish_catch  , by( species season $length_bin)
 
 drop if species==""
 gen panel_var=species+"_"+season
 encode panel_var, gen(panel_var2)
-xtset panel_var2 l_in_bin
+xtset panel_var2 $length_bin
 tsfill, full
 decode panel_var2, gen(panel_var3)
 split panel_var3, pars(_)
@@ -807,6 +665,7 @@ drop sumfish
 gen domain = species+"_"+season
 
 drop if nfish_catch==0
+*replace length =length+.5
 
 preserve 
 rename length fitted_length
@@ -818,10 +677,10 @@ restore
 
 
 /*
-twoway(scatter prob_catch l_in if region=="NO" & year==2022, connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
-			(scatter prob_catch l_in if region=="SO" & year==2022, connect(direct) lcol(blue)   lwidth(medthick)  lpat(solid) msymbol(i))
-scatter prop l_in if region=="DE_NC", connect(direct) lcol(black)   lwidth(medthick)  lpat(solid) msymbol(i) xlab(15)
-scatter prop l_in if region=="ME_NY", connect(direct) lcol(black)   lwidth(medthick)  lpat(solid) msymbol(i) xlab(15)
+twoway(scatter observed_prob length if species=="cod" & season=="open", connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter observed_prob length if species=="cod" & season=="closed", connect(direct) lcol(blue)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter observed_prob length if species=="hadd" & season=="open", connect(direct) lcol(green)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter observed_prob length if species=="hadd" & season=="closed", connect(direct) lcol(orange)   lwidth(medthick)  lpat(solid) msymbol(i) ) 
 */
 
 ****estimate gamma parameters for each distirbution
@@ -864,6 +723,8 @@ local beta=e(beta)
 
 gen gammafit=rgamma(`alpha', `beta')
 replace gammafit=round(gammafit, .5)
+*replace gammafit=round(gammafit)
+
 gen nfish=1
 
 *restrict catch to within range of observed values
@@ -886,7 +747,7 @@ merge 1:1 fitted_length domain using `observed_prob'
 sort domain fitted_length 
 mvencode fitted_prob observed_prob, mv(0) override 
 
-
+replace fitted_length=fitted_length+.5
 split domain, parse(_)
 replace species=domain1
 replace season=domain2
@@ -903,30 +764,90 @@ gen tab1=1 if observed_prob==.
 egen sumtab1=sum(tab1), by(species season)
 gen observed_prob2 = observed_prob/(sumtab/sumtab1)
 
-drop nfish sumnfish nfish_catch observed_prob domain1 domain2  tab sumtab tab1 sumtab1
-rename observed_prob observed_prob
+encode domain, gen(domain3)
+
+drop nfish sumnfish nfish_catch  domain1 domain2  tab sumtab tab1 sumtab1 domain3
 rename fitted_l length
 
-gen nfish_catch=fitted_prob*sum_nfish_catch
-
+gen nfish_catch_from_fitted=fitted_prob*sum_nfish_catch
+gen nfish_catch_from_raw=observed_prob*sum_nfish_catch
+/*
 levelsof domain, local(domz)
 foreach d of local domz{
-twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(gray)   lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
+twoway (scatter observed_prob2 length if domain=="`d'" ,   connect(direct) lcol(gray) lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
 		    (scatter fitted_prob length if  domain=="`d'"   , connect(direct) lcol(black)   lwidth(med)  lpat(solid) msymbol(i)   ///
-			xtitle("Length (inches)", yoffset(-2)) ytitle("Prob")    ylab(, angle(horizontal) labsize(vsmall)) ///
+			xtitle("Length (cm)", yoffset(-2)) ytitle("Prob")    ylab(, angle(horizontal) labsize(vsmall)) ///
 			legend(lab(1 "raw data") lab(2 "fitted (gamma) data") cols() yoffset(-2) region(color(none)))   title("`d'", size(small))  name(dom`d', replace))
  local graphnames `graphnames' dom`d'
 }
-
+*/
 grc1leg `graphnames'
 
 
-save "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", replace 
+/*
+/*
+cod_lw_a = 0.000005132
+cod_lw_b = 3.1625
+had_lw_a = 0.000009298
+had_lw_b = 3.0205
+
+cod_lw_a*length_cm^cod_lw_b
+*/
+
+gen nfish_times_fitted=1000*fitted_prob
+gen nfish_times_observed=1000*observed_prob
+replace length = length*2.54
+
+
+gen wt_fitted=(0.000005132*length^3.1625)*nfish_times_fitted if species=="cod"
+replace wt_fitted=(0.000009298*length^3.0205)*nfish_times_fitted if species=="hadd"
+
+gen wt_observed=(0.000005132*length^3.1625)*nfish_times_observed if species=="cod"
+replace wt_observed=(0.000009298*length^3.0205)*nfish_times_observed if species=="hadd"
 
 
 
-****Now that we have fitted probabilities of catch-at-length by month, adjust based on the estimated p-stars
-do "$input_code_cd\p_star_adjust.do"
+tabstat observed_prob fitted_prob, stat(sum) by(domain)
+tabstat observed_prob fitted_prob if length<43.18, stat(sum) by(domain)
+
+tabstat wt_fitted wt_observed , stat(sum) by(domain)
+tabstat wt_fitted wt_observed if length<43.18, stat(sum) by(domain)
+tabstat wt_fitted wt_observed if length>=43.18, stat(sum) by(domain)
+
+*drop length_cm
+replace length = length+0.5
+*replace length_cm = length*2.54
+drop wt_fitted wt_observed
+
+gen wt_fitted=(0.000005132*length^3.1625)*nfish_times_fitted if species=="cod"
+replace wt_fitted=(0.000009298*length^3.0205)*nfish_times_fitted if species=="hadd"
+
+gen wt_observed=(0.000005132*length^3.1625)*nfish_times_observed if species=="cod"
+replace wt_observed=(0.000009298*length^3.0205)*nfish_times_observed if species=="hadd"
+
+tabstat observed_prob fitted_prob if length<43.18, stat(sum) by(domain)
+tabstat wt_fitted wt_observed , stat(sum) by(domain)
+tabstat wt_fitted wt_observed if length<43.18, stat(sum) by(domain)
+*/
+
+
+drop observed_prob2
+/*
+replace length=length/2.54
+replace length=round(length, 0.5)
+collapse (sum) fitted_prob observed_prob nfish_catch_from_fitted nfish_catch_from_raw (mean) sum_nfish_catch, by(length domain species season)
+sort domain length 
+
+tabstat fitted_prob observed_prob, stat(sum) by(domain)
+tabstat observed_prob fitted_prob if length>=43.18, stat(sum) by(domain)
+*/
+
+save "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
+*save "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
+
+*u "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear 
+*export delimited using "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.csv", replace
+
 
 
 *****Now obtain draws of population numbers at length from AGEPRO and translate these to numbers at length 
@@ -939,21 +860,49 @@ do "$input_code_cd\p_star_adjust.do"
 *****cod 
 * for cod, there is are few obs for age 7+
 * combine these into 6+ category
-use "$age_pro_cd/cod_svspp_raw.dta", clear 
-keep if year>=2018
+**M-Y 2023 model:
+	*Bottomtrawl survey data from 2021-2023 to form the age-length keys.
+
+import excel using "$age_pro_cd/fall_spring_cruises_lou.xlsx", clear first
+renvarlab, lower
+tempfile cruises
+save `cruises', replace 
+
+import excel using "$age_pro_cd/cod_svspp_raw_lou.xlsx", clear first
+renvarlab, lower
+merge m:1 cruise6 using `cruises'
+keep if _merge==3
+drop if age==0
+replace age=6 if age>=6
+collapse (sum) count, by(year svspp age length)
+destring year, replace
+sort svspp year age length count
+
+keep if year>=$trawl_svy_start_yr & year<=$trawl_svy_end_yr
+
+*use "$age_pro_cd/cod_svspp_raw.dta", clear 
+*keep if year>=2020
+
 su year
 local min_svy_yr=`r(min)'
 local max_svy_yr=`r(max)'
+di `min_svy_yr'
 replace length=round(length/2.54, .5) //translate to inches 
+*replace length=round(length, .5) 
+
 replace age=6 if age>=6
 collapse (sum) count, by (age length)
+/*
+tsset age length
+tsfill, full
+*/
 
 preserve
 su length 
 clear 
 set obs 2
 gen length=`r(min)' if _n==1
-replace length=`r(max)' if _n==2
+replace length=round(`r(max)') if _n==2
 tsset length
 tsfill, full
 expand 2, gen(dup)
@@ -967,10 +916,11 @@ save `full_lengths', replace
 restore 
 
 merge 1:1 length age using `full_lengths'
+drop _merge 
+
 sort age length 
 mvencode count, mv(0) override 
 
-drop _merge 
 
 levelsof age, local(ages)
 foreach a of local ages{
@@ -982,25 +932,35 @@ foreach a of local ages{
 egen smoothed=rowtotal(s1-s6)
 drop s1-s6
 
+
+
+
+egen sum=sum(smoothed), by(age)	
+gen prop_smoothed=smoothed/sum	
+
+egen sum_raw=sum(count), by(age)	
+gen prop_raw=count/sum_raw	
+
 /*
 levelsof age, local(ages)
 foreach a of local ages{
-twoway(scatter count length if age==`a', connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
-			(scatter smoothed length if age==`a', connect(direct) lcol(blue) title(cod age `a' NEFSC trawl `min_svy_yr'-`max_svy_yr', size(small)) ///
+twoway(scatter prop_raw length if age==`a', connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter prop_smoothed length if age==`a', connect(direct) lcol(blue) title("cod age `a' NEFSC trawl `min_svy_yr'-`max_svy_yr'", size(small)) ///
 			ytitle(# fish, size(small)) ytick(, angle(horizontal) labsize(small)) xtitle(length inches, size(small)) xlab(, labsize(small)) ///
 			ylab(, labsize(small) angle(horizontal)) xtick(, labsize(small)) lwidth(medthick)  lpat(solid) msymbol(i)  name(dom`a', replace))
  local graphnames `graphnames' dom`a'
 }
 
 grc1leg `graphnames'
-*/	
+*/
 
-egen sum=sum(smoothed), by(age)	
-gen prop=smoothed/sum	
 
+drop sum sum_raw
 tempfile al_cod
 save `al_cod', replace 
 
+
+*historical data to compute rec selectivity
 use "$age_pro_cd/historical_and_mean_projected_Cod_NAA.dta", clear 
 egen age6_plus=rowtotal(age6-age9)
 drop age6 age7 age8 age9
@@ -1013,17 +973,20 @@ drop year
 merge 1:m age using `al_cod', keep(3) nogen 
 sort  age length
 
-gen NaL = prop*nfish
-drop count sum prop nfish smoothed
-collapse (sum) NaL, by(length)
-//scatter NaL length , connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) 
+gen NaL_from_raw_trawl = prop_raw*nfish
+gen NaL_from_smooth_trawl = prop_smoothed*nfish
+
+drop count  prop* nfish smoothed
+collapse (sum) NaL*, by(length)
+*scatter NaL length , connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) 
 
 sort length 
 
 gen species="cod"
 
 preserve
-use "$input_code_cd\catch_at_length_pstar.dta", clear
+*use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
+use "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", clear
 keep if species=="cod"
 tempfile cod
 save `cod', replace 
@@ -1031,30 +994,54 @@ restore
 
 merge 1:m length species using `cod'
 drop if _merge==1
-sort run species mode month length 
+sort season species  length 
 
-egen sum_fl=sum(f_l), by(run mode month species)
-egen sum_fitted=sum(fitted), by(run mode month species)
+egen sum_fitted=sum(fitted), by(species season)
+egen sum_obs=sum(observed), by(species season)
 
 drop _merge
-gen ql=nfish_catch_fl/NaL
+gen ql_raw=nfish_catch_from_raw/NaL_from_raw_trawl
+gen ql_smooth=nfish_catch_from_fitted/NaL_from_smooth_trawl
 
-keep length species mode month fitted_prob f_l ql run 
-order run species mode month length 
+keep length species observed fitted_prob  ql* season
+order species season length   fitted_prob  ql*
 
 tempfile cod_ql
 save `cod_ql', replace
 
 
 *****haddock 
-use "$age_pro_cd/haddock_svspp_raw.dta", clear 
-keep if year>=2018
+import excel using "$age_pro_cd/fall_spring_cruises_lou.xlsx", clear first
+renvarlab, lower
+tempfile cruises
+save `cruises', replace 
+
+import excel using "$age_pro_cd/haddock_svspp_raw_lou.xlsx", clear first
+renvarlab, lower
+merge m:1 cruise6 using `cruises'
+keep if _merge==3
+drop if age==0
+replace age=9 if age>=9
+collapse (sum) count, by(year svspp age length)
+destring year, replace
+sort svspp year age length count
+
+keep if year>=$trawl_svy_start_yr & year<=$trawl_svy_end_yr
+
+*use "$age_pro_cd/haddock_svspp_raw.dta", clear 
+*keep if year>=2020
 su year
 local min_svy_yr=`r(min)'
 local max_svy_yr=`r(max)'
 replace length=round(length/2.54, .5) //translate to inches 
+*replace length=round(length, .5) 
 replace age=9 if age>9
 collapse (sum) count, by (age length)
+
+/*
+tsset age length
+tsfill, full
+*/
 
 preserve
 su length 
@@ -1075,10 +1062,12 @@ save `full_lengths', replace
 restore 
 
 merge 1:1 length age using `full_lengths'
+drop _merge 
+
+
 sort age length 
 mvencode count, mv(0) override 
 
-drop _merge 
 
 levelsof age, local(ages)
 foreach a of local ages{
@@ -1091,13 +1080,18 @@ egen smoothed=rowtotal(s1-s9)
 drop s1-s9
 
 egen sum=sum(smoothed), by(age)	
-gen prop=smoothed/sum	
+gen prop_smoothed=smoothed/sum	
+
+egen sum_raw=sum(count), by(age)	
+gen prop_raw=count/sum_raw	
+
+drop sum sum_raw
 
 /*
 levelsof age, local(ages)
 foreach a of local ages{
-twoway(scatter count length5 if age==`a', connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
-			(scatter smoothed length5 if age==`a', connect(direct) lcol(blue) title(haddock age `a' NEFSC trawl `min_svy_yr'-`max_svy_yr', size(small)) ///
+twoway(scatter count length if age==`a', connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter smoothed length if age==`a', connect(direct) lcol(blue) title(haddock age `a' NEFSC trawl `min_svy_yr'-`max_svy_yr', size(small)) ///
 			ytitle(# fish, size(small)) ytick(, angle(horizontal) labsize(small)) xtitle(length inches, size(small)) xlab(, labsize(small)) ///
 			ylab(, labsize(small) angle(horizontal)) xtick(, labsize(small)) lwidth(medthick)  lpat(solid) msymbol(i)  name(dom`a', replace))
  local graphnames `graphnames' dom`a'
@@ -1119,16 +1113,19 @@ merge 1:m age using `al_hadd', keep(3) nogen
 
 sort  age length
 
-gen NaL = prop*nfish
-drop count sum prop nfish smoothed
-collapse (sum) NaL, by(length)
-sort length 
+gen NaL_from_raw_trawl = prop_raw*nfish
+gen NaL_from_smooth_trawl = prop_smoothed*nfish
+
+drop count  prop* nfish smoothed
+collapse (sum) NaL*, by(length)
+
 sort length 
 
 gen species="hadd"
 
 preserve
-use "$input_code_cd\catch_at_length_pstar.dta", clear
+*use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
+use "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", clear
 keep if species=="hadd"
 tempfile hadd
 save `hadd', replace 
@@ -1136,31 +1133,23 @@ restore
 
 merge 1:m length species using `hadd'
 drop if _merge==1
-sort run species mode month length 
+sort species season length 
 
-egen sum_fl=sum(f_l), by(run mode month species)
-egen sum_fitted=sum(fitted), by(run mode month species)
+egen sum_fitted=sum(fitted), by(species season)
+egen sum_obs=sum(observed), by(species season)
 
 drop _merge
-gen ql=nfish_catch_fl/NaL
+gen ql_raw=nfish_catch_from_raw/NaL_from_raw_trawl
+gen ql_smooth=nfish_catch_from_fitted/NaL_from_smooth_trawl
 
-keep length species mode month fitted_prob f_l ql run 
-order run species mode month length 
+
+
+keep length species season observed fitted_prob ql*  
+order species season length 
 
 append using `cod_ql'
-sort species mode length (run)
-bysort species mode month length (run): gen population_draw=_n
+sort species season length
 
-*egen sumql=sum(ql), by(run species mode month)
-*egen sumfl=sum(f_l), by(run species mode month)
-
-
-distinct month
-local n_months=`r(ndistinct)'
-
-su month
-local first_month=`r(min)'
-local last_month=`r(max)'
 
 
 tempfile cod_hadd_ql
@@ -1175,7 +1164,7 @@ drop age6 age7 age8 age9
 rename age6 age6
 keep if year==2024
 
-sample 100, count
+sample 150, count
 gen id2=_n
 
 tempfile new
@@ -1183,7 +1172,7 @@ save `new', replace
 
 global nal
 
-forv i=1/100{
+forv i=1/150{
 	u `new', clear
 	keep if id2 ==`i'
 	*keep if id2 ==1
@@ -1196,8 +1185,10 @@ drop year
 merge 1:m age using `al_cod', keep(3) nogen 
 sort  age length
 
-gen NaL_2024 = prop*nfish
-collapse (sum) NaL_2024, by(length)
+gen NaL_2024_raw_trawl = prop_raw*nfish
+gen NaL_2024_smooth_trawl = prop_smoothed*nfish
+
+collapse (sum) NaL_2024*, by(length)
 sort length 
 gen id2=`i'
 
@@ -1218,7 +1209,7 @@ save `proj_cod', replace
 use "$age_pro_cd/haddock_beginning_sorted2023.dta", clear 
 keep if year==2024
 
-sample 100, count
+sample 150, count
 gen id2=_n
 
 tempfile new
@@ -1226,7 +1217,7 @@ save `new', replace
 
 global nal
 
-forv i=1/100{
+forv i=1/150{
 	u `new', clear
 	keep if id2 ==`i'
 
@@ -1238,8 +1229,10 @@ drop year
 merge 1:m age using `al_hadd', keep(3) nogen 
 sort  age length
 
-gen NaL_2024 = prop*nfish
-collapse (sum) NaL_2024, by(length)
+gen NaL_2024_raw_trawl = prop_raw*nfish
+gen NaL_2024_smooth_trawl = prop_smoothed*nfish
+
+collapse (sum) NaL_2024*, by(length)
 sort length 
 gen id2=`i'
 
@@ -1255,39 +1248,45 @@ dsconcat $nal
 gen species="hadd"
 append using `proj_cod'
 
-expand `n_months'
+sort id2 species length 
 
-bysort length species id: gen month =_n+(`first_month'-1)
-*bysort length species id: gen month =_n+(4-1)
-
-gen mode="pr"
+gen season="open"
 expand 2, gen(dup)
-replace mode="fh" if dup==1
-drop dup
-expand 2 if mode=="fh", gen(dup)
-replace mode="sh" if dup==1
+replace season="closed" if dup==1
 drop dup 
-rename id2 population_draw 
+merge m:1 length species season using `cod_hadd_ql'
 
-sort mode month length species
-order mode month length species
-merge 1:1 mode month length species population_draw using `cod_hadd_ql'
-
+sort id2 species season length
 drop if _merge==1
-sort  run species mode month length  
+drop if _merge==2
+
 drop _merge
 
-gen catch24=ql*NaL_2024
-egen sumcatch=sum(catch24), by(mode month run species) 
+gen catch24_raw=ql_raw*NaL_2024_raw
+gen catch24_smooth=ql_smooth*NaL_2024_smooth
 
-gen proj_CaL_prob= catch24/sumcatch
-egen sumprob=sum(proj_CaL), by(species month mode run)
-replace proj_CaL_prob=f_l if sumprob==0
-drop sumprob
+egen sumcatch24_raw=sum(catch24_raw), by(season species id2) 
+egen sumcatch24_smooth=sum(catch24_smooth), by(season species id2) 
 
-keep mode month length species run_number proj_CaL_prob f_l
-order species mode month length  run_number f_l proj_CaL_prob
+gen proj_CaL_prob_raw= catch24_raw/sumcatch24_raw
+gen proj_CaL_prob_smooth= catch24_smooth/sumcatch24_smooth
+
+egen sumprob_raw=sum(proj_CaL_prob_raw), by(season species id2)
+egen sumprob_sm=sum(proj_CaL_prob_smooth), by(season species id2)
+
+drop sumprob*
+
+keep length species id2 season proj_CaL_prob*
+order id2 species season   proj_CaL_prob*
+
+rename id2 draw
+*drop if proj==.
+
+*save "$age_pro_cd/projected_CaL_cod_hadd_cm.dta", replace 
+*export delimited using "$age_pro_cd/projected_CaL_cod_hadd_cm.csv", replace
+
 
 save "$age_pro_cd/projected_CaL_cod_hadd.dta", replace 
 export delimited using "$age_pro_cd/projected_CaL_cod_hadd.csv", replace
+
 

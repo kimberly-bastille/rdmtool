@@ -2,8 +2,6 @@
 cd $mrip_data_cd
 
 clear
-cd "C:\Users\andrew.carr-harris\Desktop\MRIP_data"
-
 mata: mata clear
 
 tempfile tl1 cl1
@@ -40,7 +38,6 @@ tempfile tc1
 save `tc1'
  
 keep if $calibration_year
-*keep if year==2022
 
 gen st2 = string(st,"%02.0f")
 
@@ -83,6 +80,7 @@ rename intsite SITE_ID
 merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
+replace stock_region_calc="NORTH" if intsite==4434
 
 drop _merge
 
@@ -102,12 +100,8 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-/*
-gen season="op" if common_dom=="h"
-replace season="op" if common_dom=="c" & ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
-replace season="cl" if common_dom=="c" & season==""
-*/
-gen season="op" if ((date>=$cod_start_date1_fh & date<=$cod_end_date1_fh ) | (date>=$cod_start_date2_fh & date<=$cod_end_date2_fh )) 
+
+gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
 replace season="cl" if season==""
 
 
