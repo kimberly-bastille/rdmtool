@@ -154,8 +154,10 @@ c.dtrip@mode2 |
 ---------------------------------------------------------------
 
 */
-
-
+/*
+gen log_wp_int=log(wp_int)
+collapse (sum) log_wp_int (sd) sd_log_wp_int=log_wp_int, by(my_dom_id)  
+*/
 svy: total dtrip, over(my_dom_id)  
 
 xsvmat, from(r(table)') rownames(rname) names(col) norestor
@@ -183,43 +185,9 @@ rename b dtrip
 
 keep if dom_id=="1"
 keep if area_s=="GOM"
-*drop if area_s=="GBS"
 
 su dtrip
 return list
-
-***************************
-/*
-  **make a plot illustrating the uncertainty 
- u  "directed_trips_basefile.dta", clear 	
- global graphoptions graphregion(fcolor(white) lcolor(white)) plotregion(fcolor(white) lcolor(white)) bgcolor(white)
-
-sort state mode month kod
-keep if state=="NJ" & mode=="pr"
-gen domain=month+"_"+kod
-
-encode domain, gen(domain2)
-
-twoway scatter dtrip domain2  if state=="NJ" & mode=="pr" , xlab(1(1)17,valuelabel angle(45) labsize(vsmall)) || rcap ul ll domain2  if state=="NJ" & mode=="pr", ///
-			$graphoptions ylab(,labsize(small) angle(horizontal)) legend(off) title("", size(small)) xtitle("Month and kind-of-day (weekday or weekend)", size(small) yoffset(-2)) ytitle("# directed trips", size(small)) note("Bars indicate 95% CI", size(small) yoffset(-2)) yline(0)
-			
-
- **make a plot illustrating the uncertainty 
-u  "directed_trips_basefile.dta", clear 	
-
-sort state mode month kod
-keep if state=="MD" & mode=="pr"
-gen domain=month+"_"+kod
-
-encode domain, gen(domain2)
-/*
-twoway scatter dtrip domain2  if state=="MD" & mode=="pr" , xlab(1(1)16,valuelabel angle(45) labsize(vsmall)) || rcap ul ll domain2  if state=="MD" & mode=="pr", ///
-			$graphoptions ylab(,labsize(small) angle(horizontal)) legend(off) title("MRIP estimates of total directed trips for fluke, black sea bass, or scup" "Private boat mode MD, 2022", size(small)) xtitle("Month and kind-of-day (weekday or weekend)", size(small) yoffset(-2)) ytitle("# directed trips", size(small)) note("Bars indicate 95% CI", size(small) yoffset(-2))  yline(0)
-*/			
-		*/
- **Here is where i create the 50 draws of directed trips
-*u  "directed_trips_basefile.dta", clear 	
-
 
 replace se=dtrip if se==.
 drop ll ul pse
@@ -266,9 +234,9 @@ local not_truc = `r(sum)'
 di ((`new'-`not_truc')/`not_truc')*100
 
 
-*The following code snippet attempts to correct for bias that occurs when drawing from uncertain MRIP estimates. 
-*When an MRIP estimate is very uncertain, some draws of x from the distribution can result in x_i<0. Because trip outcomes cannot 
-*be negative, change these to 0, but doing so results in an upwardly shifted mean across draws . To correct for this, I sum x_i
+*The following attempts to correct for bias that occurs when drawing from uncertain MRIP estimates. 
+*When an MRIP estimate is very uncertain, some draws of x from a normal distribution can result in x_i<0. Because trip outcomes cannot 
+*be negative, I change these to 0. But doing so results in an upwardly shifted mean across draws. To correct for this, I sum x_i
 *across draws where x_i<0, divide by the number of draws where x_i>0, and subtract this value from all draws where x_i>0. 
 *This partly corrects for the issue; however, subtracting a fixed value from x_i where x_i>0 leads to some of these x_i's now <0. I replace these values as 0. 
  
@@ -291,6 +259,8 @@ egen sumtab2=sum(tab2), by(domain)
 
 gen adjust=mean_sum_neg/sumtab2
 */
+
+
 gen dtrip_new2=dtrip_new+adjust if dtrip_new!=0 & adjust !=.
 replace dtrip_new2=dtrip_new if dtrip_new2==.
 replace dtrip_new2=0 if dtrip_new2<0
@@ -305,6 +275,8 @@ return list
 local not_truc = `r(sum)'
 di ((`new'-`not_truc')/`not_truc')*100
 */
+
+
 su dtrip_new2
 return list
 local new = `r(sum)'
@@ -512,7 +484,7 @@ replace cod_min=22 if  day>=$cod_start_date2 & day<=$cod_end_date2
 
 
 *gen doy = doy(day)
-drop day_i
+*drop day_i
 
 gen day1=day(day)
 gen month1=month(day)
@@ -606,8 +578,8 @@ replace hadd_min_y2=17 if  hadd_bag_y2!=0 & inlist(mode, "pr", "sh")
 replace cod_bag_y2=1 if  day_y2>=td(01sep2024) & day_y2<=td(31oct2024) 
 replace cod_min_y2=22 if  cod_bag_y2!=0 
 
-export delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  replace 
-import delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  clear  
+*export delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  replace 
+*import delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  clear  
 
 
 replace cod_min = cod_min*2.54
@@ -620,7 +592,7 @@ export delimited using "$input_code_cd\directed_trips_calib_150draws_cm.csv",  r
 
 
 **Now adjust for the differences in directed trips due to changes in kod between calibration year y and  y+1
-import delimited using "$input_code_cd\directed_trips_calib_150draws.csv",  clear  
+import delimited using "$input_code_cd\directed_trips_calib_150draws_cm.csv",  clear  
 tostring month, gen(month1_y1)
 tostring month_y2, gen(month1_y2)
 

@@ -724,13 +724,14 @@ keep days_fished
 tempfile avidities 
 save `avidities', replace 
 
-import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
+import delimited using  "$input_code_cd\directed_trips_calib_150draws_cm.csv", clear 
 gen wave = 1 if inlist(month, 1, 2)
 replace wave=2 if inlist(month, 3, 4)
 replace wave=3 if inlist(month, 5, 6)
 replace wave=4 if inlist(month, 7, 8)
 replace wave=5 if inlist(month, 9, 10)
 replace wave=6 if inlist(month, 11, 12)
+drop month1
 tostring month, gen(month1)
 tostring wave, gen(wave1)
 
@@ -746,7 +747,7 @@ encode domain1, gen(domain3)
 tempfile trips
 save `trips', replace
 
-qui forv i=1/150{
+qui forv i=1/20{
 *local i=1
 u `trips', clear  
 keep if draw==`i'
@@ -972,7 +973,6 @@ order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
 export delimited using "$draw_file_cd\catch_draws`i'.csv", replace 
-*export delimited using "$draw_file_cd\catch_draws1_test.csv", replace 
 
 }
 
@@ -980,7 +980,7 @@ export delimited using "$draw_file_cd\catch_draws`i'.csv", replace
 *Now for each of these files, make sure that there are catch draws for periods with directed trips but no catch 
 
 global drawz
-  forv i=1/150{
+  forv i=1/20{
 
 import excel using "$input_code_cd\population ages.xlsx", clear firstrow
 keep if region=="MENY"
@@ -1014,7 +1014,7 @@ tempfile avidities2
 save `avidities2', replace	
 restore 
 
-import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
+import delimited using  "$input_code_cd\directed_trips_calib_150draws_cm.csv", clear 
 keep if draw==`i'
 keep day day_i mode dtrip 
 duplicates drop 

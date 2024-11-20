@@ -9,11 +9,19 @@ return list
 
 global domainz
 forv i=1/150{
-import delimited using "$draw_file_cd\catch_draws`i'.csv", clear 
+local i=1
+import delimited using  "$input_code_cd\directed_trips_calib_150draws.csv", clear 
+keep if draw==1
+keep day  mode dtrip
+tempfile dtrip
+save `dtrip', replace 
+local i=1
+
+import delimited using "$draw_file_cd\catch_draws`i'_full.csv", clear 
 
 *keep if catch_draw==1
-collapse (mean) dtrip cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch, by(day day_i mode)
-
+collapse (mean)  cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch, by(day  mode)
+merge 1:1 day mode using `dtrip', keep (3) nogen 
 sort mode day_i 
 
 local vars cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch

@@ -1,8 +1,8 @@
 
 
 *Set the global length to pull either ionches or centimeters from MRIP
-*global length_bin l_cm_bin
-global length_bin l_in_bin
+global length_bin l_cm_bin
+*global length_bin l_in_bin
 
 *MRIP release data 
 cd $mrip_data_cd
@@ -281,7 +281,6 @@ gen l_in_bin=floor(lngth*0.03937) */
 
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
 replace $length_bin = 0 if !inlist(common_dom, "c", "h")
-*replace l_in_bin=l_in_bin+.5 if inlist(common_dom, "c", "h")
 
 sort year w2 strat_id psu_id id_code
 
@@ -370,6 +369,7 @@ egen sum_b2=sum(nfish_b2), by(species season )
 
 gen prop_ab1=nfish_ab1/sum_ab1
 gen prop_b2=nfish_b2/sum_b2
+
 
 tempfile props
 save `props', replace 
@@ -665,7 +665,6 @@ drop sumfish
 gen domain = species+"_"+season
 
 drop if nfish_catch==0
-*replace length =length+.5
 
 preserve 
 rename length fitted_length
@@ -722,8 +721,8 @@ local alpha=e(alpha)
 local beta=e(beta)
 
 gen gammafit=rgamma(`alpha', `beta')
-replace gammafit=round(gammafit, .5)
-*replace gammafit=round(gammafit)
+*replace gammafit=round(gammafit, .5)
+replace gammafit=round(gammafit)
 
 gen nfish=1
 
@@ -747,7 +746,7 @@ merge 1:1 fitted_length domain using `observed_prob'
 sort domain fitted_length 
 mvencode fitted_prob observed_prob, mv(0) override 
 
-replace fitted_length=fitted_length+.5
+*replace fitted_length=fitted_length+.5
 split domain, parse(_)
 replace species=domain1
 replace season=domain2
@@ -771,83 +770,21 @@ rename fitted_l length
 
 gen nfish_catch_from_fitted=fitted_prob*sum_nfish_catch
 gen nfish_catch_from_raw=observed_prob*sum_nfish_catch
-/*
+
 levelsof domain, local(domz)
 foreach d of local domz{
-twoway (scatter observed_prob2 length if domain=="`d'" ,   connect(direct) lcol(gray) lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
+twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(gray) lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
 		    (scatter fitted_prob length if  domain=="`d'"   , connect(direct) lcol(black)   lwidth(med)  lpat(solid) msymbol(i)   ///
 			xtitle("Length (cm)", yoffset(-2)) ytitle("Prob")    ylab(, angle(horizontal) labsize(vsmall)) ///
 			legend(lab(1 "raw data") lab(2 "fitted (gamma) data") cols() yoffset(-2) region(color(none)))   title("`d'", size(small))  name(dom`d', replace))
  local graphnames `graphnames' dom`d'
 }
-*/
+
 grc1leg `graphnames'
 
-
-/*
-/*
-cod_lw_a = 0.000005132
-cod_lw_b = 3.1625
-had_lw_a = 0.000009298
-had_lw_b = 3.0205
-
-cod_lw_a*length_cm^cod_lw_b
-*/
-
-gen nfish_times_fitted=1000*fitted_prob
-gen nfish_times_observed=1000*observed_prob
-replace length = length*2.54
-
-
-gen wt_fitted=(0.000005132*length^3.1625)*nfish_times_fitted if species=="cod"
-replace wt_fitted=(0.000009298*length^3.0205)*nfish_times_fitted if species=="hadd"
-
-gen wt_observed=(0.000005132*length^3.1625)*nfish_times_observed if species=="cod"
-replace wt_observed=(0.000009298*length^3.0205)*nfish_times_observed if species=="hadd"
-
-
-
-tabstat observed_prob fitted_prob, stat(sum) by(domain)
-tabstat observed_prob fitted_prob if length<43.18, stat(sum) by(domain)
-
-tabstat wt_fitted wt_observed , stat(sum) by(domain)
-tabstat wt_fitted wt_observed if length<43.18, stat(sum) by(domain)
-tabstat wt_fitted wt_observed if length>=43.18, stat(sum) by(domain)
-
-*drop length_cm
-replace length = length+0.5
-*replace length_cm = length*2.54
-drop wt_fitted wt_observed
-
-gen wt_fitted=(0.000005132*length^3.1625)*nfish_times_fitted if species=="cod"
-replace wt_fitted=(0.000009298*length^3.0205)*nfish_times_fitted if species=="hadd"
-
-gen wt_observed=(0.000005132*length^3.1625)*nfish_times_observed if species=="cod"
-replace wt_observed=(0.000009298*length^3.0205)*nfish_times_observed if species=="hadd"
-
-tabstat observed_prob fitted_prob if length<43.18, stat(sum) by(domain)
-tabstat wt_fitted wt_observed , stat(sum) by(domain)
-tabstat wt_fitted wt_observed if length<43.18, stat(sum) by(domain)
-*/
-
-
 drop observed_prob2
-/*
-replace length=length/2.54
-replace length=round(length, 0.5)
-collapse (sum) fitted_prob observed_prob nfish_catch_from_fitted nfish_catch_from_raw (mean) sum_nfish_catch, by(length domain species season)
-sort domain length 
 
-tabstat fitted_prob observed_prob, stat(sum) by(domain)
-tabstat observed_prob fitted_prob if length>=43.18, stat(sum) by(domain)
-*/
-
-save "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
-*save "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
-
-*u "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear 
-*export delimited using "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.csv", replace
-
+save "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
 
 
 *****Now obtain draws of population numbers at length from AGEPRO and translate these to numbers at length 
@@ -887,8 +824,6 @@ su year
 local min_svy_yr=`r(min)'
 local max_svy_yr=`r(max)'
 di `min_svy_yr'
-replace length=round(length/2.54, .5) //translate to inches 
-*replace length=round(length, .5) 
 
 replace age=6 if age>=6
 collapse (sum) count, by (age length)
@@ -896,7 +831,7 @@ collapse (sum) count, by (age length)
 tsset age length
 tsfill, full
 */
-
+/*
 preserve
 su length 
 clear 
@@ -917,6 +852,7 @@ restore
 
 merge 1:1 length age using `full_lengths'
 drop _merge 
+*/
 
 sort age length 
 mvencode count, mv(0) override 
@@ -978,15 +914,13 @@ gen NaL_from_smooth_trawl = prop_smoothed*nfish
 
 drop count  prop* nfish smoothed
 collapse (sum) NaL*, by(length)
-*scatter NaL length , connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) 
 
 sort length 
 
 gen species="cod"
 
 preserve
-*use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
-use "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", clear
+use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
 keep if species=="cod"
 tempfile cod
 save `cod', replace 
@@ -1033,8 +967,6 @@ keep if year>=$trawl_svy_start_yr & year<=$trawl_svy_end_yr
 su year
 local min_svy_yr=`r(min)'
 local max_svy_yr=`r(max)'
-replace length=round(length/2.54, .5) //translate to inches 
-*replace length=round(length, .5) 
 replace age=9 if age>9
 collapse (sum) count, by (age length)
 
@@ -1042,7 +974,7 @@ collapse (sum) count, by (age length)
 tsset age length
 tsfill, full
 */
-
+/*
 preserve
 su length 
 clear 
@@ -1063,7 +995,7 @@ restore
 
 merge 1:1 length age using `full_lengths'
 drop _merge 
-
+*/
 
 sort age length 
 mvencode count, mv(0) override 
@@ -1124,8 +1056,7 @@ sort length
 gen species="hadd"
 
 preserve
-*use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
-use "$age_pro_cd/rec_selectivity_CaL_open_seasons.dta", clear
+use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
 keep if species=="hadd"
 tempfile hadd
 save `hadd', replace 
@@ -1276,17 +1207,36 @@ egen sumprob_sm=sum(proj_CaL_prob_smooth), by(season species id2)
 
 drop sumprob*
 
+/*
+sort id2 length 
+twoway(scatter NaL_2024_smooth_trawl length if id2<=5, connect(direct) lcol(red)   lwidth(medthick)  lpat(solid) msymbol(i) ) ///
+			(scatter proj_CaL_prob_smooth length if id2<=5, connect(direct) lcol(blue) title(haddock age `a' NEFSC trawl `min_svy_yr'-`max_svy_yr', size(small)) ///
+			ytitle(# fish, size(small)) ytick(, angle(horizontal) labsize(small)) xtitle(length inches, size(small)) xlab(, labsize(small)) ///
+			ylab(, labsize(small) angle(horizontal)) xtick(, labsize(small)) lwidth(medthick)  lpat(solid) msymbol(i)  name(dom`a', replace))
+
+replace NaL_2024_smooth_trawl=NaL_2024_smooth_trawl/1000000
+twoway(scatter NaL_2024_smooth_trawl length if species=="hadd" & id2==5 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter NaL_2024_smooth_trawl length if species=="hadd" & id2==4 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter NaL_2024_smooth_trawl length if species=="hadd" & id2==3 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter NaL_2024_smooth_trawl length if species=="hadd" & id2==2 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter NaL_2024_smooth_trawl length if species=="hadd" & id2==1 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) 
+			
+twoway(scatter proj_CaL_prob_smooth length if species=="hadd" & id2==5 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter proj_CaL_prob_smooth length if species=="hadd" & id2==4 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter proj_CaL_prob_smooth length if species=="hadd" & id2==3 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter proj_CaL_prob_smooth length if species=="hadd" & id2==2 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) ///
+			(scatter proj_CaL_prob_smooth length if species=="hadd" & id2==1 & season=="open", connect(direct) lcol(black)   lwidth(thin)  lpat(solid) msymbol(i) ) 
+
+tabstat	proj_CaL_prob_smooth  if species=="hadd" & id2<=5 & season=="open" & length>=43.18, stat(sum) by(id2)
+*/		
+			
 keep length species id2 season proj_CaL_prob*
 order id2 species season   proj_CaL_prob*
 
 rename id2 draw
-*drop if proj==.
 
-*save "$age_pro_cd/projected_CaL_cod_hadd_cm.dta", replace 
-*export delimited using "$age_pro_cd/projected_CaL_cod_hadd_cm.csv", replace
+save "$age_pro_cd/projected_CaL_cod_hadd_cm.dta", replace 
+export delimited using "$age_pro_cd/projected_CaL_cod_hadd_cm.csv", replace
 
-
-save "$age_pro_cd/projected_CaL_cod_hadd.dta", replace 
-export delimited using "$age_pro_cd/projected_CaL_cod_hadd.csv", replace
 
 

@@ -36,11 +36,14 @@ write_feather(costs_new_all, paste0("C:/Users/andrew.carr-harris/Desktop/cod_had
 # }
 # 
 # 
-# ##calibration catches
+# #calibration catches
 # for(i in 1:150){
 #   #catch_draws
-#   catch<-read.csv(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws", i, "_full.csv"))
-#   write_feather(catch, paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws",i,"_full.feather"))
+#   catch <- feather::read_feather(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws", i, "_full.feather"))
+#   write_csv(catch, paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws",i,"_full.csv"))
+#   
 # }
 # 
+
+
 

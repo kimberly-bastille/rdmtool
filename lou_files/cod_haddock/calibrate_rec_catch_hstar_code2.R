@@ -38,11 +38,11 @@ directed_trips<-read.csv(directed_trips_file_path) %>%
 #2) If the fishery is closed the entire season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
 #1) and #1a) below:
 
-#floor_subl_cod_harv<-min(directed_trips$cod_min)-2*2.54
-#floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2*2.54
+floor_subl_cod_harv<-min(directed_trips$cod_min)-2*2.54
+floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2*2.54
 
-floor_subl_cod_harv<-min(directed_trips$cod_min)-2
-floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2
+#floor_subl_cod_harv<-min(directed_trips$cod_min)-2
+#floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2
 
 open<- directed_trips %>%
   dplyr::mutate(day = as.numeric(stringr::str_extract(day, '\\d{2}')),
@@ -185,19 +185,19 @@ if(cod_catch_check !=0){
   #1a) If the minimum size changes across the season, floor_subl_harvest=min(min_size). 
   #2) If the fishery is closed the entire season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
   #2) below:
-  # if (floor_subl_cod_harv==248.92){
+  if (floor_subl_cod_harv==248.92){
+
+    floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
+
+  }
+  
+
+  
+  # if (floor_subl_cod_harv==98){
   #   
   #   floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
   #   
   # }
-  
-
-  
-  if (floor_subl_cod_harv==98){
-    
-    floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
-    
-  }
   
   
   # Impose regulations, calculate keep and release per trip
@@ -229,7 +229,35 @@ if(cod_catch_check !=0){
     dplyr::rename(mode1=mode) %>% 
     dplyr::mutate(floor_subl_cod_harv_indicator=case_when(release==1 & fitted_length>=floor_subl_cod_harv~1,TRUE~0))
   
+  #length data 
+  new_size_data <- catch_size_data %>%
+    dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
+    dplyr::summarize(keep = sum(keep),
+                     release = sum(release), .groups = "drop") %>%
+    dplyr::ungroup()
   
+  keep_size_data <- new_size_data %>%
+    dplyr::select(-release) %>%
+    tidyr::pivot_wider(names_from = fitted_length, #_length,
+                       names_glue = "keep_cod_{fitted_length}",
+                       names_sort = TRUE,
+                       values_from = keep,
+                       values_fill = 0)
+  
+  release_size_data <- new_size_data %>%
+    dplyr::select(-keep) %>%
+    tidyr::pivot_wider(names_from = fitted_length, #_length,
+                       names_glue = "release_cod_{fitted_length}",
+                       names_sort = TRUE,
+                       values_from = release,
+                       values_fill = 0)
+  
+  keep_release_cod <- keep_size_data %>%
+    dplyr::left_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
+  
+  
+  
+  #trip data 
   trip_data <- catch_size_data %>%
     dplyr::group_by(period2, catch_draw, tripid) %>% 
     dplyr::summarize(tot_keep_cod_new = sum(keep),
@@ -303,17 +331,17 @@ if (had_catch_check!=0){
   #1a) If the minimum size changes across the season, floor_subl_harvest=min(min_size). 
   #2) If the fishery is closed the entire season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
   #2) below:
-  # if (floor_subl_hadd_harv==248.92){
+  if (floor_subl_hadd_harv==248.92){
+
+    floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
+
+  }
+  
+  # if (floor_subl_hadd_harv==98){
   #   
   #   floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
   #   
   # }
-  
-  if (floor_subl_hadd_harv==98){
-    
-    floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
-    
-  }
   
   # Impose regulations, calculate keep and release per trip
   # For summer flounder, retain keep- and release-at-length
@@ -347,6 +375,35 @@ if (had_catch_check!=0){
     dplyr::rename(mode1=mode) %>% 
     dplyr::mutate(floor_subl_hadd_harv_indicator=case_when(release==1 & fitted_length>=floor_subl_hadd_harv~1,TRUE~0))
   
+  
+  #length data
+  new_size_data <- catch_size_data_had %>%
+    dplyr::group_by(period2, catch_draw, tripid, fitted_length) %>%
+    dplyr::summarize(keep = sum(keep),
+                     release = sum(release), .groups = "drop") %>%
+    dplyr::ungroup()
+  
+  keep_size_data <- new_size_data %>%
+    dplyr::select(-release) %>%
+    tidyr::pivot_wider(names_from = fitted_length, #_length,
+                       names_glue = "keep_had_{fitted_length}",
+                       names_sort = TRUE,
+                       values_from = keep,
+                       values_fill = 0)
+  
+  release_size_data <- new_size_data %>%
+    dplyr::select(-keep) %>%
+    tidyr::pivot_wider(names_from = fitted_length, #_length,
+                       names_glue = "release_had_{fitted_length}",
+                       names_sort = TRUE,
+                       values_from = release,
+                       values_fill = 0)
+  
+  keep_release_hadd <- keep_size_data %>%
+    dplyr::left_join(release_size_data, by = c("period2",  "tripid", "catch_draw"))
+  
+  
+  #trip data
   trip_data_hadd <- catch_size_data_had %>%
     dplyr::group_by(period2, catch_draw, tripid) %>% 
     dplyr::summarize(tot_keep_hadd_new = sum(keep),
@@ -436,14 +493,7 @@ if (cod_catch_check!=0){
   
   #If we need to re-allocate cod releases as harvest, cod_release_2_keep will equal 1 
   if (cod_release_2_keep==1){
-  # trip_data_cod_hstar<-trip_data %>% 
-  #   dplyr::select(period2, tripid, catch_draw, tot_keep_cod_new, tot_rel_cod_new) %>% 
-  #   dplyr::group_by(period2, tripid) %>% 
-  #   dplyr::summarise(sum_tot_keep_cod_new=sum(tot_keep_cod_new), 
-  #                    sum_tot_rel_cod_new=sum(tot_rel_cod_new), .groups='drop') %>% 
-  #   dplyr::filter(sum_tot_rel_cod_new>0) 
-  
-  
+
   trip_data_cod_hstar<-trip_data %>% 
     dplyr::select(period2, tripid, catch_draw, tot_keep_cod_new, tot_rel_cod_new, floor_subl_cod_harv_indicator) %>% 
     dplyr::group_by(period2, tripid) %>% 
@@ -465,20 +515,10 @@ if (cod_catch_check!=0){
     dplyr::mutate(release_to_keep=1) %>% 
     dplyr::select(period2, tripid, release_to_keep)
   
-  # trip_data_check<-trip_data %>% 
-  #   dplyr::left_join(trip_data_cod_hstar, by = c("period2","tripid")) %>% 
-  #   dplyr::mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
-  #   dplyr::filter(release_to_keep==1)
-  #   dplyr::mutate(tot_keep_cod_new1=ifelse(release_to_keep==1,tot_rel_cod_new+tot_keep_cod_new, tot_keep_cod_new), 
-  #                 tot_rel_cod_new1= ifelse(release_to_keep==1, 0, tot_rel_cod_new )) %>% 
-  #   dplyr::mutate(tot_keep_cod_new= tot_keep_cod_new1, 
-  #                 tot_rel_cod_new = tot_rel_cod_new1) %>% 
-  #   dplyr::select(-tot_keep_cod_new1, -tot_rel_cod_new1, -release_to_keep)
-  
+
     trip_data<-trip_data %>% 
       dplyr::left_join(trip_data_cod_hstar, by = c("period2","tripid")) %>% 
       dplyr::mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
-      # dplyr::filter(release_to_keep==1) %>% 
       dplyr::mutate(tot_keep_cod_new1=ifelse(release_to_keep==1 & floor_subl_cod_harv_indicator>0,
                                              tot_keep_cod_new+floor_subl_cod_harv_indicator, tot_keep_cod_new), 
                   tot_rel_cod_new1= ifelse(release_to_keep==1 & floor_subl_cod_harv_indicator>0, 
@@ -555,15 +595,7 @@ if (had_catch_check!=0){
   
   #If we need to re-allocate hadd releases as harvest, hadd_release_2_keep will equal 1 
   if (hadd_release_2_keep==1){
-    # trip_data_hadd_hstar<-trip_data %>% 
-    #   dplyr::select(period2, tripid, catch_draw, tot_keep_hadd_new, tot_rel_hadd_new) %>% 
-    #   dplyr::group_by(period2, tripid) %>% 
-    #   dplyr::summarise(sum_tot_keep_hadd_new=sum(tot_keep_hadd_new), 
-    #                    sum_tot_rel_hadd_new=sum(tot_rel_hadd_new), .groups='drop') 
-    #   
-    #   trip_data_hadd_hstar<-trip_data_hadd_hstar %>% 
-    #           dplyr::filter(sum_tot_rel_hadd_new>0) 
-    
+
     trip_data_hadd_hstar<-trip_data %>% 
       dplyr::select(period2, tripid, catch_draw, tot_keep_hadd_new, tot_rel_hadd_new, floor_subl_hadd_harv_indicator) %>% 
       dplyr::group_by(period2, tripid) %>% 
@@ -586,21 +618,9 @@ if (had_catch_check!=0){
       dplyr::mutate(release_to_keep=1) %>% 
       dplyr::select(period2, tripid, release_to_keep)
     
-    # trip_data<-trip_data %>% 
-    #   dplyr::left_join(trip_data_hadd_hstar, by = c("period2","tripid")) %>% 
-    #   dplyr::mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
-    #   dplyr::arrange(period2, tripid, catch_draw) %>% 
-    #   dplyr::mutate(tot_keep_hadd_new1=ifelse(release_to_keep==1,tot_rel_hadd_new+tot_keep_hadd_new, tot_keep_hadd_new ), 
-    #                 tot_rel_hadd_new1= ifelse(release_to_keep==1,0, tot_rel_hadd_new )) %>% 
-    #   dplyr::mutate(tot_keep_hadd_new= tot_keep_hadd_new1, 
-    #                 tot_rel_hadd_new = tot_rel_hadd_new1) %>% 
-    #   dplyr::select(-tot_keep_hadd_new1, -tot_rel_hadd_new1, -release_to_keep)
-    
-    
     trip_data<-trip_data %>% 
       dplyr::left_join(trip_data_hadd_hstar, by = c("period2","tripid")) %>% 
       dplyr::mutate(across(where(is.numeric), ~replace_na(., 0))) %>% 
-      # dplyr::filter(release_to_keep==1) %>% 
       dplyr::mutate(tot_keep_hadd_new1=ifelse(release_to_keep==1 & floor_subl_hadd_harv_indicator>0,
                                              tot_keep_hadd_new+floor_subl_hadd_harv_indicator, tot_keep_hadd_new), 
                     tot_rel_hadd_new1= ifelse(release_to_keep==1 & floor_subl_hadd_harv_indicator>0, 
@@ -669,8 +689,6 @@ if (had_catch_check!=0){
 
 }
 
-
-
 trip_data<- trip_data %>% as.data.frame() %>% 
   dplyr::left_join(period_vec1, by = c("period2","tripid")) %>% 
   dplyr::arrange(period2, tripid, catch_draw) %>% 
@@ -678,6 +696,7 @@ trip_data<- trip_data %>% as.data.frame() %>%
   cbind(age) %>% 
   cbind(avidity)
 
+rm(trip_costs, age, avidity)
 
 # Costs_new_state data sets will retain raw trip outcomes from the baseline scenario.
 # We will merge these data to the prediction year outcomes to calculate changes in CS.
@@ -749,28 +768,19 @@ mean_trip_data<- subset(mean_trip_data, alt==1) %>%
   dplyr::mutate(tot_cat_cod_new=tot_keep_cod_new+tot_rel_cod_new, 
                 tot_cat_hadd_new=tot_keep_hadd_new+tot_rel_hadd_new)
 
-# mean_trip_data1<-mean_trip_data %>% group_by(period,tripid) %>% summarise(across(everything(), mean), .groups = 'drop') %>%
-#   tibble()
-
-all_vars<-c()
-all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2","tripid")]
-
-
-mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
-  .[,lapply(.SD, mean), by = c("period2","tripid"), .SDcols = all_vars]
-
 
 # Get rid of things we don't need.
 mean_trip_data <- subset(mean_trip_data, alt==1,select=-c(alt, beta_cost,beta_opt_out, beta_opt_out_age, 
                                                           beta_opt_out_likely, beta_opt_out_prefer, #beta_sqrt_cod_hadd_keep, 
                                                           beta_sqrt_cod_keep, beta_sqrt_cod_release, beta_sqrt_hadd_keep, 
-                                                          beta_sqrt_hadd_release, days_fished, open, period, catch_draw, expon_vA,
+                                                          beta_sqrt_hadd_release, days_fished, open, period, expon_vA,
                                                           opt_out, vA, vA_optout, vA_col_sum, cost, age))
 
-# Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
-list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
-                                       & colnames(mean_trip_data) !="period2"
-                                       & colnames(mean_trip_data) !="probA"]
+# Multiply the trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
+list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid" 
+                                       & colnames(mean_trip_data) !="period2" 
+                                       & colnames(mean_trip_data) !="probA" 
+                                       & colnames(mean_trip_data) !="catch_draw"]
 
 
 mean_trip_data <- mean_trip_data %>%
@@ -778,9 +788,26 @@ mean_trip_data <- mean_trip_data %>%
   .[,as.vector(list_names) := lapply(.SD, function(x) x * probA), .SDcols = list_names] %>%
   .[]
 
+
+
+mean_trip_data_prob_catch_draw<-mean_trip_data %>% 
+  dplyr::select("period2","tripid", "catch_draw", "probA")
+
+
+#Take the average outcomes across catch draws
+all_vars<-c()
+all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2","tripid")]
+
+mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
+  .[,lapply(.SD, mean), by = c("period2","tripid"), .SDcols = all_vars]
+
+
 mean_trip_data <- mean_trip_data %>%
   dplyr::mutate(n_choice_occasions = rep(1,nrow(.))) %>%
   dplyr::left_join(period_names, by = c("period2"))
+
+
+
 
 #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
 #mean_trip_pool by the expansion factor (expand), so that  each choice occasion represents a certain number of choice occasions
@@ -796,7 +823,6 @@ mean_trip_data<-mean_trip_data %>%
 
 mean_trip_data <- mean_trip_data %>%
   dplyr::left_join(sims, by="period2")
-
 
 mean_probs<-mean_trip_data  %>% 
   dplyr::select(period2, probA) %>% 
@@ -819,15 +845,8 @@ mean_trip_data <- mean_trip_data %>%
                 tot_cat_hadd_model=tot_cat_hadd_new, 
                 tot_cat_cod_model=tot_cat_cod_new)
 
-
-# all_vars<-c()
-# all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2")]
-# 
-# 
-# mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
-#   .[,lapply(.SD, sum), by = c("period2"), .SDcols = all_vars]
-# 
-
+mean_trip_data0<-  mean_trip_data %>% 
+  dplyr::select(period2, expand)
 
 list_names = c("tot_keep_cod_model","tot_keep_hadd_model",
                "tot_rel_cod_model","tot_rel_hadd_model",
@@ -845,10 +864,6 @@ aggregate_trip_data <- mean_trip_data %>%
   .[,lapply(.SD, sum), by =c("period2"), .SDcols = list_names]
 
 names(aggregate_trip_data)[names(aggregate_trip_data) == "probA"] = "estimated_trips"
-# pds_new1[[i]]<-aggregate_trip_data %>%
-#   dplyr::mutate(draw = k,
-#                 mode = select_mode,
-#                 open = select_season)
 
 pds_new<-aggregate_trip_data %>%
   dplyr::mutate(draw = k,
@@ -888,4 +903,11 @@ comparison2<-comparison %>%
   dplyr::select(- p_cod_rl_2_kp, -p_cod_kp_2_rl, -p_hadd_rl_2_kp, -p_hadd_kp_2_rl)
 
 saveRDS(comparison2, file = paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/comparison_", i, ".rds"))
+
+rm(catch_size_data, catch_size_data_had, cod_catch_data, cod_had_catch_data, costs_new_all, had_catch_data, 
+   keep_size_data, new_size_data, param_draws, release_size_data, 
+   trip_data, trip_data_hadd)
+
+
+
 

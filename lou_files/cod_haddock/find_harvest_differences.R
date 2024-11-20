@@ -8,10 +8,10 @@ conflicts_prefer(dplyr::mutate)
 options(scipen = 100, digits = 3)
 
 
-directed_trips_file_path = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/directed_trips_calib_150draws.csv"
+directed_trips_file_path = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/directed_trips_calib_150draws_cm.csv"
 catch_draws_file_path = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws"
 MRIP_comparison = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/simulated_catch_totals_open_season.csv"
-size_data_read = read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/agepro/rec_selectivity_CaL_open_seasons.csv")
+size_data_read = read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/agepro/rec_selectivity_CaL_open_seasons_cm.csv")
 
 MRIP_data <-   read.csv(file.path(paste0(MRIP_comparison))) %>%
   dplyr::filter(dtrip>0)
@@ -34,8 +34,10 @@ output4<-cbind(i, diff_cod_harv, diff_hadd_harv,tot_keep_cod_model,tot_rel_cod_m
 output5<-rbind(output5, output4)
 }
 
-saveRDS(output5, file = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds")
-output5 <- readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds")
+
+
+saveRDS(output5, file = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check_test.rds")
+output5 <- readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check_test.rds")
 
 
 MRIP_data3<-MRIP_data %>% 
@@ -52,10 +54,10 @@ output6<-output5 %>%
 output6<-output6 %>% 
   dplyr::relocate(mrip_index, draw, mode, open )
 
-saveRDS(output6, file = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds")
+saveRDS(output6, file = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check_test.rds")
 
 
-output7<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") %>% 
+output7<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check_test.rds") %>% 
   dplyr::mutate(diff_cod_rel=tot_rel_cod_model-tot_rel_cod_mrip, 
                 diff_hadd_rel=tot_rel_hadd_model-tot_rel_hadd_mrip, 
                 h_star_cod_keep_to_release_variable=case_when(cod_keep_2_release==1 ~ abs(diff_cod_harv/tot_keep_cod_model), TRUE ~ 0), 
@@ -65,6 +67,9 @@ output7<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_
   dplyr::mutate(h_star_cod_keep_to_release_variable=ifelse(tot_keep_cod_model>0 & tot_keep_cod_mrip==0, 1, h_star_cod_keep_to_release_variable),
                 h_star_hadd_keep_to_release_variable=ifelse(tot_keep_hadd_model>0 & tot_keep_hadd_mrip==0, 1, h_star_hadd_keep_to_release_variable))
 output7[is.na(output7)] <- 0
+
+output7_check<-output7 %>% 
+  dplyr::filter(h_star_hadd_release_to_keep_variable>1 | h_star_cod_release_to_keep_variable>1)
 
 #Drop draws where h_star_cod_release_to_keep_variable>1 or  h_star_hadd_release_to_keep_variable>1, as we cannot allocate any more than all the releases as discards
 
@@ -83,20 +88,31 @@ n_distinct(output7$draw)
 saveRDS(output7, file = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds")
 
 
+
+
+
 baseline_output0<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") 
   
 p_cod_kp_2_rl<-0
 p_cod_rl_2_kp<-0
 p_hadd_kp_2_rl<-0
 p_hadd_rl_2_kp<-0
+n_distinct(baseline_output0$draw)
 
-#baseline_output0b<-baseline_output0 %>% 
-#  dplyr::filter(mrip_index>=326)
+
+#l_w_conversion =
+cod_lw_a = 0.000005132
+cod_lw_b = 3.1625
+had_lw_a = 0.000009298
+had_lw_b = 3.0205
+Disc_mort<- readr::read_csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/Discard_Mortality.csv", show_col_types = FALSE)
+
+# baseline_output0<-baseline_output0 %>%
+#   dplyr::filter(mrip_index>=35)
 
 #for(i in unique(baseline_output0b$mrip_index)){
 for(i in unique(baseline_output0$mrip_index)){
 
-  #i<-573
   baseline_output<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") %>% 
     dplyr::filter(mrip_index==i)
   
@@ -219,21 +235,51 @@ for(i in unique(baseline_output0$mrip_index)){
     #same for haddock
       if(hadd_release_2_keep==1 & comparison$hadd_achieved!=1) {
         
-        if(comparison$diff_hadd_harv>0){
-          p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.005
-        }
+        # if(comparison$diff_hadd_harv>0 & comparison$perc_diff_hadd_harv> 25 ){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.04
+        # }
+        # 
+        # if(comparison$diff_hadd_harv>0 & comparison$perc_diff_hadd_harv> 10 & comparison$perc_diff_hadd_harv<= 25 ){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.02
+        # }
+        # 
+        # if(comparison$diff_hadd_harv>0 & comparison$perc_diff_hadd_harv<= 10 ){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.008
+        # }
+        
 
+        
+        if(comparison$diff_hadd_harv>0 & comparison$perc_diff_hadd_harv> 25 ){
+          p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.05
+        }
+        
+        if(comparison$diff_hadd_harv>0 & comparison$perc_diff_hadd_harv<= 25 ){
+          p_hadd_rl_2_kp<-p_hadd_rl_2_kp -.03
+        }
+        
+
+        
+        
+        # if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv< -25){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.06
+        # }
+        # 
+        # if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv< -10 & comparison$perc_diff_hadd_harv>= -25){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.03
+        # }
+        # 
+        # if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv>= -10){
+        #   p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.015
+        # }
+        
         if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv< -25){
+          p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.06
+        }
+        
+        if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv>= -25){
           p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.04
         }
-        
-        if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv< -10 & comparison$perc_diff_hadd_harv>= -25){
-          p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.02
-        }
-        
-        if(comparison$diff_hadd_harv<0 & comparison$perc_diff_hadd_harv>= -10){
-          p_hadd_rl_2_kp<-p_hadd_rl_2_kp +.004
-        }
+    
       }
       
       
@@ -274,7 +320,6 @@ for(i in unique(baseline_output0$mrip_index)){
       
       
     if (comparison$hadd_achieved==1 & comparison$cod_achieved==1) break
-      
     if (comparison$hadd_achieved==0 & mean(baseline_output$hadd_release_2_keep==1) & comparison$h_star_hadd_release_to_keep_variable>1) break
     if (comparison$cod_achieved==0 & mean(baseline_output$cod_release_2_keep==1) & comparison$h_star_cod_release_to_keep_variable>1) break
       
@@ -348,7 +393,10 @@ for(i in unique(baseline_output0$mrip_index)){
       print(comparison$perc_diff_hadd_harv)
       
       
-  }
+    }
+  
+  source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/calibration_catch_weights.R")
+  
 }
 
 
@@ -378,12 +426,30 @@ check2<-check2 %>%
 
 n_distinct(check2$draw)
 
-unique(check2$mrip_index)
- check3<-check2 %>% 
+check3<-check2 %>% 
  dplyr::filter((abs_perc_diff_cod_harv>5 & abs(diff_cod_harv)>500) | (abs_perc_diff_hadd_harv>5 & abs(diff_hadd_harv)>500))
 
 saveRDS(check2, file = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_comparison.rds")
 n_distinct(check2$draw)
+
+
+#Compile the calibration catch weights
+check1a<-data.frame() 
+check2a<-data.frame() 
+
+for(i in unique(check2$mrip_index)){
+  
+  check1a<- readRDS(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibrate_catch_wts_", i, ".rds"))
+  check2a<-rbind(check1a, check2a)
+  
+  
+}
+n_distinct(check2a$run)
+#saveRDS(check2a, file = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights.rds")
+write_xlsx(check2a, "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights_cm.xlsx")
+
+
+
 
 
 

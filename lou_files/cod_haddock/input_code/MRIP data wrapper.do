@@ -1,9 +1,3 @@
-/* scott stores his MRIP data in "/win/net/data4/ssteinba/MRIP" */
-/* all mrip files are also sotred and updated on the network \\net\mrfss\products\mrip_estim\Public_data_cal2018 */
-*format MRIP stata files 
-*cd "C:\Users\andrew.carr-harris\Desktop\Fluke_MSE\MRIP_data"
-
-*cd "C:\Users\Lou\Desktop\MRIP_data"
 
 cd $mrip_data_cd
 

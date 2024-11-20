@@ -3,9 +3,7 @@
 pds_new=list()
 costs_new_all <- list()
   
-h_star_cod_release_to_keep<-h_star_cod_release_to_keep_variable
-h_star_hadd_release_to_keep<-h_star_hadd_release_to_keep_variable
-  
+
 MRIP_data2<-MRIP_data %>% 
     dplyr::filter(mrip_index==i)
   
@@ -442,25 +440,21 @@ MRIP_data2<-MRIP_data %>%
     dplyr::mutate(tot_cat_cod_new=tot_keep_cod_new+tot_rel_cod_new, 
                   tot_cat_hadd_new=tot_keep_hadd_new+tot_rel_hadd_new)
 
-  all_vars<-c()
-  all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2","tripid")]
-  
-  
-  mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
-    .[,lapply(.SD, mean), by = c("period2","tripid"), .SDcols = all_vars]
+
   
   
   # Get rid of things we don't need.
   mean_trip_data <- subset(mean_trip_data, alt==1,select=-c(alt, beta_cost,beta_opt_out, beta_opt_out_age, 
                                                             beta_opt_out_likely, beta_opt_out_prefer, #beta_sqrt_cod_hadd_keep, 
                                                             beta_sqrt_cod_keep, beta_sqrt_cod_release, beta_sqrt_hadd_keep, 
-                                                            beta_sqrt_hadd_release, days_fished, open, period, catch_draw, expon_vA,
+                                                            beta_sqrt_hadd_release, days_fished, open, period, expon_vA,
                                                             opt_out, vA, vA_optout, vA_col_sum, cost, age))
   
-  # Multiply the average trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
+  # Multiply the trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
   list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"
                                          & colnames(mean_trip_data) !="period2"
-                                         & colnames(mean_trip_data) !="probA"]
+                                         & colnames(mean_trip_data) !="probA"
+                                         & colnames(mean_trip_data) !="catch_draw"]
   
   
   mean_trip_data <- mean_trip_data %>%
@@ -468,6 +462,16 @@ MRIP_data2<-MRIP_data %>%
     .[,as.vector(list_names) := lapply(.SD, function(x) x * probA), .SDcols = list_names] %>%
     .[]
   
+  
+  #Take the average outcomes across catch draws
+  all_vars<-c()
+  all_vars <- names(mean_trip_data)[!names(mean_trip_data) %in% c("period2","tripid")]
+  
+  mean_trip_data<-mean_trip_data  %>% data.table::as.data.table() %>%
+    .[,lapply(.SD, mean), by = c("period2","tripid"), .SDcols = all_vars]
+  
+  
+
   mean_trip_data <- mean_trip_data %>%
     dplyr::mutate(n_choice_occasions = rep(1,nrow(.))) %>%
     dplyr::left_join(period_names, by = c("period2"))

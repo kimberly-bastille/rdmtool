@@ -2,7 +2,6 @@
 ***This code creates trip cost distributions based on the Sabrina's 2017 trip expenditure survey data
 
 *Enter a directory with the expenditure survey data 
-*cd "C:\Users\andrew.carr-harris\Desktop\Fluke_MSE\MRIP_data"
 u "$input_code_cd\atl_states_2017_expsurvey.dta", clear
 renvarlab *, lower
 
@@ -18,19 +17,6 @@ egen total_exp=rowtotal(afuelexp arentexp ptransexp lodgexp grocexp restexp bait
 egen total_exp2=rowtotal(afuelexp arentexp ptransexp lodgexp grocexp restexp baitexp iceexp parkexp bfuelexp brentexp guideexp crewexp procexp feesexp giftsexp)
 
 svyset psu_id [pweight= sample_wt], strata(var_id) singleunit(certainty)
-
-*check to see if we get the same results as Sabrina
-svy: mean lodgexp if st==23 & mode_fx=="3"
-svy: mean restexp if st==23 & mode_fx=="3"
-
-/*
-tostring st, gen(st2)
-gen st_mode=mode+"_" +st2
-encode st_mode, gen(st_mode2)
-svy: mean total_exp2 , over(st_mode2)
-*/
-
-*^ this produdes the exact same results as in the report. I tested several exp. categories and they all mateched. 
 
 gen st2 = string(st,"%02.0f")
 gen state="CT" if st2=="09" 
@@ -81,7 +67,6 @@ replace mode1="pr" if inlist(mode_fx,  "7")
 
 
 *Now generate total expenditures each state/mode combination
-
 global costs
 
 *Adjust for inflation

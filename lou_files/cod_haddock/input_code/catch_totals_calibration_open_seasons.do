@@ -120,6 +120,9 @@ egen sum_cod_harvest=sum(cod_harvest), by(strat_id psu_id id_code)
 gen cod_releases=release if common=="atlanticcod"
 egen sum_cod_releases=sum(cod_releases), by(strat_id psu_id id_code)
  
+gen cod_claim=claim if common=="atlanticcod"
+egen sum_cod_claim=sum(cod_claim), by(strat_id psu_id id_code)
+
 gen hadd_tot_cat=tot_cat if common=="haddock"
 egen sum_hadd_tot_cat=sum(hadd_tot_cat), by(strat_id psu_id id_code)
 
@@ -129,17 +132,24 @@ egen sum_hadd_harvest=sum(hadd_harvest), by(strat_id psu_id id_code)
 gen hadd_releases=release if common=="haddock"
 egen sum_hadd_releases=sum(hadd_releases), by(strat_id psu_id id_code)
 
-drop cod_tot_cat cod_harvest cod_releases hadd_tot_cat hadd_harvest hadd_releases 
+gen hadd_claim=claim if common=="haddock"
+egen sum_hadd_claim=sum(hadd_claim), by(strat_id psu_id id_code)
+
+
+drop cod_tot_cat cod_harvest cod_releases hadd_tot_cat hadd_harvest hadd_releases  hadd_claim  cod_claim
 rename sum_cod_tot_cat cod_catch
 rename sum_cod_harvest cod_keep
 rename sum_cod_releases cod_rel
+rename sum_cod_claim cod_claim
+
 rename sum_hadd_tot_cat hadd_catch
 rename sum_hadd_harvest hadd_keep
 rename sum_hadd_releases hadd_rel
+rename sum_hadd_claim hadd_claim
 
 
 **Round these estimates to align with catch-per-trip computations
-local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel
+local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel cod_claim hadd_claim
 foreach v of local vars{
 	replace `v'=round(`v')
 	
@@ -191,7 +201,7 @@ save `base', replace
 
 global catchez
 
-local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel
+local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel cod_claim hadd_claim
 foreach v of local vars{
 u `base', clear 
 svy: total `v' , over(my_dom_id)
