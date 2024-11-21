@@ -1,5 +1,15 @@
 
 
+pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape","doBy","WriteXLS","Rcpp",
+                 "ggplot2","dplyr","rlist","fitdistrplus","MASS","psych","rgl","copula","VineCopula","scales",
+                 "univariateML","logspline","readr","data.table","conflicted", "readxl", "writexl", "fs",
+                 "purrr", "readr", "here","plyr" , "furrr", "profvis", "future", "magrittr", "feather")
+install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
+lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
+conflicts_prefer(dplyr::mutate)
+#options(scipen = 100, digits = 3)
+
+
 ##### RDM simulation wrapper #####
 ##################################
 
@@ -16,8 +26,9 @@
 
 #Set up globals for input/output data and code scripts
 
-data_cd="C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/"
-code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/" 
+input_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/"
+code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/code/" 
+output_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/output_data/"
 
 
 
@@ -26,10 +37,10 @@ code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/"
 #I do this for each domain and each domain's 150 draws of MRIP trips/catch/harvest (4*150=600 simulations).
 #This code retain for each simulation the percent difference between model-based harvest and MRIP-based harvest by species. 
 
-directed_trips_file_path = "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/directed_trips_calib_150draws_cm.csv"
-catch_draws_file_path = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws"
-MRIP_comparison = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/simulated_catch_totals_open_season.csv"
-size_data_read = read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/agepro/rec_selectivity_CaL_open_seasons_cm.csv")
+directed_trips_file_path = paste0(input_data_cd, "directed_trips_calib_150draws_cm.csv")
+catch_draws_file_path = input_data_cd
+MRIP_comparison = paste0(input_data_cd,"simulated_catch_totals_open_season.csv")
+size_data_read = read.csv(paste0(input_data_cd,"rec_selectivity_CaL_open_seasons_cm.csv"))
 
 #Files needed:
   #directed_trips_calib_150draws_cm.csv
@@ -38,11 +49,10 @@ size_data_read = read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_f
   #paste0(catch_draws_file_path, k, "_full.feather")), where k indicates draw number
 
 
-
 #Scripts needed:
   #calibrate_rec_catch_hstar_code.R
 
-source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/find_harvest_differences1.R")
+source(paste0(code_cd,"find_harvest_differences1.R"))
 
 #Output files: 
   #MRIP_simulated_data.rds
@@ -62,19 +72,16 @@ source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/fi
   #harvest_differences_check.rds
 
 
-
 #Scripts needed:
   #calibration_catch_weights.R
 
-source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/calibration_wrapper.R")
+source(paste0(code_cd,"calibration_wrapper.R"))
 
 #Output files: 
   #calibration_comparison.rds
   #calibration_catch_weights_cm.xlsx
   #paste0("pds_new_", i,".rds")), where i is an indicator for a domain-draw combination
   #paste0("costs_", i,".rds"))), where i is an indicator for a domain-draw combination
-
-
 
 
 # Note that in some simulations, the difference in harvest between the model and MRIP from Step 1 is too large relative to the number of 
@@ -107,7 +114,7 @@ source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/ca
 #Scripts needed:
 #
 
-source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/transfer files to feather.R")
+#source(paste0(code_cd, "cod_haddock/transfer files to feather.R"))
 
 #Output files: 
   #paste0("pds_new_", mode,"_", season, "_", draw, ".feather"))

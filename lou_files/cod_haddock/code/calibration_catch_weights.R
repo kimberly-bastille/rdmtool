@@ -873,6 +873,11 @@ length_weight<- length_expanded %>%
 length_weight<-length_weight %>% 
   dplyr::mutate(season = select_season, run = k, mrip_index=i)
 
-saveRDS(length_weight, file = paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibrate_catch_wts_", i, ".rds"))
+
+season1<-unique(length_weight$season)
+mode1<-unique(length_weight$mode1)
+draw1<-unique(length_weight$run)
+
+saveRDS(length_weight, file = paste0(input_data_cd, "calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds"))
 
 rm(length_data, length_data2, length_data3, length_expanded, length_weight)

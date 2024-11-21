@@ -1,6 +1,6 @@
 
 
-MRIP_data2<- readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/MRIP_simulated_data.rds") %>% 
+MRIP_data2<- readRDS(paste0(input_data_cd, "MRIP_simulated_data.rds")) %>% 
      dplyr::filter(mrip_index==i)
 
 
@@ -111,7 +111,6 @@ cod_catch_data <- cod_catch_data %>%
   dplyr::ungroup()%>%
   dplyr::select(!c(age, days_fished, cost))%>%
   dplyr::select(!c(month))
-#print("postmutate")
 
 
 if(select_season == 1){
@@ -176,7 +175,7 @@ if(cod_catch_check !=0){
     dplyr::mutate(fitted_length = sample(cod_size_data$length,
                                          nrow(.),
                                          prob = cod_size_data$fitted_prob,
-                                         replace = TRUE)) #%>%    dplyr::arrange(period2, tripid, catch_draw)
+                                         replace = TRUE)) 
   
   
   
@@ -185,7 +184,7 @@ if(cod_catch_check !=0){
   #1a) If the minimum size changes across the season, floor_subl_harvest=min(min_size). 
   #2) If the fishery is closed the entire season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
   #2) below:
-  if (floor_subl_cod_harv==248.92){
+  if (floor_subl_cod_harv>=248){
 
     floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
 
@@ -331,17 +330,12 @@ if (had_catch_check!=0){
   #1a) If the minimum size changes across the season, floor_subl_harvest=min(min_size). 
   #2) If the fishery is closed the entire season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
   #2) below:
-  if (floor_subl_hadd_harv==248.92){
+  if (floor_subl_hadd_harv>=248){
 
     floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
 
   }
-  
-  # if (floor_subl_hadd_harv==98){
-  #   
-  #   floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
-  #   
-  # }
+
   
   # Impose regulations, calculate keep and release per trip
   # For summer flounder, retain keep- and release-at-length
@@ -715,7 +709,14 @@ costs_new_all <- trip_data %>%
                 mode = select_mode,
                 open = select_season)
 
-saveRDS(costs_new_all, file = paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/costs_", i, ".rds"))
+
+season1<-unique(costs_new_all$open)
+mode1<-unique(costs_new_all$mode)
+draw1<-unique(costs_new_all$n_cal_draw)
+
+#saveRDS(costs_new_all, file = paste0(input_data_cd, "costs_", i, ".rds"))
+write_feather(costs_new_all, paste0(input_data_cd, "costs_", mode1,"_", season1, "_", draw1, ".feather"))
+
 
 
 #  utility (prediction year)
@@ -870,7 +871,14 @@ pds_new<-aggregate_trip_data %>%
                 mode = select_mode,
                 open = select_season)
 
-saveRDS(pds_new, file = paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/pds_new_", i, ".rds"))
+season1<-unique(pds_new$open)
+mode1<-unique(pds_new$mode)
+draw1<-unique(pds_new$draw)
+
+#saveRDS(pds_new, file = paste0(input_data_cd, "pds_new_", i, ".rds"))
+write_feather(pds_new, paste0(input_data_cd, "pds_new_", mode1,"_", season1, "_", draw1, ".feather"))
+
+
 
 aggregate_trip_data2=pds_new %>% 
   dplyr::group_by(draw, mode, open) %>% 
@@ -902,7 +910,15 @@ comparison<-comparison %>%
 comparison2<-comparison %>% 
   dplyr::select(- p_cod_rl_2_kp, -p_cod_kp_2_rl, -p_hadd_rl_2_kp, -p_hadd_kp_2_rl)
 
-saveRDS(comparison2, file = paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/comparison_", i, ".rds"))
+
+season1<-unique(comparison2$open)
+mode1<-unique(comparison2$mode)
+draw1<-unique(comparison2$draw)
+
+#saveRDS(comparison2, file = paste0(input_data_cd, "comparison_", i, ".rds"))
+write_feather(comparison2, paste0(input_data_cd, "comparison_", mode1,"_", season1, "_", draw1, ".feather"))
+
+
 
 rm(catch_size_data, catch_size_data_had, cod_catch_data, cod_had_catch_data, costs_new_all, had_catch_data, 
    keep_size_data, new_size_data, param_draws, release_size_data, 

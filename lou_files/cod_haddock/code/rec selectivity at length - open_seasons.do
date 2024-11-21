@@ -1,11 +1,8 @@
 
 
-*Set the global length to pull either ionches or centimeters from MRIP
-global length_bin l_cm_bin
-*global length_bin l_in_bin
 
 *MRIP release data 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -46,10 +43,11 @@ keep if $calibration_year
  
 gen st2 = string(st,"%02.0f")
 
-
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -63,6 +61,31 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+
+*NEW MRIP site allocations
+
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
+
+
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -188,7 +211,7 @@ save `b2', replace
 
 
 *************Now pull keep lengths from MRIP
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -227,10 +250,11 @@ keep if $calibration_year
  
 gen st2 = string(st,"%02.0f")
 
-
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -244,6 +268,27 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+*NEW MRIP site allocations
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -377,7 +422,7 @@ save `props', replace
 
 
 ***Now need to estimate total keep/release by species month and multiply these proportions
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -458,10 +503,11 @@ replace common_dom="ATLCO" if inlist(common, "haddock")
 replace common_dom="ATLCO"  if inlist(prim1_common, "atlanticcod") 
 replace common_dom="ATLCO"  if inlist(prim1_common, "haddock") 
 
-
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -473,6 +519,27 @@ gen str3 area_s="AAA"
 replace area_s="GOM" if st2=="23" | st2=="33"
 replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+*NEW MRIP site allocations
+*NEW MRIP site allocations
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="AAA"
+
+replace area_s="GOM" if st2=="23" | st2=="33"
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="GOM" if st2=="25" & intsite==224
 
 
 tostring wave, gen(wv2)
@@ -549,6 +616,7 @@ encode psu_id, gen(psu_id2)
 
 *replace wp_int=round(wp_int)
 *svy: total hadd_catch, over(my_dom_id2)
+
 svyset psu_id2 [pweight= wp_int], strata(strat_id2) singleunit(certainty)
 
 preserve
@@ -746,7 +814,6 @@ merge 1:1 fitted_length domain using `observed_prob'
 sort domain fitted_length 
 mvencode fitted_prob observed_prob, mv(0) override 
 
-*replace fitted_length=fitted_length+.5
 split domain, parse(_)
 replace species=domain1
 replace season=domain2
@@ -770,7 +837,7 @@ rename fitted_l length
 
 gen nfish_catch_from_fitted=fitted_prob*sum_nfish_catch
 gen nfish_catch_from_raw=observed_prob*sum_nfish_catch
-
+/*
 levelsof domain, local(domz)
 foreach d of local domz{
 twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(gray) lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
@@ -781,10 +848,11 @@ twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(g
 }
 
 grc1leg `graphnames'
-
+*/
 drop observed_prob2
 
-save "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
+save "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
+export delimited using "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.csv", replace
 
 
 *****Now obtain draws of population numbers at length from AGEPRO and translate these to numbers at length 
@@ -800,12 +868,12 @@ save "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file
 **M-Y 2023 model:
 	*Bottomtrawl survey data from 2021-2023 to form the age-length keys.
 
-import excel using "$age_pro_cd/fall_spring_cruises_lou.xlsx", clear first
+import excel using "$input_data_cd/fall_spring_cruises_lou.xlsx", clear first
 renvarlab, lower
 tempfile cruises
 save `cruises', replace 
 
-import excel using "$age_pro_cd/cod_svspp_raw_lou.xlsx", clear first
+import excel using "$input_data_cd/cod_svspp_raw_lou.xlsx", clear first
 renvarlab, lower
 merge m:1 cruise6 using `cruises'
 keep if _merge==3
@@ -816,9 +884,6 @@ destring year, replace
 sort svspp year age length count
 
 keep if year>=$trawl_svy_start_yr & year<=$trawl_svy_end_yr
-
-*use "$age_pro_cd/cod_svspp_raw.dta", clear 
-*keep if year>=2020
 
 su year
 local min_svy_yr=`r(min)'
@@ -897,11 +962,13 @@ save `al_cod', replace
 
 
 *historical data to compute rec selectivity
-use "$age_pro_cd/historical_and_mean_projected_Cod_NAA.dta", clear 
+*use "$input_data_cd/historical_and_mean_projected_Cod_NAA.dta", clear 
+use "$input_data_cd/WGOM_Cod_historical_NAA_2024Assessment.dta", clear 
+
 egen age6_plus=rowtotal(age6-age9)
 drop age6 age7 age8 age9
 rename age6 age6
-keep if year==2023
+keep if year==$calibration_year_NAA
 reshape long age, i(year) j(new)
 rename age nfish
 rename new age 
@@ -920,7 +987,7 @@ sort length
 gen species="cod"
 
 preserve
-use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
+use "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
 keep if species=="cod"
 tempfile cod
 save `cod', replace 
@@ -945,12 +1012,12 @@ save `cod_ql', replace
 
 
 *****haddock 
-import excel using "$age_pro_cd/fall_spring_cruises_lou.xlsx", clear first
+import excel using "$input_data_cd/fall_spring_cruises_lou.xlsx", clear first
 renvarlab, lower
 tempfile cruises
 save `cruises', replace 
 
-import excel using "$age_pro_cd/haddock_svspp_raw_lou.xlsx", clear first
+import excel using "$input_data_cd/haddock_svspp_raw_lou.xlsx", clear first
 renvarlab, lower
 merge m:1 cruise6 using `cruises'
 keep if _merge==3
@@ -962,8 +1029,7 @@ sort svspp year age length count
 
 keep if year>=$trawl_svy_start_yr & year<=$trawl_svy_end_yr
 
-*use "$age_pro_cd/haddock_svspp_raw.dta", clear 
-*keep if year>=2020
+
 su year
 local min_svy_yr=`r(min)'
 local max_svy_yr=`r(max)'
@@ -1035,8 +1101,10 @@ grc1leg `graphnames'
 tempfile al_hadd
 save `al_hadd', replace 
 
-use "$age_pro_cd/historical_and_mean_projected_Haddock_NAA.dta", clear 
-keep if year==2023
+*historical data to compute rec selectivity
+*use "$input_data_cd/historical_and_mean_projected_Haddock_NAA.dta", clear 
+use "$input_data_cd/GOM_Haddock_historical_NAA_2024Assessment.dta", clear 
+keep if year==$calibration_year_NAA
 reshape long age, i(year) j(new)
 rename age nfish
 rename new age 
@@ -1056,7 +1124,7 @@ sort length
 gen species="hadd"
 
 preserve
-use "$age_pro_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
+use "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.dta", clear
 keep if species=="hadd"
 tempfile hadd
 save `hadd', replace 
@@ -1089,13 +1157,16 @@ save `cod_hadd_ql', replace
 
 ****Having computed slectivities by month, now draw projected NaA, translate to lengths, and
 ****merge these data to the ql data and create catch-at-length in the projection year *  and compute projected catch-at-lengths
-use "$age_pro_cd/cod_beginning_sorted2023.dta", clear 
+
+*projected assessment data 
+*use "$input_data_cd/cod_beginning_sorted2023.dta", clear 
+use "$input_data_cd/WGOM_Cod_projected_NAA_2024Assessment.dta", clear 
 egen age6_plus=rowtotal(age6-age9)
 drop age6 age7 age8 age9
 rename age6 age6
-keep if year==2024
+keep if year==$projection_year_NAA
 
-sample 150, count
+sample $ndraws, count
 gen id2=_n
 
 tempfile new
@@ -1103,7 +1174,7 @@ save `new', replace
 
 global nal
 
-forv i=1/150{
+forv i=1/$ndraws{
 	u `new', clear
 	keep if id2 ==`i'
 	*keep if id2 ==1
@@ -1116,10 +1187,10 @@ drop year
 merge 1:m age using `al_cod', keep(3) nogen 
 sort  age length
 
-gen NaL_2024_raw_trawl = prop_raw*nfish
-gen NaL_2024_smooth_trawl = prop_smoothed*nfish
+gen NaL_proj_raw_trawl = prop_raw*nfish
+gen NaL_proj_smooth_trawl = prop_smoothed*nfish
 
-collapse (sum) NaL_2024*, by(length)
+collapse (sum) NaL_proj*, by(length)
 sort length 
 gen id2=`i'
 
@@ -1137,10 +1208,13 @@ tempfile proj_cod
 save `proj_cod', replace
 
 *haddock
-use "$age_pro_cd/haddock_beginning_sorted2023.dta", clear 
-keep if year==2024
+*projected assessment data 
+*use "$input_data_cd/haddock_beginning_sorted2023.dta", clear 
+use "$input_data_cd/GOM_Haddock_projected_NAA_2024Assessment.dta", clear 
 
-sample 150, count
+keep if year==$projection_year_NAA
+
+sample $ndraws, count
 gen id2=_n
 
 tempfile new
@@ -1148,7 +1222,7 @@ save `new', replace
 
 global nal
 
-forv i=1/150{
+forv i=1/$ndraws{
 	u `new', clear
 	keep if id2 ==`i'
 
@@ -1160,10 +1234,10 @@ drop year
 merge 1:m age using `al_hadd', keep(3) nogen 
 sort  age length
 
-gen NaL_2024_raw_trawl = prop_raw*nfish
-gen NaL_2024_smooth_trawl = prop_smoothed*nfish
+gen NaL_proj_raw_trawl = prop_raw*nfish
+gen NaL_proj_smooth_trawl = prop_smoothed*nfish
 
-collapse (sum) NaL_2024*, by(length)
+collapse (sum) NaL_proj*, by(length)
 sort length 
 gen id2=`i'
 
@@ -1193,14 +1267,14 @@ drop if _merge==2
 
 drop _merge
 
-gen catch24_raw=ql_raw*NaL_2024_raw
-gen catch24_smooth=ql_smooth*NaL_2024_smooth
+gen catch_proj_raw=ql_raw*NaL_proj_raw
+gen catch_proj_smooth=ql_smooth*NaL_proj_smooth
 
-egen sumcatch24_raw=sum(catch24_raw), by(season species id2) 
-egen sumcatch24_smooth=sum(catch24_smooth), by(season species id2) 
+egen sumcatch_proj_raw=sum(catch_proj_raw), by(season species id2) 
+egen sumcatch_proj_smooth=sum(catch_proj_smooth), by(season species id2) 
 
-gen proj_CaL_prob_raw= catch24_raw/sumcatch24_raw
-gen proj_CaL_prob_smooth= catch24_smooth/sumcatch24_smooth
+gen proj_CaL_prob_raw= catch_proj_raw/sumcatch_proj_raw
+gen proj_CaL_prob_smooth= catch_proj_smooth/sumcatch_proj_smooth
 
 egen sumprob_raw=sum(proj_CaL_prob_raw), by(season species id2)
 egen sumprob_sm=sum(proj_CaL_prob_smooth), by(season species id2)
@@ -1235,8 +1309,8 @@ order id2 species season   proj_CaL_prob*
 
 rename id2 draw
 
-save "$age_pro_cd/projected_CaL_cod_hadd_cm.dta", replace 
-export delimited using "$age_pro_cd/projected_CaL_cod_hadd_cm.csv", replace
+save "$input_data_cd/projected_CaL_cod_hadd_cm.dta", replace 
+export delimited using "$input_data_cd/projected_CaL_cod_hadd_cm.csv", replace
 
 
 

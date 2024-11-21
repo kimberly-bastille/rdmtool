@@ -1,5 +1,5 @@
 
-cd $mrip_data_cd
+cd $input_data_cd
 
 foreach wave in	$yr_wvs {				
 

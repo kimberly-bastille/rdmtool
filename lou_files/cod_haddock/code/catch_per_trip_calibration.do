@@ -1,7 +1,7 @@
 
 
 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 mata: mata clear
@@ -76,9 +76,11 @@ replace common_dom="ATLCO"  if inlist(prim1_common, "atlanticcod")
 replace common_dom="ATLCO"  if inlist(prim1_common, "haddock") 
 
 
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -90,7 +92,27 @@ gen str3 area_s="AAA"
 replace area_s="GOM" if st2=="23" | st2=="33"
 replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
 
+*NEW MRIP site allocations
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="AAA"
+
+replace area_s="GOM" if st2=="23" | st2=="33"
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="GOM" if st2=="25" & intsite==224
 
 tostring wave, gen(wv2)
 tostring year, gen(yr2)
@@ -375,7 +397,7 @@ su se
 local se=`r(mean)'
 
 clear
-set obs 150
+set obs $ndraws
 gen nfish=`c'
 *gen nfish=4
 gen draw=_n
@@ -580,7 +602,7 @@ merge 1:1 nfish month mode   using `keephadd', keep(3) nogen
 *We need to make sure that for each draw, the total number of trips 
 *in the keep distirbution equals the total number of trips in the release distirbution
 
-forv i =1/150{
+forv i =1/$ndraws{
 	
 *compute the sum of trips in the keep/release distirbutions by draw 
 egen sum_trips_keep`i'_cod=sum(tot_ntrip`i'_keep_cod)
@@ -664,7 +686,7 @@ drop domain2
 
 mvencode tot_ntrip*, mv(0) over
 
-save "$input_code_cd\catch per trip1.dta", replace 
+save "$input_data_cd\catch per trip1.dta", replace 
 
 
 /*
@@ -708,7 +730,7 @@ gen pdiff=((sum-mrip)/mrip)*100
 	*b) demographics for each trip that are constant across catch draws
 	
 *Will add age and avidities here
-import excel using "$input_code_cd\population ages.xlsx", clear firstrow
+import excel using "$input_data_cd\population ages.xlsx", clear firstrow
 keep if region=="MENY"
 replace wtd_fre=round(wtd_fre)
 expand wtd_fre
@@ -716,7 +738,7 @@ keep age
 tempfile ages 
 save `ages', replace 
 
-import excel using "$input_code_cd\population avidity.xlsx", clear firstrow
+import excel using "$input_data_cd\population avidity.xlsx", clear firstrow
 keep if region=="MENY"
 replace wtd_fre=round(wtd_fre)
 expand wtd_fre
@@ -724,7 +746,7 @@ keep days_fished
 tempfile avidities 
 save `avidities', replace 
 
-import delimited using  "$input_code_cd\directed_trips_calib_150draws_cm.csv", clear 
+import delimited using  "$input_data_cd\directed_trips_calib_150draws_cm.csv", clear 
 gen wave = 1 if inlist(month, 1, 2)
 replace wave=2 if inlist(month, 3, 4)
 replace wave=3 if inlist(month, 5, 6)
@@ -747,23 +769,20 @@ encode domain1, gen(domain3)
 tempfile trips
 save `trips', replace
 
-qui forv i=1/20{
-*local i=1
+qui forv i=1/$ndraws{
+
 u `trips', clear  
 keep if draw==`i'
-*keep if draw==1
 
 tempfile trips2
 save `trips2', replace 
 
 global domainz
 
-levelsof domain3 /*if inlist(domain1, "fh_01jun2022")*/, local(doms) 
+levelsof domain3, local(doms) 
 foreach d of local doms{
 
 	u `trips2', clear 
-	*local i=1
-	*local d=188
 	keep if domain3==`d'
 	levelsof mode, local(md) clean
 	levelsof month, local(mnth)
@@ -774,7 +793,7 @@ foreach d of local doms{
 	levelsof dtrip, local(dtrip) 
 	levelsof domain1, local(dom1) clean
 
-	u "$input_code_cd\catch per trip1.dta", clear 
+	u "$input_data_cd\catch per trip1.dta", clear 
 	drop if disp=="catch"
 	drop domain
 	destring month, replace
@@ -972,7 +991,7 @@ dsconcat $domainz
 order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch 
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
-export delimited using "$draw_file_cd\catch_draws`i'.csv", replace 
+export delimited using "$input_data_cd\catch_draws`i'_full.csv", replace 
 
 }
 
@@ -980,9 +999,9 @@ export delimited using "$draw_file_cd\catch_draws`i'.csv", replace
 *Now for each of these files, make sure that there are catch draws for periods with directed trips but no catch 
 
 global drawz
-  forv i=1/20{
+  forv i=1/$ndraws{
 
-import excel using "$input_code_cd\population ages.xlsx", clear firstrow
+import excel using "$input_data_cd\population ages.xlsx", clear firstrow
 keep if region=="MENY"
 replace wtd_fre=round(wtd_fre)
 expand wtd_fre
@@ -990,7 +1009,7 @@ keep age
 tempfile ages 
 save `ages', replace 
 
-import excel using "$input_code_cd\population avidity.xlsx", clear firstrow
+import excel using "$input_data_cd\population avidity.xlsx", clear firstrow
 keep if region=="MENY"
 replace wtd_fre=round(wtd_fre)
 expand wtd_fre
@@ -1014,7 +1033,7 @@ tempfile avidities2
 save `avidities2', replace	
 restore 
 
-import delimited using  "$input_code_cd\directed_trips_calib_150draws_cm.csv", clear 
+import delimited using  "$input_data_cd\directed_trips_calib_150draws_cm.csv", clear 
 keep if draw==`i'
 keep day day_i mode dtrip 
 duplicates drop 
@@ -1022,7 +1041,7 @@ tempfile draws
 save `draws', replace 
 
 
-import delimited using "$draw_file_cd\catch_draws`i'.csv", clear 
+import delimited using "$input_data_cd\catch_draws`i'_full.csv", clear 
 tempfile basedraws
 save `basedraws', replace 
 
@@ -1091,7 +1110,7 @@ destring month, replace
 destring day1, replace 
 
 
-export delimited using "$draw_file_cd\catch_draws`i'_full.csv", replace 
+export delimited using "$input_data_cd\catch_draws`i'_full.csv", replace 
 
  }
  

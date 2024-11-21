@@ -1,10 +1,9 @@
 
 
 global domainz
-qui forv i=1/20{
-*local i=2
+qui forv i=1/$ndraws{
 
-import delimited using "$draw_file_cd\catch_draws`i'_full.csv", clear 
+import delimited using "$input_data_cd\catch_draws`i'_full.csv", clear 
 
 gen year2=substr(day, 6, 4)
 destring year2, replace
@@ -24,9 +23,9 @@ restore
 
 keep if catch_draw==1
 collapse (mean)  cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch, by(day day_i mode)
-*local i=1
+
 preserve 
-import delimited using  "$input_code_cd\directed_trips_calib_150draws_cm.csv", clear 
+import delimited using  "$input_data_cd\directed_trips_calib_150draws_cm.csv", clear 
 keep if draw==`i'
 keep mode day  dtrip
 tempfile dtrip
@@ -63,6 +62,6 @@ dsconcat $domainz
 sort draw mode open 
 order draw mode open 
 
-export delimited using "$draw_file_cd\simulated_catch_totals_open_season.csv", replace 
+export delimited using "$input_data_cd\simulated_catch_totals_open_season.csv", replace 
 
 

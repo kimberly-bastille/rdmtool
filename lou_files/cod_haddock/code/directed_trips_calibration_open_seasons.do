@@ -1,6 +1,6 @@
 
 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 global fluke_effort
@@ -83,8 +83,11 @@ bysort strat_id psu_id leader (dom_id): gen gc_flag=dom_id[1]
 bysort strat_id psu_id leader (claim): gen claim_flag=claim[_N]
 replace dom_id="1" if strmatch(dom_id,"2") & claim_flag>0 & claim_flag!=. & strmatch(gc_flag,"1")
 
+
+*OLD MRIP site allocations
+/*
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -97,7 +100,27 @@ gen str3 area_s="AAA"
 replace area_s="GOM" if st2=="23" | st2=="33"
 replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
 
+*NEW MRIP site allocations
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="AAA"
+
+replace area_s="GOM" if st2=="23" | st2=="33"
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="GOM" if st2=="25" & intsite==224
 
 gen date2=substr(id_code, 6,8)
 gen month1=substr(date2, 5, 2)
@@ -194,6 +217,6 @@ rename ll ll_dtrip
 rename ul ul_dtrip
 keep dtrip season mode  ul_dtrip ll_dtrip
 
-save  "$draw_file_cd\MRIP_dtrip_totals_open_season.dta", replace 
+save  "$input_data_cd\MRIP_dtrip_totals_open_season.dta", replace 
 
 

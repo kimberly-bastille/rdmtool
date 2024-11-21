@@ -1,24 +1,25 @@
-pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape","doBy","WriteXLS","Rcpp",
-                 "ggplot2","dplyr","rlist","fitdistrplus","MASS","psych","rgl","copula","VineCopula","scales",
-                 "univariateML","logspline","readr","data.table","conflicted", "readxl", "writexl", "fs",
-                 "purrr", "readr", "here","plyr" , "furrr", "profvis", "future", "magrittr", "feather")
-install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
-lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
-conflicts_prefer(dplyr::mutate)
+# pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape","doBy","WriteXLS","Rcpp",
+#                  "ggplot2","dplyr","rlist","fitdistrplus","MASS","psych","rgl","copula","VineCopula","scales",
+#                  "univariateML","logspline","readr","data.table","conflicted", "readxl", "writexl", "fs",
+#                  "purrr", "readr", "here","plyr" , "furrr", "profvis", "future", "magrittr", "feather")
+# install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
+# lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
+# conflicts_prefer(dplyr::mutate)
 # options(scipen = 100, digits = 3)
 
 
 #Pull in data that is not draw-specific
-catch_draws_file_path = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws"
-directed_trips_table =  read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/directed_trips_calib_150draws_cm.csv")            
-size_data_read = read.csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/agepro/projected_CaL_cod_hadd_cm.csv")
-Disc_mort<- readr::read_csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/Discard_Mortality.csv", show_col_types = FALSE)
+#catch_draws_file_path = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws"
+
+directed_trips_table =  read.csv(paste0(input_data_cd, "directed_trips_calib_150draws_cm.csv"))            
+size_data_read = read.csv(paste0(input_data_cd, "projected_CaL_cod_hadd_cm.csv"))
+Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv", show_col_types = FALSE))
 
 
 output1<-data.frame() 
 output2<-data.frame() ##This dataset will store all the results
 
-baseline_comparison1<-readRDS("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_comparison.rds") %>% 
+baseline_comparison1<-readRDS(paste0(input_data_cd, "calibration_comparison.rds")) %>% 
   dplyr::arrange(draw, mrip_index) %>% 
   dplyr::group_by(draw) %>% 
   dplyr::mutate(draw_id = cur_group_id()) %>% 
@@ -26,16 +27,9 @@ baseline_comparison1<-readRDS("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/
 n_distinct(baseline_comparison1$draw)
 
 
-#Save calibration stats
-#write_xlsx(baseline_comparison1, "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_stats.xlsx")
+for(i in unique(baseline_comparison1$mrip_index)){
 
-
-
-
-#for(i in unique(baseline_comparison1$mrip_index)){
-for(i in 1:4){
-    
-  #i=1
+#i=1
 baseline_comparison<-baseline_comparison1 %>% 
   dplyr::filter(mrip_index==i) %>% 
   dplyr::mutate(all_cod_keep_2_release=ifelse(tot_keep_cod_model>0 & tot_cod_keep_mrip==0, 1, 0),
@@ -65,10 +59,10 @@ h_star_cod_keep_to_release_variable<-mean(baseline_comparison$h_star_cod_keep_to
 h_star_hadd_keep_to_release_variable<-mean(baseline_comparison$h_star_hadd_keep_to_release_variable)
 
 #Pull in data that is draw-specific
-calendar_2024_adjust <- readr::read_csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/next year calendar adjustments.csv", show_col_types = FALSE) %>%
+calendar_2024_adjust <- readr::read_csv(paste0(input_data_cd, "next year calendar adjustments.csv", show_col_types = FALSE)) %>%
   dplyr::filter(draw == k)
-calibration_data_table = feather::read_feather(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/pds_new_", select_mode,"_", select_season, "_", k,".feather"))
-costs_new_all = feather::read_feather(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/costs_", select_mode,"_", select_season, "_", k,".feather"))
+calibration_data_table = feather::read_feather(paste0(input_data_cd, "pds_new_", select_mode,"_", select_season, "_", k,".feather"))
+costs_new_all = feather::read_feather(paste0(input_data_cd, "costs_", select_mode,"_", select_season, "_", k,".feather"))
 
 n_drawz = 50
 n_catch_draws = 30
@@ -99,11 +93,11 @@ directed_trips<-directed_trips_table %>%
 floor_subl_cod_harv<-min(directed_trips$cod_min_y2)-(2*2.54)
 floor_subl_hadd_harv<-min(directed_trips$hadd_min_y2)-(2*2.54)
 
-if (floor_subl_cod_harv==248.92){
+if (floor_subl_cod_harv>=248.9){
   floor_subl_cod_harv<-min(directed_trips$cod_min)-(2*2.54)
 }
 
-if (floor_subl_hadd_harv==248.92){
+if (floor_subl_hadd_harv>=248.9){
   floor_subl_hadd_harv<-min(directed_trips$hadd_min)-(2*2.54)
 }
 
@@ -239,15 +233,11 @@ if(cod_catch_check !=0){
   #2b) If the fishery is closed the entire current and previous season, floor_subl_harvest=mean(catch_length)-0.5*sd(catch_length). 
   
   #2b) below:
-  if (floor_subl_cod_harv==248.92){
+  if (floor_subl_cod_harv>=248.9){
     floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
     }
   
-  # if (floor_subl_cod_harv==98){
-  #   floor_subl_cod_harv=mean(catch_size_data$fitted_length)-0.5*sd(catch_size_data$fitted_length)
-  # }
-  
-  
+
   # Impose regulations, calculate keep and release per trip
   ####### Start Here #################
   
@@ -380,15 +370,11 @@ if (had_catch_check!=0){
   
   # 2b) below:
   
-  if (floor_subl_hadd_harv==248.92){
+  if (floor_subl_hadd_harv>=248.9){
     floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
     }
   
-  # if (floor_subl_hadd_harv==98){
-  #   floor_subl_hadd_harv=mean(catch_size_data_had$fitted_length)-0.5*sd(catch_size_data_had$fitted_length)
-  # }
-  
-  
+
   # Impose regulations, calculate keep and release per trip
   ####### Start Here #################
   
@@ -1776,10 +1762,6 @@ prediction_output_by_period1 <- prediction_output_by_period2 %>%
   dplyr::summarise(CV = sum(cv_sum),
                    ntrips = sum(ntrips_alt),
                    nchoiceoccasions=sum(expand)) %>%  
-                   # codkeepsum=sum(cod_keep_sum),
-                   # codrelsum=sum(cod_rel_sum),
-                   # haddkeepsum=sum(hadd_keep_sum),
-                   # haddrelsum=sum(hadd_rel_sum)) %>%
   dplyr::ungroup()
 
 #prediction_sum contains CV and ntrips estimates
@@ -1798,14 +1780,10 @@ predictions <- rbind(prediction_sum, l_w_sum) %>%
   dplyr::mutate(number_weight=dplyr::case_when(is.na(number_weight) & Category=="nchoiceoccasions"~"n_choice_occasions",TRUE ~ number_weight),
                 season = select_season, run = k, mrip_index=i)
 
-
 output1<-predictions
 
 output2<-rbind(output2, output1)
 }
 
 
-#saveRDS(output2, file = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/predictions_check.rds")
-#write_xlsx(output2, "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/predictions_check_inches5.xlsx")
-
-write_xlsx(output2, "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/predictions_check_cm.xlsx")
+write_xlsx(output2, paste0(output_data_cd, "RDM_predictions.xlsx"))

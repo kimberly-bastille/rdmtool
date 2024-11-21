@@ -1,8 +1,8 @@
 
 
 **differences by mode 
-import delimited using "$draw_file_cd\MRIP_catch_totals_open_season.csv", clear 
-merge 1:1 mode season using "$draw_file_cd\MRIP_dtrip_totals_open_season.dta"
+import delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", clear 
+merge 1:1 mode season using "$input_data_cd\MRIP_dtrip_totals_open_season.dta"
 order mode season _ dtrip
 mvencode dtrip, mv(0) override
 drop _merge
@@ -10,8 +10,7 @@ rename dtrip dtrip_mrip
 tempfile mrip 
 save `mrip', replace 
 
-import delimited using "$draw_file_cd\simulated_catch_totals_open_season.csv", clear 
-*import delimited using "$draw_file_cd\simulated_catch_totals_open_season_truncated.csv", clear 
+import delimited using "$input_data_cd\simulated_catch_totals_open_season.csv", clear 
 
 gen season="op" if open==1
 replace season="cl" if open==0
@@ -46,8 +45,8 @@ browse mode season *dtrip*
 
 **differences over all modes
 
-import delimited using "$draw_file_cd\MRIP_catch_totals_open_season.csv", clear 
-merge 1:1 mode season using "$draw_file_cd\MRIP_dtrip_totals_open_season.dta"
+import delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", clear 
+merge 1:1 mode season using "$input_data_cd\MRIP_dtrip_totals_open_season.dta"
 order mode season _ dtrip
 mvencode dtrip, mv(0) override
 drop _merge
@@ -59,19 +58,15 @@ gen tab=1
 tempfile mrip 
 save `mrip', replace 
 
-import delimited using "$draw_file_cd\simulated_catch_totals_open_season.csv", clear 
+import delimited using "$input_data_cd\simulated_catch_totals_open_season.csv", clear 
 gen season="op" if open==1
 replace season="cl" if open==0
 
 collapse (sum) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch dtrip, by(draw mode)
 gen tab=1
 merge m:1 tab mode using `mrip'
-
-
 drop _merge 
-
-
-						
+					
 collapse (mean) tot_cod_keep tot_cod_rel tot_cod_catch tot_hadd_keep tot_hadd_rel tot_hadd_catch cod_catch_mrip ///
 						cod_keep_mrip cod_rel_mrip hadd_catch_mrip hadd_keep_mrip hadd_rel_mrip dtrip dtrip_mrip, by( mode)
 

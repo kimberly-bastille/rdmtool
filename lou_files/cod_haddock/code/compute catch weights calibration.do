@@ -1,6 +1,6 @@
 
 
-u  "$age_pro_cd/raw_props_at_length_ab1b2_season.dta", clear   //This file has raw proportions at length in the calibration period
+u  "$input_data_cd/raw_props_at_length_ab1b2_season.dta", clear   //This file has raw proportions at length in the calibration period
 drop if prop_ab1==. & prop_b2==.
 sort species season l_cm_  
 
@@ -8,7 +8,7 @@ tempfile base
 save `base', replace
 
 
-import delimited using "$draw_file_cd\MRIP_catch_totals_month_calibration.csv", clear  
+import delimited using "$input_data_cd\MRIP_catch_totals_month_calibration.csv", clear  
 
 rename cod_keep_mrip  keep_cod
 rename hadd_keep_mrip  keep_hadd
@@ -84,7 +84,7 @@ replace spp2="had_sm" if species=="hadd"  & length_cm <=   50
 replace spp2="cod" if species=="cod"  
 
 preserve
-import delimited using  "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/Discard_Mortality.csv", clear 
+import delimited using  "$input_data_cd\Discard_Mortality.csv", clear 
 
 gen season="JanJun" if inlist(month, 1, 2, 3, 4, 5, 6)
 replace season="JulDec" if inlist(month, 7, 8, 9, 10, 11, 12)
@@ -173,7 +173,7 @@ append using `mrip_catch'
 
 
 *now compute catrch weights for keep, release, total catch at the annual level 
-u  "$age_pro_cd/raw_props_at_length_ab1b2_annual.dta", clear   //This file has raw proportions at length in the calibration period
+u  "$input_data_cd/raw_props_at_length_ab1b2_annual.dta", clear   //This file has raw proportions at length in the calibration period
 drop if prop_ab1==. & prop_b2==.
 sort species  l_cm_  
 
@@ -181,7 +181,7 @@ tempfile base
 save `base', replace
 
 
-import delimited using "$draw_file_cd\MRIP_catch_totals_annual_calibration.csv", clear  
+import delimited using "$input_data_cd\MRIP_catch_totals_annual_calibration.csv", clear  
 
 rename cod_keep_mrip  keep_cod
 rename hadd_keep_mrip  keep_hadd
@@ -288,7 +288,7 @@ drop _merge
 tempfile wts
 save `wts', replace 
 
-import delimited using "$draw_file_cd\MRIP_catch_totals_annual_calibration.csv", clear  
+import delimited using "$input_data_cd\MRIP_catch_totals_annual_calibration.csv", clear  
 
 rename cod_keep_mrip  keep_cod
 rename hadd_keep_mrip  keep_hadd
@@ -377,8 +377,7 @@ save `mrip', replace
 
 
 *Import the calibration catch weights file 
-*import excel using "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights.xlsx", clear first 
-import excel using "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights_cm.xlsx", clear first 
+import excel using "$input_data_cd\calibration_catch_weights_cm.xlsx", clear first 
 
 renvarlab, lower
 

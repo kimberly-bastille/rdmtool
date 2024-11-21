@@ -1,11 +1,7 @@
 
 
-*Set the global length to pull either ionches or centimeters from MRIP
-*global length_bin l_cm_bin
-global length_bin l_cm_bin
-
 *MRIP release data 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -47,9 +43,12 @@ keep if $calibration_year
 gen st2 = string(st,"%02.0f")
 
 
+
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -63,6 +62,29 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+
+*NEW MRIP site allocations
+
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -72,20 +94,9 @@ replace mode1="fh" if inlist(mode_fx, "4", "5")
 
  /* classify catch into the things I care about (common==$mycommon) and things I don't care about "ZZZZZZZZ" use the id_code*/
 gen common_dom="z"
- /*
-if strmatch("$my_common","atlanticcod")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791030402")
- }
- 
- if strmatch("$my_common","haddock")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791031301")
- }
-*/
 replace common_dom="c" if strmatch(sp_code,"8791030402")
 replace common_dom="h" if strmatch(sp_code,"8791031301")
 
-*tab common if common_dom=="atlanticcod"
- 
 tostring wave, gen(w2)
 tostring year, gen(year2)
 
@@ -93,10 +104,6 @@ destring month, gen(mymo)
 drop month
 tostring mymo, gen(month)
 drop mymo
-
-
-/* l_in_bin already defined
-gen l_in_bin=floor(lngth*0.03937) */
 
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
 replace $length_bin =0 if !inlist(common_dom, "c", "h")
@@ -119,10 +126,6 @@ format date %td
 gen season="JanJun" if inlist(month1, 1, 2, 3, 4, 5, 6)
 replace season="JulDec" if inlist(month1, 7, 8, 9, 10, 11, 12)
 
-*gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
-*replace season="cl" if season==""
-
-*gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
 gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
 
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
@@ -139,8 +142,6 @@ keep my_dom_id my_dom_id_string season common_dom $length_bin
 keep if common_dom=="c"
 gen species="cod" if common_dom=="c"
 replace species="hadd" if common_dom=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
 gen nfish_b2=1
 collapse (sum) nfish_b2, by(season species $length_bin)
 tempfile codb2
@@ -175,11 +176,8 @@ reshape long tab_, i($length_bin) j(new) string
 split new, parse(_)
 rename new1 species
 rename new2 season
-*drop new3
 replace species="cod" if species=="c"
 replace species="hadd" if species=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
 
 drop new
 rename tab nfish_b2	
@@ -193,7 +191,7 @@ save `b2', replace
 
 
 *************Now pull keep lengths from MRIP
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -233,9 +231,12 @@ keep if $calibration_year
 gen st2 = string(st,"%02.0f")
 
 
+
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -249,6 +250,29 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+
+*NEW MRIP site allocations
+
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -258,15 +282,6 @@ replace mode1="fh" if inlist(mode_fx, "4", "5")
 
  /* classify catch into the things I care about (common==$mycommon) and things I don't care about "ZZZZZZZZ" use the id_code*/
 gen common_dom="z"
- /*
-if strmatch("$my_common","atlanticcod")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791030402")
- }
- 
- if strmatch("$my_common","haddock")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791031301")
- }
-*/
 replace common_dom="c" if strmatch(sp_code,"8791030402")
 replace common_dom="h" if strmatch(sp_code,"8791031301")
 
@@ -280,22 +295,13 @@ drop month
 tostring mymo, gen(month)
 drop mymo
 
-
-/* l_in_bin already defined
-gen l_in_bin=floor(lngth*0.03937) */
-
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
 replace $length_bin = 0 if !inlist(common_dom, "c", "h")
-*replace l_in_bin=l_in_bin+.5 if inlist(common_dom, "c", "h")
 
 sort year w2 strat_id psu_id id_code
 
 keep if area_s=="M"
 drop if common_dom=="z"
-/*
-replace common_dom="had" if common_dom=="haddock"
-replace common_dom="cod" if common_dom=="atlanticcod"
-*/
 
 
 *create a variable indicating if the observation came from a month where the season was open or closed
@@ -305,10 +311,6 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-
-*gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
-*replace season="cl" if season==""
-
 gen season="JanJun" if inlist(month1, 1, 2, 3, 4, 5, 6)
 replace season="JulDec" if inlist(month1, 7, 8, 9, 10, 11, 12)
 
@@ -316,8 +318,6 @@ gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
 encode my_dom_id_string, gen(my_dom_id)
 
-
-*preserve
 
 svyset psu_id [pweight= wp_size], strata(var_id) singleunit(certainty)
 
@@ -351,8 +351,6 @@ rename new1 species
 rename new2 season
 replace species="cod" if species=="c"
 replace species="hadd" if species=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
 
 drop new
 rename tab nfish_ab1	
@@ -384,19 +382,14 @@ gen prop_ab1=nfish_ab1/sum_ab1
 gen prop_b2=nfish_b2/sum_b2
 
 keep species season $length_bin prop_ab1 prop_b2
-save "$age_pro_cd/raw_props_at_length_ab1b2_season.dta", replace  //This file has raw proportions at length in the calibration period
+save "$input_data_cd/raw_props_at_length_ab1b2_season.dta", replace  //This file has raw proportions at length in the calibration period
 
 
 
 *********Compute sizes for the whole year 
 
-
-*Set the global length to pull either ionches or centimeters from MRIP
-*global length_bin l_cm_bin
-global length_bin l_cm_bin
-
 *MRIP release data 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -423,11 +416,8 @@ save `sl1', replace
 use `tl1'
 merge 1:m year strat_id psu_id id_code using `sl1', keep(1 3) nogen
 
-
-
  /* ensure only relevant states */
 keep if inlist(st,23, 33, 25)
-
 
 /*This is the "full" mrip data */
 tempfile tc1
@@ -438,9 +428,11 @@ keep if $calibration_year
 gen st2 = string(st,"%02.0f")
 
 
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -454,6 +446,29 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+
+*NEW MRIP site allocations
+
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -463,20 +478,9 @@ replace mode1="fh" if inlist(mode_fx, "4", "5")
 
  /* classify catch into the things I care about (common==$mycommon) and things I don't care about "ZZZZZZZZ" use the id_code*/
 gen common_dom="z"
- /*
-if strmatch("$my_common","atlanticcod")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791030402")
- }
- 
- if strmatch("$my_common","haddock")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791031301")
- }
-*/
 replace common_dom="c" if strmatch(sp_code,"8791030402")
 replace common_dom="h" if strmatch(sp_code,"8791031301")
 
-*tab common if common_dom=="atlanticcod"
- 
 tostring wave, gen(w2)
 tostring year, gen(year2)
 
@@ -485,9 +489,6 @@ drop month
 tostring mymo, gen(month)
 drop mymo
 
-
-/* l_in_bin already defined
-gen l_in_bin=floor(lngth*0.03937) */
 
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
 replace $length_bin =0 if !inlist(common_dom, "c", "h")
@@ -510,10 +511,6 @@ format date %td
 gen season="JanJun" if inlist(month1, 1, 2, 3, 4, 5, 6)
 replace season="JulDec" if inlist(month1, 7, 8, 9, 10, 11, 12)
 
-*gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
-*replace season="cl" if season==""
-
-*gen my_dom_id_string=common_dom+"_"+season+"_"+area_s
 gen my_dom_id_string=common_dom+"_"+area_s
 
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
@@ -530,8 +527,6 @@ keep my_dom_id my_dom_id_string  common_dom $length_bin
 keep if common_dom=="c"
 gen species="cod" if common_dom=="c"
 replace species="hadd" if common_dom=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
 gen nfish_b2=1
 collapse (sum) nfish_b2, by( species $length_bin)
 tempfile codb2
@@ -568,8 +563,6 @@ rename new1 species
 drop new2
 replace species="cod" if species=="c"
 replace species="hadd" if species=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
 
 drop new
 rename tab nfish_b2	
@@ -583,7 +576,7 @@ save `b2', replace
 
 
 *************Now pull keep lengths from MRIP
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 
@@ -623,9 +616,11 @@ keep if $calibration_year
 gen st2 = string(st,"%02.0f")
 
 
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -639,6 +634,30 @@ gen str3 area_s="O"
 replace area_s="M" if st2=="23" | st2=="33"
 replace area_s="M" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="B" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+
+*NEW MRIP site allocations
+
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="O"
+
+replace area_s="M" if st2=="23" | st2=="33"
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="M" if st2=="25" & intsite==224
+
 
 
 gen mode1="pr" if inlist(mode_fx, "1", "2", "3", "7")
@@ -648,19 +667,8 @@ replace mode1="fh" if inlist(mode_fx, "4", "5")
 
  /* classify catch into the things I care about (common==$mycommon) and things I don't care about "ZZZZZZZZ" use the id_code*/
 gen common_dom="z"
- /*
-if strmatch("$my_common","atlanticcod")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791030402")
- }
- 
- if strmatch("$my_common","haddock")==1{
-  replace common_dom="$my_common" if strmatch(sp_code,"8791031301")
- }
-*/
 replace common_dom="c" if strmatch(sp_code,"8791030402")
 replace common_dom="h" if strmatch(sp_code,"8791031301")
-
-*tab common if common_dom=="atlanticcod"
  
 tostring wave, gen(w2)
 tostring year, gen(year2)
@@ -670,10 +678,6 @@ drop month
 tostring mymo, gen(month)
 drop mymo
 
-
-/* l_in_bin already defined
-gen l_in_bin=floor(lngth*0.03937) */
-
 /* this might speed things up if I re-classify all length=0 for the species I don't care about */
 replace $length_bin = 0 if !inlist(common_dom, "c", "h")
 *replace l_in_bin=l_in_bin+.5 if inlist(common_dom, "c", "h")
@@ -682,11 +686,6 @@ sort year w2 strat_id psu_id id_code
 
 keep if area_s=="M"
 drop if common_dom=="z"
-/*
-replace common_dom="had" if common_dom=="haddock"
-replace common_dom="cod" if common_dom=="atlanticcod"
-*/
-
 
 *create a variable indicating if the observation came from a month where the season was open or closed
 destring month, gen(month1)
@@ -695,19 +694,12 @@ destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
 
-
-*gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
-*replace season="cl" if season==""
-
 gen season="JanJun" if inlist(month1, 1, 2, 3, 4, 5, 6)
 replace season="JulDec" if inlist(month1, 7, 8, 9, 10, 11, 12)
 
 gen my_dom_id_string=common_dom+"_"+area_s
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
 encode my_dom_id_string, gen(my_dom_id)
-
-
-*preserve
 
 svyset psu_id [pweight= wp_size], strata(var_id) singleunit(certainty)
 
@@ -740,8 +732,7 @@ split new, parse(_)
 rename new1 species
 replace species="cod" if species=="c"
 replace species="hadd" if species=="h"
-*replace season="closed" if season=="cl"
-*replace season="open" if season=="op"
+
 
 drop new new2
 rename tab nfish_ab1	
@@ -770,7 +761,7 @@ gen prop_ab1=nfish_ab1/sum_ab1
 gen prop_b2=nfish_b2/sum_b2
 
 keep species  $length_bin prop_ab1 prop_b2
-save "$age_pro_cd/raw_props_at_length_ab1b2_annual.dta", replace  //This file has raw proportions at length in the calibration period
+save "$input_data_cd/raw_props_at_length_ab1b2_annual.dta", replace  //This file has raw proportions at length in the calibration period
 
 
 

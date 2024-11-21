@@ -1,6 +1,6 @@
 
 
-baseline_output0<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") 
+baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) 
 
 p_cod_kp_2_rl<-0
 p_cod_rl_2_kp<-0
@@ -14,15 +14,12 @@ cod_lw_a = 0.000005132
 cod_lw_b = 3.1625
 had_lw_a = 0.000009298
 had_lw_b = 3.0205
-Disc_mort<- readr::read_csv("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_code/Discard_Mortality.csv", show_col_types = FALSE)
+Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
 
-# baseline_output0<-baseline_output0 %>%
-#   dplyr::filter(mrip_index>=35)
 
-#for(i in unique(baseline_output0b$mrip_index)){
 for(i in unique(baseline_output0$mrip_index)){
   
-  baseline_output<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") %>% 
+  baseline_output<-readRDS(paste0(input_data_cd,"harvest_differences_check.rds")) %>% 
     dplyr::filter(mrip_index==i)
   
   #Do we need to reallocate some cod/haddock keep as releases, and vice versa? Makes indicator objects
@@ -50,16 +47,16 @@ for(i in unique(baseline_output0$mrip_index)){
   
   #If some portion of keep needs to be reallocated as released, then set h_stars to baseline proportion 
   if(all_cod_keep_2_release!=1){
-    h_star_cod_keep_to_release_variable<-mean(baseline_output$h_star_cod_keep_to_release_variable)#+p_cod_kp_2_rl
+    h_star_cod_keep_to_release_variable<-mean(baseline_output$h_star_cod_keep_to_release_variable)
   }
   
   if(all_hadd_keep_2_release!=1){
-    h_star_hadd_keep_to_release_variable<-mean(baseline_output$h_star_hadd_keep_to_release_variable)#+p_hadd_kp_2_rl
+    h_star_hadd_keep_to_release_variable<-mean(baseline_output$h_star_hadd_keep_to_release_variable)
   }
   
   #If some release needs to be re-allocated kept, then set h_stars to baseline proportion 
-  h_star_cod_release_to_keep_variable<-mean(baseline_output$h_star_cod_release_to_keep_variable)#+p_cod_rl_2_kp
-  h_star_hadd_release_to_keep_variable<-mean(baseline_output$h_star_hadd_release_to_keep_variable)#+p_hadd_rl_2_kp
+  h_star_cod_release_to_keep_variable<-mean(baseline_output$h_star_cod_release_to_keep_variable)
+  h_star_hadd_release_to_keep_variable<-mean(baseline_output$h_star_hadd_release_to_keep_variable)
   
   h_star_cod_release_to_keep_variable
   h_star_hadd_release_to_keep_variable
@@ -67,7 +64,7 @@ for(i in unique(baseline_output0$mrip_index)){
   h_star_hadd_keep_to_release_variable
   
   
-  source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/calibrate_rec_catch_hstar_code2.R")
+  source(paste0(code_cd, "calibrate_rec_catch_hstar_code2.R"))
   
   
   print("new run")
@@ -258,7 +255,7 @@ for(i in unique(baseline_output0$mrip_index)){
     h_star_hadd_keep_to_release_variable
     h_star_cod_keep_to_release_variable
     
-    source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/calibrate_rec_catch_hstar_code2.R")
+    source(paste0(code_cd, "calibrate_rec_catch_hstar_code2.R"))
     
     
     
@@ -303,13 +300,12 @@ for(i in unique(baseline_output0$mrip_index)){
     
     
   }
-  
-  source("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/calibration_catch_weights.R")
-  
+  source(paste0(code_cd, "calibration_catch_weights.R"))
+
 }
 
 
-baseline_output0<-readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") 
+baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds"))
 n_distinct(baseline_output0$draw)
 
 check1<-data.frame() 
@@ -317,13 +313,12 @@ check2<-data.frame()
 
 for(i in unique(baseline_output0$mrip_index)){
   
-  check1<- readRDS(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/comparison_", i, ".rds"))
+  check1<- readRDS(paste0(input_data_cd, "comparison_", i, ".rds"))
   check2<-rbind(check1, check2)
-  
   
 }
 
-baseline<- readRDS("C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/harvest_differences_check.rds") %>% 
+baseline<- readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) %>% 
   dplyr::select(cod_keep_2_release, cod_release_2_keep, hadd_keep_2_release, hadd_release_2_keep, draw, mode, mrip_index) 
 
 check2<-check2 %>% 
@@ -338,7 +333,7 @@ n_distinct(check2$draw)
 check3<-check2 %>% 
   dplyr::filter((abs_perc_diff_cod_harv>5 & abs(diff_cod_harv)>500) | (abs_perc_diff_hadd_harv>5 & abs(diff_hadd_harv)>500))
 
-saveRDS(check2, file = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_comparison.rds")
+saveRDS(check2, file = paste0(input_data_cd, "calibration_comparison.rds"))
 n_distinct(check2$draw)
 
 
@@ -348,21 +343,15 @@ check2a<-data.frame()
 
 for(i in unique(check2$mrip_index)){
   
-  check1a<- readRDS(paste0("C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibrate_catch_wts_", i, ".rds"))
+  check1a<- readRDS(paste0(input_data_cd, "calibrate_catch_wts_", i, ".rds"))
   check2a<-rbind(check1a, check2a)
-  
   
 }
 n_distinct(check2a$run)
-#saveRDS(check2a, file = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights.rds")
-write_xlsx(check2a, "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/calibration_catch_weights_cm.xlsx")
+write_xlsx(check2a, paste0(input_data_cd, "calibration_catch_weights_cm.xlsx"))
 
 
-
-
-
-
-##Now we have the data for the projections stored in C:\Users\andrew.carr-harris\Desktop\cod_hadd_RDM:
+##Now we have the data for the projections stored in input_data_cd:
 #pds_new_x = number of choice occasion
 #comparison_x = percent of choice occasions the keep all harvest/release all harvest 
 #costs_x = baseline catch levels, trip costs, and demographics. 

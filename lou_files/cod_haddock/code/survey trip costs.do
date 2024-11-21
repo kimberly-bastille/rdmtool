@@ -2,7 +2,7 @@
 ***This code creates trip cost distributions based on the Sabrina's 2017 trip expenditure survey data
 
 *Enter a directory with the expenditure survey data 
-u "$input_code_cd\atl_states_2017_expsurvey.dta", clear
+u "$input_data_cd\atl_states_2017_expsurvey.dta", clear
 renvarlab *, lower
 
 
@@ -70,7 +70,7 @@ replace mode1="pr" if inlist(mode_fx,  "7")
 global costs
 
 *Adjust for inflation
-replace total_exp = total_exp*1.16
+replace total_exp = total_exp*$inflation_expansion
 
 tempfile new
 save `new', replace

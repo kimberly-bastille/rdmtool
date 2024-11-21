@@ -1,6 +1,6 @@
 
 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 global fluke_effort
@@ -88,7 +88,7 @@ bysort strat_id psu_id leader (claim): gen claim_flag=claim[_N]
 replace dom_id="1" if strmatch(dom_id,"2") & claim_flag>0 & claim_flag!=. & strmatch(gc_flag,"1")
 
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -210,7 +210,7 @@ local est = `r(mean)'
 su se
 local sd = `r(mean)'
 
-expand 150
+expand $ndraws
 gen dtrip_not_trunc=rnormal(`est', `sd')
 gen dtrip_new=max(dtrip_not_trunc, 0)
 
@@ -300,7 +300,7 @@ save `new1'
 
 global drawz2
 
-forv d = 1/150{
+forv d = 1/$ndraws{
 	u `new1', clear 
 	keep if draw==`d'
 
@@ -350,10 +350,6 @@ global drawz2 "$drawz2 "`drawz2`d''" "
 clear
 dsconcat $drawz2
 sort day  mode draw
-
-
-*cd "C:\Users\andrew.carr-harris\Dropbox\NMFS\HCR user interface"
-*save "directed_trips_basefile2.dta", replace 
 
 
 bysort day mode: gen draw2=_n
@@ -587,12 +583,12 @@ replace hadd_min = hadd_min*2.54
 replace cod_min_y2 = cod_min_y2*2.54
 replace hadd_min_y2 = hadd_min_y2*2.54
 
-export delimited using "$input_code_cd\directed_trips_calib_150draws_cm.csv",  replace 
+export delimited using "$input_data_cd\directed_trips_calib_150draws_cm.csv",  replace 
 
 
 
 **Now adjust for the differences in directed trips due to changes in kod between calibration year y and  y+1
-import delimited using "$input_code_cd\directed_trips_calib_150draws_cm.csv",  clear  
+import delimited using "$input_data_cd\directed_trips_calib_150draws_cm.csv",  clear  
 tostring month, gen(month1_y1)
 tostring month_y2, gen(month1_y2)
 
@@ -646,8 +642,7 @@ return list
 
 drop check 
 
-export delimited using "$input_code_cd\next year calendar adjustments.csv",  replace 
-*import delimited using "$input_code_cd\next year calendar adjustments.csv",  clear  
+export delimited using "$input_data_cd\next year calendar adjustments.csv",  replace 
 
 
 

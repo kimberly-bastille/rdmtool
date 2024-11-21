@@ -166,7 +166,7 @@ MRIP_data2<-MRIP_data %>%
     
 # Impose regulations, calculate keep and release per trip
 ####### Start Here #################
-        catch_size_data <- catch_size_data %>%
+  catch_size_data <- catch_size_data %>%
       dplyr::left_join(regs, by = c("period2")) %>%
       dplyr::mutate(posskeep = ifelse(fitted_length>=cod_min ,1,0)) %>%
       dplyr::group_by(tripid, period2, catch_draw) %>%

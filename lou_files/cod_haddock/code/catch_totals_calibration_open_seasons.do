@@ -1,5 +1,5 @@
 
-cd $mrip_data_cd
+cd $input_data_cd
 
 clear
 mata: mata clear
@@ -75,9 +75,11 @@ replace common_dom="ATLCO"  if inlist(prim1_common, "atlanticcod")
 replace common_dom="ATLCO"  if inlist(prim1_common, "haddock") 
 
 
+*OLD MRIP site allocations
+/*
 *classify into GOM or GBS
 rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_code_cd/ma site allocation.dta",  keep(1 3)
+merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
 rename  SITE_ID intsite
 rename  STOCK_REGION_CALC stock_region_calc
 replace stock_region_calc="NORTH" if intsite==4434
@@ -89,6 +91,27 @@ gen str3 area_s="AAA"
 replace area_s="GOM" if st2=="23" | st2=="33"
 replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
 replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
+*/
+
+*NEW MRIP site allocations
+preserve 
+import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
+keep SITE_EXTERNAL_ID NMFS_STAT_AREA
+renvarlab, lower
+rename site_external_id intsite
+tempfile mrip_sites
+save `mrip_sites', replace 
+restore
+
+merge m:1 intsite using `mrip_sites',  keep(1 3)
+
+/*classify into GOM or GBS */
+gen str3 area_s="AAA"
+
+replace area_s="GOM" if st2=="23" | st2=="33"
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="GOM" if st2=="25" & intsite==224
 
 
 tostring wave, gen(wv2)
@@ -247,6 +270,6 @@ ds mode season, not
 mvencode `r(varlist)', mv(0) over
 sort mode season
 
-export delimited using "$draw_file_cd\MRIP_catch_totals_open_season.csv", replace 
+export delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", replace 
 
 
