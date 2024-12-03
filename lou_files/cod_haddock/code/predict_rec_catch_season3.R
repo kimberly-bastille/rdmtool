@@ -9,11 +9,9 @@
 
 
 #Pull in data that is not draw-specific
-#catch_draws_file_path = "C:/Users/andrew.carr-harris/Desktop/cod_hadd_RDM/catch_draws"
-
 directed_trips_table =  read.csv(paste0(input_data_cd, "directed_trips_calib_150draws_cm.csv"))            
 size_data_read = read.csv(paste0(input_data_cd, "projected_CaL_cod_hadd_cm.csv"))
-Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv", show_col_types = FALSE))
+Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
 
 
 output1<-data.frame() 
@@ -29,7 +27,7 @@ n_distinct(baseline_comparison1$draw)
 
 for(i in unique(baseline_comparison1$mrip_index)){
 
-#i=1
+i=2
 baseline_comparison<-baseline_comparison1 %>% 
   dplyr::filter(mrip_index==i) %>% 
   dplyr::mutate(all_cod_keep_2_release=ifelse(tot_keep_cod_model>0 & tot_cod_keep_mrip==0, 1, 0),
@@ -59,10 +57,10 @@ h_star_cod_keep_to_release_variable<-mean(baseline_comparison$h_star_cod_keep_to
 h_star_hadd_keep_to_release_variable<-mean(baseline_comparison$h_star_hadd_keep_to_release_variable)
 
 #Pull in data that is draw-specific
-calendar_2024_adjust <- readr::read_csv(paste0(input_data_cd, "next year calendar adjustments.csv", show_col_types = FALSE)) %>%
+calendar_2024_adjust <- readr::read_csv(paste0(input_data_cd, "next year calendar adjustments.csv"), show_col_types = FALSE) %>%
   dplyr::filter(draw == k)
-calibration_data_table = feather::read_feather(paste0(input_data_cd, "pds_new_", select_mode,"_", select_season, "_", k,".feather"))
-costs_new_all = feather::read_feather(paste0(input_data_cd, "costs_", select_mode,"_", select_season, "_", k,".feather"))
+calibration_data_table = feather::read_feather(paste0(iterative_input_data_cd, "pds_new_", select_mode,"_", select_season, "_", k,".feather"))
+costs_new_all = feather::read_feather(paste0(iterative_input_data_cd, "costs_", select_mode,"_", select_season, "_", k,".feather"))
 
 n_drawz = 50
 n_catch_draws = 30
@@ -79,7 +77,9 @@ directed_trips<-directed_trips_table %>%
   tibble::tibble() %>%
   dplyr::filter(draw == k,
                 mode == select_mode) %>%
-  dplyr::mutate(open = dplyr::case_when(cod_bag > 0 ~ 1, TRUE ~ 0))
+  dplyr::mutate(open = dplyr::case_when(cod_bag > 0 ~ 1, TRUE ~ 0), 
+                hadd_bag_y2=0, hadd_min_y2=254) 
+
 
 
 
@@ -128,7 +128,7 @@ regs <- directed_trips_p %>%
                 cod_bag_y2,
                 cod_min_y2,
                 hadd_bag_y2,
-                hadd_min_y2)
+                hadd_min_y2) 
 
 param_draws <- directed_trips_p %>%
   dplyr::select(period2, n_draws, open) %>%
@@ -192,7 +192,7 @@ cod_zero_catch <- dplyr::filter(cod_catch_data, tot_cod_catch == 0)
 cod_catch_check<-base::sum(cod_catch_data$tot_cod_catch)
 had_catch_check<-base::sum(cod_catch_data$tot_had_catch)
 
-
+#if there is catch of both species 
 if(cod_catch_check ==0 & had_catch_check==0){
   trip_data<-cod_catch_data
   trip_data<- trip_data %>% 
@@ -318,7 +318,7 @@ mean(trip_data$tot_keep_cod_new)
 mean(trip_data$tot_rel_cod_new)
 
 
-
+#if there is catch of only haddock 
 if (cod_catch_check==0 & had_catch_check!=0){
   trip_data<-cod_catch_data
   trip_data<- trip_data %>% 
@@ -462,7 +462,7 @@ if (had_catch_check!=0){
   
 }
 
-
+#if there is catch of only cod 
 if (had_catch_check==0 & cod_catch_check!=0){
   
   trip_data_hadd<-cod_had_catch_data  %>% 
@@ -480,16 +480,20 @@ if (had_catch_check==0 & cod_catch_check!=0){
 
 
 trip_data<- trip_data %>% as.data.frame() 
-mean(trip_data$tot_keep_cod_new)
-mean(trip_data$tot_rel_cod_new)
 
-mean(trip_data$tot_keep_hadd_new)
-mean(trip_data$tot_rel_hadd_new)
+sum_cod_keep<-sum(trip_data$tot_keep_cod_new)
+sum_hadd_keep<-sum(trip_data$tot_keep_hadd_new)
 
+sum_cod_rel<-sum(trip_data$tot_rel_cod_new)
+sum_hadd_rel<-sum(trip_data$tot_rel_hadd_new)
+
+
+##reallocate 
+#if there is catch of cod
 if (cod_catch_check!=0){
   
   #If we need to re-allocate cod releases as harvest, cod_release_2_keep will equal 1 
-  if (cod_release_2_keep==1){
+  if (cod_release_2_keep==1 & sum_cod_rel>0){
     
     trip_data_cod_hstar<-trip_data %>% 
       dplyr::select(period2, tripid, catch_draw, tot_keep_cod_new, tot_rel_cod_new, floor_subl_cod_harv_indicator) %>% 
@@ -528,7 +532,7 @@ if (cod_catch_check!=0){
   
   
   #If we need to re-allocate cod harvest as releases, cod_keep_2_release will equal 1 
-  if (cod_keep_2_release==1){
+  if (cod_keep_2_release==1 & sum_cod_keep>0){
     
     #If we need to re-allocate ALL cod harvest as releases, all_cod_keep_2_release will equal 1 
     if (all_cod_keep_2_release==1){
@@ -589,7 +593,7 @@ if (cod_catch_check!=0){
 if (had_catch_check!=0){
   
   #If we need to re-allocate hadd releases as harvest, hadd_release_2_keep will equal 1 
-  if (hadd_release_2_keep==1){
+  if (hadd_release_2_keep==1 & sum_hadd_rel>0){
     
     trip_data_hadd_hstar<-trip_data %>% 
       dplyr::select(period2, tripid, catch_draw, tot_keep_hadd_new, tot_rel_hadd_new, floor_subl_hadd_harv_indicator) %>% 
@@ -628,7 +632,7 @@ if (had_catch_check!=0){
   
   
   #If we need to re-allocate hadd harvest as releases, hadd_keep_2_release will equal 1 
-  if (hadd_keep_2_release==1){
+  if (hadd_keep_2_release==1 & sum_hadd_keep>0){
     
     #If we need to re-allocate ALL hadd harvest as releases, all_hadd_keep_2_release will equal 1 
     if (all_hadd_keep_2_release==1){
@@ -712,7 +716,7 @@ length_data[is.na(length_data)] <- 0
 
 ##Now need to merge these length data to the h_star data, and reallocate keeps as releases or vice versa
 ##code for reallocating cod release to keep  
-if (cod_release_2_keep==1){
+if (cod_release_2_keep==1 & sum_cod_rel>0){
   
 
 length_data<- length_data %>% 
@@ -787,7 +791,7 @@ length_data<-length_data2 %>%
 }
 
 ##code for reallocating cod keep to release  
-if (cod_keep_2_release==1){
+if (cod_keep_2_release==1 & sum_cod_keep>0){
   
   if (all_cod_keep_2_release==1){
     
@@ -884,7 +888,7 @@ if (cod_keep_2_release==1){
 }
 
 ##code for reallocating haddock release to keep 
-if (hadd_release_2_keep==1){
+if (hadd_release_2_keep==1 & sum_hadd_rel>0){
   
   
   length_data<- length_data %>% 
@@ -960,7 +964,7 @@ if (hadd_release_2_keep==1){
 
 
 ##code for reallocating haddock keep as release   
-if (hadd_keep_2_release==1){
+if (hadd_keep_2_release==1 & sum_hadd_keep>0){
   
   if (all_hadd_keep_2_release==1){
     
@@ -1088,7 +1092,7 @@ if(cod_catch_check !=0 & had_catch_check==0){
   
   ##Now need to merge these length data to the h_star data, and reallocate keeps as releases or vice versa
   ##code for reallocating cod release as keep 
-  if (cod_release_2_keep==1){
+  if (cod_release_2_keep==1 & sum_cod_rel>0){
     
     length_data<- length_data %>% 
       dplyr::left_join(trip_data_cod_hstar, by=c("period2","tripid")) 
@@ -1161,7 +1165,7 @@ if(cod_catch_check !=0 & had_catch_check==0){
     
   }
 
-  if (cod_keep_2_release==1){
+  if (cod_keep_2_release==1 & sum_cod_keep>0){
     
     if (all_cod_keep_2_release==1){
       
@@ -1262,8 +1266,8 @@ if(cod_catch_check !=0 & had_catch_check==0){
 }
 
   
-  #If there is catch of only haddock 
-  if(cod_catch_check ==0 & had_catch_check==1){
+#If there is catch of only haddock 
+if(cod_catch_check ==0 & had_catch_check!=0){
     keep_release_cod<-cod_zero_catch %>% 
       dplyr::select("period2","tripid", "catch_draw") %>% 
       dplyr::mutate(keep_cod_1=0, release_cod_1=0)
@@ -1283,7 +1287,7 @@ if(cod_catch_check !=0 & had_catch_check==0){
     
     ##Now need to merge these length data to the h_star data, and reallocate keeps as releases or vice versa
     ##code for reallocating haddock release as keep 
-    if (hadd_release_2_keep==1){
+    if (hadd_release_2_keep==1 & sum_hadd_rel>0){
       
       
       length_data<- length_data %>% 
@@ -1358,7 +1362,7 @@ if(cod_catch_check !=0 & had_catch_check==0){
     }
     
     ##code for reallocating haddock keep as release 
-    if (hadd_keep_2_release==1){
+    if (hadd_keep_2_release==1 & sum_hadd_keep>0){
       
       if (all_hadd_keep_2_release==1){
         
@@ -1475,6 +1479,8 @@ trip_data<- trip_data %>%
 mean(trip_data$tot_keep_cod_new)
 mean(trip_data$tot_rel_cod_new)
 mean(trip_data$tot_keep_hadd_new)
+mean(trip_data$tot_keep_hadd_base)
+
 mean(trip_data$tot_rel_hadd_new)
 
 trip_data <- trip_data %>%
@@ -1786,4 +1792,11 @@ output2<-rbind(output2, output1)
 }
 
 
-write_xlsx(output2, paste0(output_data_cd, "RDM_predictions.xlsx"))
+#write_xlsx(output2, paste0(output_data_cd, "check.xlsx"))
+write_xlsx(output2, paste0(output_data_cd, "check_alt_regs.xlsx"))
+
+output3<-output2 %>% 
+  dplyr::filter(number_weight %in% c("Weight")) %>% 
+  dplyr::group_by(Category, run) %>% 
+  dplyr::summarise(sum_cod_keep=sum())
+
