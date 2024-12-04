@@ -24,8 +24,8 @@ for(i in 1:nrow(MRIP_data)){
 
 
 
-saveRDS(output5, file = paste0(input_data_cd, "harvest_differences_check.rds"))
-output5 <- readRDS(paste0(input_data_cd,"harvest_differences_check.rds"))
+saveRDS(output5, file = paste0(input_data_cd, "harvest_differences.rds"))
+output5 <- readRDS(paste0(input_data_cd,"harvest_differences.rds"))
 
 
 MRIP_data3<-MRIP_data %>% 
@@ -42,10 +42,10 @@ output6<-output5 %>%
 output6<-output6 %>% 
   dplyr::relocate(mrip_index, draw, mode, open )
 
-saveRDS(output6, file = paste0(input_data_cd,"harvest_differences_check.rds"))
+saveRDS(output6, file = paste0(input_data_cd,"harvest_differences.rds"))
 
 
-output7<-readRDS(paste0(input_data_cd,"harvest_differences_check.rds")) %>% 
+output7<-readRDS(paste0(input_data_cd,"harvest_differences.rds")) %>% 
   dplyr::mutate(diff_cod_rel=tot_rel_cod_model-tot_rel_cod_mrip, 
                 diff_hadd_rel=tot_rel_hadd_model-tot_rel_hadd_mrip, 
                 h_star_cod_keep_to_release_variable=case_when(cod_keep_2_release==1 ~ abs(diff_cod_harv/tot_keep_cod_model), TRUE ~ 0), 
@@ -57,7 +57,7 @@ output7<-readRDS(paste0(input_data_cd,"harvest_differences_check.rds")) %>%
 output7[is.na(output7)] <- 0
 
 output7_check<-output7 %>% 
-  dplyr::filter(h_star_hadd_release_to_keep_variable>1 | h_star_cod_release_to_keep_variable>1)
+  dplyr::filter(h_star_hadd_release_to_keep_variable<0 | h_star_cod_release_to_keep_variable<0)
 
 #Drop draws where h_star_cod_release_to_keep_variable>1 or  h_star_hadd_release_to_keep_variable>1, 
 #as we cannot allocate any more than all the releases as discards

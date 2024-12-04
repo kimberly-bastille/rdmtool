@@ -27,7 +27,7 @@ n_distinct(baseline_comparison1$draw)
 
 for(i in unique(baseline_comparison1$mrip_index)){
 
-i=2
+#i=2
 baseline_comparison<-baseline_comparison1 %>% 
   dplyr::filter(mrip_index==i) %>% 
   dplyr::mutate(all_cod_keep_2_release=ifelse(tot_keep_cod_model>0 & tot_cod_keep_mrip==0, 1, 0),
@@ -77,8 +77,8 @@ directed_trips<-directed_trips_table %>%
   tibble::tibble() %>%
   dplyr::filter(draw == k,
                 mode == select_mode) %>%
-  dplyr::mutate(open = dplyr::case_when(cod_bag > 0 ~ 1, TRUE ~ 0), 
-                hadd_bag_y2=0, hadd_min_y2=254) 
+  dplyr::mutate(open = dplyr::case_when(cod_bag > 0 ~ 1, TRUE ~ 0))#, 
+                #hadd_bag_y2=0, hadd_min_y2=254) 
 
 
 
@@ -1792,11 +1792,7 @@ output2<-rbind(output2, output1)
 }
 
 
-#write_xlsx(output2, paste0(output_data_cd, "check.xlsx"))
-write_xlsx(output2, paste0(output_data_cd, "check_alt_regs.xlsx"))
+write_xlsx(output2, paste0(output_data_cd, "check.xlsx"))
+#write_xlsx(output2, paste0(output_data_cd, "check_alt_regs.xlsx"))
 
-output3<-output2 %>% 
-  dplyr::filter(number_weight %in% c("Weight")) %>% 
-  dplyr::group_by(Category, run) %>% 
-  dplyr::summarise(sum_cod_keep=sum())
 
