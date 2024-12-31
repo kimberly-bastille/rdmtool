@@ -32,8 +32,7 @@ options(scipen = 100, digits = 6)
     dplyr::mutate(draw_id = cur_group_id()) %>% 
     dplyr::filter(draw_id<=100)
   
-  #n_distinct(baseline_comparison1$draw)
-  execution_time <- system.time({
+
   for(i in unique(baseline_comparison1$mrip_index)){
     
     # Import regulations
@@ -1142,10 +1141,7 @@ options(scipen = 100, digits = 6)
     
     output2<-rbind(output2, output1)
   }
-    
-  })
-  
-  print(execution_time)
+
   #write_xlsx(output2, paste0(output_data_cd, "model_predictions.xlsx"))
   
 
