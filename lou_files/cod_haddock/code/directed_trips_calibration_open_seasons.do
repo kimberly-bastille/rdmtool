@@ -25,6 +25,8 @@ save `cl1'
 
 use `tl1'
 merge 1:m year strat_id psu_id id_code using `cl1', keep(1 3)
+drop if strmatch(id_code, "*xx*")==1
+
 replace common=subinstr(lower(common)," ","",.)
 replace prim1_common=subinstr(lower(prim1_common)," ","",.)
 replace prim2_common=subinstr(lower(prim2_common)," ","",.)
@@ -103,6 +105,7 @@ replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
 */
 
 *NEW MRIP site allocations
+
 preserve 
 import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
 keep SITE_EXTERNAL_ID NMFS_STAT_AREA
@@ -113,12 +116,13 @@ save `mrip_sites', replace
 restore
 
 merge m:1 intsite using `mrip_sites',  keep(1 3)
+drop _merge 
 
 /*classify into GOM or GBS */
 gen str3 area_s="AAA"
 
 replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="GOM" if st2=="25" & intsite==224
 
@@ -132,11 +136,18 @@ destring month1, replace
 gen date=mdy( month1, day1, year)
 format date %td
 
-gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
+merge m:1 date using "$input_data_cd\cod_open_season_dates.dta"
+drop if _merge==2
+drop _merge
+gen season="op" if cod_season_open==1
 replace season="cl" if season==""
+drop cod_season_open
+
 
 
 gen my_dom_id_string=dom_id+"_"+season+"_"+area_s+"_"+mode1
+*gen my_dom_id_string=dom_id+"_"+w2+"_"+area_s+"_"+mode_fx
+
 replace my_dom_id_string=subinstr(ltrim(rtrim(my_dom_id_string))," ","",.)
 encode my_dom_id_string, gen(my_dom_id)
 
@@ -203,6 +214,7 @@ keep my b se  ll ul
 gen pse=(se/b)*100
 
 split my, parse(_)
+
 rename my_dom_id_string1 dom_id
 rename my_dom_id_string2 season
 rename my_dom_id_string3 area_s
@@ -210,13 +222,24 @@ rename my_dom_id_string4 mode
 keep if  dom_id=="1"
 drop my_dom_id_string
 rename b dtrip
+/*
+rename my_dom_id_string1 dom_id
+rename my_dom_id_string2 wave
+rename my_dom_id_string3 area_s
+rename my_dom_id_string4 mode
+keep if  dom_id=="1"
+drop my_dom_id_string
+rename b dtrip
+*/
 
 keep if area_s=="GOM"
 
 rename ll ll_dtrip 
 rename ul ul_dtrip
 keep dtrip season mode  ul_dtrip ll_dtrip
-
+order season mode
+*browse if mode!="3"
+sort season mode
 save  "$input_data_cd\MRIP_dtrip_totals_open_season.dta", replace 
 
 

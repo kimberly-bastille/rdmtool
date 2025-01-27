@@ -10,9 +10,7 @@ tempfile tl1 cl1
 dsconcat $triplist
 
 sort year strat_id psu_id id_code
-*replace id_code=ID_CODE if id_code=="" & ID_CODE!=""
 drop if strmatch(id_code, "*xx*")==1
-drop if strat_id==""
 duplicates drop 
 save `tl1'
 clear
@@ -22,14 +20,13 @@ sort year strat_id psu_id id_code
 replace common=subinstr(lower(common)," ","",.)
 save `cl1'
 
+replace var_id=strat_id if strmatch(var_id,"")
+
 use `tl1'
-merge 1:m year strat_id psu_id id_code using `cl1', keep(1 3) nogenerate
+merge 1:m year strat_id psu_id id_code using `cl1', keep(1 3) nogenerate /*Keep all trips including catch==0*/
+replace var_id=strat_id if strmatch(var_id,"")
 
  /* THIS IS THE END OF THE DATA MERGING CODE */
-*replace mode_fx=MODE_FX if mode_fx=="" & MODE_FX!=""
-*replace area_x=AREA_X if area_x=="" & AREA_X!=""
-
-
 
  /* ensure only relevant states */
 keep if inlist(st,23, 33, 25)
@@ -76,25 +73,10 @@ replace common_dom="ATLCO"  if inlist(prim1_common, "atlanticcod")
 replace common_dom="ATLCO"  if inlist(prim1_common, "haddock") 
 
 
-*OLD MRIP site allocations
-/*
-*classify into GOM or GBS
-rename intsite SITE_ID
-merge m:1 SITE_ID using "$input_data_cd/ma site allocation.dta",  keep(1 3)
-rename  SITE_ID intsite
-rename  STOCK_REGION_CALC stock_region_calc
-replace stock_region_calc="NORTH" if intsite==4434
+*Old stock delineations for GoM cod/haddock are NFMS stat areas 514, 513, 512, 511
+*New stock delineations for GoM cod are NFMS stat areas now include 521, 526, 541
+*New stock delineations for GoM haddock are the same as the old
 
-drop _merge
-
-gen str3 area_s="AAA"
-
-replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & strmatch(stock_region_calc,"NORTH")
-replace area_s="GBS" if st2=="25" & strmatch(stock_region_calc,"SOUTH")
-*/
-
-*NEW MRIP site allocations
 preserve 
 import excel using "$input_data_cd/ma_site_list_updated_SS.xlsx", clear first
 keep SITE_EXTERNAL_ID NMFS_STAT_AREA
@@ -110,8 +92,8 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="AAA"
 
 replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
-replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
+replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area, 521, 526, 537,  538)
 replace area_s="GOM" if st2=="25" & intsite==224
 
 tostring wave, gen(wv2)
@@ -152,7 +134,7 @@ replace no_dup=1 if  strmatch(common, "atlanticcod")==0
 replace no_dup=1 if strmatch(common, "haddock")==0
 
 /*
-We sort on year, strat_id, psu_id, id_code, "no_dup", and "my_dom_id_string". For records with duplicate year, strat_id, psu_id, and id_codes, the first entry will be "my_common catch" if it exists.  These will all be have sp_dom "ATLCO."  If there is no my_common catch, but the  trip targeted (cod or haddock) or caught cod, the secondary sorting on "my_dom_id_string" ensures the trip is properly classified.
+We sort on year, strat_id, psu_id, id_code, "no_dup", and "my_dom_id_string". For records with duplicate year, strat_id, psu_id, and id_codes, the first entry will be "my_common catch" if it exists.  These will all be have sp_dom "ATLCO."  If there is no my_common catch, but the trip targeted (cod or haddock) or caught cod, the secondary sorting on "my_dom_id_string" ensures the trip is properly classified.
 
 After sorting, we generate a count variable (count_obs1 from 1....n) and we keep only the "first" observations within each "year, strat_id, psu_id, and id_codes" group.
 */
@@ -160,24 +142,20 @@ After sorting, we generate a count variable (count_obs1 from 1....n) and we keep
 bysort year strat_id psu_id id_code (my_dom_id_string no_dup): gen count_obs1=_n
 
 keep if count_obs1==1 // This keeps only one record for trips with catch of multiple species. We have already computed catch of the species of interest above and saved these in a trip-row
+
 order strat_id psu_id id_code no_dup my_dom_id_string count_obs1 common
 keep if common_dom=="ATLCO"
 keep if area_s=="GOM"
 
 replace my_dom_id_string=month+"_"+mode1+"_"+common_dom
 
-encode strat_id, gen(strat_id2)
-encode psu_id, gen(psu_id2)
-
-svyset psu_id2 [pweight= wp_int], strata(strat_id2) singleunit(certainty)
+svyset psu_id [pweight= wp_int], strata(strat_id) singleunit(certainty)
 
 local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel 
 foreach v of local vars{
 	replace `v'=round(`v')
 
 }
-
-*keep if my_dom_id_string=="05_fh_ATLCO"
 
 tempfile new 
 save `new', replace
@@ -359,6 +337,7 @@ sort domain species nfish
 replace tot_n=round(tot_n)
 replace se=round(se)
 
+
 replace domain=domain+"_"+species+"_"+disp
 drop species disp
 
@@ -369,16 +348,13 @@ replace se=tot if se==0
 tempfile new
 save `new', replace 
 
-global domainz
-global catch_draw
+global x
 
 levelsof domain, local(doms)
 foreach d of local doms{
 	
 u `new', clear 
 keep if domain=="`d'"
-*keep if domain=="04_fh_ATLCO_cod_catch"
-
 tempfile new1
 save `new1', replace 
 
@@ -388,7 +364,6 @@ foreach c of local levs{
 u `new1', clear 
 
 keep if nfish==`c'
-*keep if nfish==4
 
 su tot_ntrip
 local mean=`r(mean)'
@@ -399,37 +374,26 @@ local se=`r(mean)'
 clear
 set obs $ndraws
 gen nfish=`c'
-*gen nfish=4
-gen draw=_n
 
+gen draw=_n
 
 gen tot_ntrip_not_trunc=rnormal(`mean', `se')
 gen tot_ntrip=max(0, tot_ntrip_not_trunc)
-*gen draw=_n
-*reshape wide tot_ntrip, i(nfish) j(draw)
 
 gen domain="`d'"
-tempfile catch_draw`c'
-save `catch_draw`c'', replace
-global catch_draw "$catch_draw "`catch_draw`c''" " 
+tempfile x`c'`d'
+save `x`c'`d'', replace
+global x "$x "`x`c'`d''" " 
 
 
 }	
-
-clear
-dsconcat $catch_draw
-
-tempfile domainz`d'
-save `domainz`d'', replace
-global domainz "$domainz "`domainz`d''" " 
-
 }
-clear 
-dsconcat $domainz
+clear
+dsconcat $x
+
 egen group=group(domain nfish)
 
 sort domain draw nfish
-duplicates drop 
 
 
 *The following code snippet correct for bias that occurs when drawing from uncertain MRIP estimates. 
@@ -438,6 +402,8 @@ duplicates drop
 *shift of the mean value across draws. To correct for this, I first sum the x_i's across draws where x_i<0. 
 *Then I add some of this (negative) value to each of the other x_i's (i.e., to x_i's >0) in proportion to each 
 *x_i>0's contribution to the total value of X. 
+
+*I have tried paramaterizing non-negative distributions using the MRIP point estimate and SE, but couldn't quite figure it out. Can work on this in the future. 
 
 gen tab=1 if tot_ntrip_not_trunc<0
 egen sum_neg=sum(tot_ntrip_not_trunc) if tab==1, by(group)
@@ -451,12 +417,12 @@ gen adjust=prop*mean_sum_neg
 gen tot_ntrip2=tot_ntrip+adjust if tot_ntrip!=0 & adjust !=.
 replace tot_ntrip2=tot_ntrip if tot_ntrip2==.
 replace tot_ntrip2=0 if tot_ntrip2<0
-
-
-*checks
-gen nfish0= tot_ntrip*nfish 
-gen nfish1= tot_ntrip_not*nfish 
-gen nfish2= tot_ntrip2*nfish 
+ 
+ *checks
+ split domain, parse(_)
+gen nfish0= tot_ntrip*nfish if domain4=="hadd" & domain2=="pr" & draw==1
+gen nfish1= tot_ntrip_not*nfish  if domain4=="hadd" & domain2=="pr" & draw==1
+gen nfish2= tot_ntrip2*nfish  if domain4=="hadd" & domain2=="pr" & draw==1
 
 su nfish2 
 return list
@@ -465,6 +431,7 @@ local new = `r(sum)'
 su nfish1 
 return list
 local not_truc = `r(sum)'
+di `new'-`not_truc'
 di ((`new'-`not_truc')/`not_truc')*100
 
 su tot_ntrip2 
@@ -474,6 +441,7 @@ local new = `r(sum)'
 su tot_ntrip_not 
 return list
 local not_truc = `r(sum)'
+di `new'-`not_truc'
 di ((`new'-`not_truc')/`not_truc')*100
 *end checks 
 
@@ -483,40 +451,46 @@ rename tot_ntrip2 tot_ntrip
 sort domain draw nfish
 
 *When the # of trips that catch zero fish==0, it creates problems. Replace these instances with 
-*the mean value of trips that catch zero fish across draws 
-bysort domain nfish: egen min_non_zero=min(tot) if tot!=0
-sort domain nfish tot
-browse if nfish==0
-egen mean_min=mean(min_non_zero), by(domain nfish)
-
+*the mean # of trips that catch zero fish across draws for a given nfish bin
+/*
 bysort domain nfish: egen mean_non_zero=mean(tot) if tot!=0
 sort domain nfish tot
-browse if nfish==0
+browse if nfish==0 & tot==0
 egen mean_mean_non_zero=mean(mean_non_zero), by(domain nfish)
 
 replace tot_ntrip=mean_mean_non_zero if nfish==0 & tot_ntrip==0
-drop min_non_zero mean_min mean_non_zero mean_mean_non_zero
+drop  mean_non_zero mean_mean_non_zero
+*/
 
+*When the # of trips that catch zero fish==0, it creates problems. Replace these instances with tot_ntrips=1
+replace tot_ntrip=1 if nfish==0 & tot_ntrip==0 
+
+
+
+/*
 egen sumtrips=sum(tot), by(domain draw)
 browse if sum==0
 egen mean_ntrips=mean(tot) if tot!=0, by(domain draw)
 egen mean_mean_ntrips=mean(mean_ntrips), by(domain )
+sort domain draw
 replace tot=mean_mean_ntrips if sumtrips==0
 
 drop sumtrips mean_ntrips mean_mean_ntrips
-
+*/
 reshape wide tot_ntrip, i(nfish domain) j(draw)
 
 order domain
 sort domain nfish 
 
-split domain, parse("_")
-order domain*
+
 rename domain1 month
 rename domain2 mode
 drop domain3
 rename domain4 species
 rename domain5 disp
+
+*drop shore trips
+drop if mode=="sh"
 
 order domai*
 
@@ -552,12 +526,11 @@ foreach d of local doms{
 u `new', clear 
 
 keep if domain2=="`d'"
-*keep if domain2=="05_fh"
 
 keep  domain* month mode species disp nfish tot_ntrip*
-*keep  domain* species disp nfish tot_ntrip*
 
 drop if disp=="catch"
+
 
 preserve
 keep if disp=="keep"
@@ -600,10 +573,10 @@ merge 1:1 nfish month mode   using `keephadd', keep(3) nogen
 
 
 *We need to make sure that for each draw, the total number of trips 
-*in the keep distirbution equals the total number of trips in the release distirbution
+*in the keep distribution equals the total number of trips in the release distirbution
 
 forv i =1/$ndraws{
-	
+
 *compute the sum of trips in the keep/release distirbutions by draw 
 egen sum_trips_keep`i'_cod=sum(tot_ntrip`i'_keep_cod)
 egen sum_trips_rel`i'_cod=sum(tot_ntrip`i'_rel_cod)
@@ -614,20 +587,21 @@ egen sum_trips_rel`i'_hadd=sum(tot_ntrip`i'_rel_hadd)
 gen prop_ntrips_rel`i'_cod=tot_ntrip`i'_rel_cod/sum_trips_rel`i'_cod
 gen prop_ntrips_rel`i'_hadd=tot_ntrip`i'_rel_hadd/sum_trips_rel`i'_hadd
 gen prop_ntrips_keep`i'_hadd=tot_ntrip`i'_keep_hadd/sum_trips_keep`i'_hadd
+gen prop_ntrips_keep`i'_cod=tot_ntrip`i'_keep_cod/sum_trips_keep`i'_cod
 
 *compute the number of trips that kept/released c fish in each draw. 
-*use the cod keep distribution as the baseline 
-gen tot_ntrip`i'_keep_new_cod=tot_ntrip`i'_keep_cod
+*use the hadd rel distribution as the baseline 
+gen tot_ntrip`i'_rel_new_hadd=tot_ntrip`i'_rel_hadd
 
 *multiply the proportion of trips that released cod, kept haddock, and released haddock
-*by the total number of trips in the cod keep distribution
-gen tot_ntrip`i'_rel_new_cod=prop_ntrips_rel`i'_cod*sum_trips_keep`i'_cod
-gen tot_ntrip`i'_rel_new_hadd=prop_ntrips_rel`i'_hadd*sum_trips_keep`i'_cod
-gen tot_ntrip`i'_keep_new_hadd=prop_ntrips_keep`i'_hadd*sum_trips_keep`i'_cod
+*by the total number of trips in the hadd rel distribution
+gen tot_ntrip`i'_rel_new_cod=prop_ntrips_rel`i'_cod*sum_trips_rel`i'_hadd
+gen tot_ntrip`i'_keep_new_cod=prop_ntrips_keep`i'_cod*sum_trips_rel`i'_hadd
+gen tot_ntrip`i'_keep_new_hadd=prop_ntrips_keep`i'_hadd*sum_trips_rel`i'_hadd
 
  drop  sum_trips_keep`i'_cod sum_trips_rel`i'_cod sum_trips_keep`i'_hadd sum_trips_rel`i'_hadd ///
 		  prop_ntrips_rel`i'_cod prop_ntrips_rel`i'_hadd prop_ntrips_keep`i'_hadd   ///
-		  tot_ntrip`i'_rel_cod tot_ntrip`i'_keep_cod tot_ntrip`i'_rel_hadd tot_ntrip`i'_keep_hadd
+		  tot_ntrip`i'_rel_cod tot_ntrip`i'_keep_cod tot_ntrip`i'_rel_hadd tot_ntrip`i'_keep_hadd prop_ntrips_keep`i'_cod
 }
 
 
@@ -686,12 +660,12 @@ drop domain2
 
 mvencode tot_ntrip*, mv(0) over
 
-save "$input_data_cd\catch per trip1.dta", replace 
+save "$iterative_input_data_cd\catch per trip1.dta", replace 
 
 
 /*
 *check how the resulting catch totals match up to mrip estimates
-u "$input_code_cd\catch per trip1.dta", clear 
+u "$iterative_data_cd\catch per trip1.dta", clear 
 
 forv i =1/150{
 gen nfish2`i'=tot_ntrip`i'*nfish
@@ -704,7 +678,7 @@ collapse (mean) sum_nfish2*, by(species disp mode )
 tempfile sim 
 save `sim', replace 
 
-import delimited using "$draw_file_cd\MRIP_catch_totals_open_season.csv", clear 
+import delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", clear 
 drop ll* ul* 
 ds mode season, not
 renvarlab `r(varlist)', prefix(mrip_)
@@ -781,7 +755,6 @@ global domainz
 
 levelsof domain3, local(doms) 
 foreach d of local doms{
-
 	u `trips2', clear 
 	keep if domain3==`d'
 	levelsof mode, local(md) clean
@@ -793,7 +766,7 @@ foreach d of local doms{
 	levelsof dtrip, local(dtrip) 
 	levelsof domain1, local(dom1) clean
 
-	u "$input_data_cd\catch per trip1.dta", clear 
+	u "$iterative_input_data_cd\catch per trip1.dta", clear 
 	drop if disp=="catch"
 	drop domain
 	destring month, replace
@@ -991,7 +964,7 @@ dsconcat $domainz
 order domain1 domain wave wave month mode day day_i dtrip draw tripid catch_draw cod_keep cod_rel cod_catch hadd_keep hadd_rel hadd_catch 
 drop domain3 domain1 domain
 sort day_i mode tripid catch_draw
-export delimited using "$input_data_cd\catch_draws`i'_full.csv", replace 
+export delimited using "$iterative_input_data_cd\catch_draws`i'_full.csv", replace 
 
 }
 
@@ -1041,7 +1014,7 @@ tempfile draws
 save `draws', replace 
 
 
-import delimited using "$input_data_cd\catch_draws`i'_full.csv", clear 
+import delimited using "$iterative_input_data_cd\catch_draws`i'_full.csv", clear 
 tempfile basedraws
 save `basedraws', replace 
 
@@ -1110,7 +1083,7 @@ destring month, replace
 destring day1, replace 
 
 
-export delimited using "$input_data_cd\catch_draws`i'_full.csv", replace 
+export delimited using "$iterative_input_data_cd\catch_draws`i'_full.csv", replace 
 
  }
  

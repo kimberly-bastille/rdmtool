@@ -1,6 +1,6 @@
 
 
-**differences by mode 
+**differences by season and mode 
 import delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", clear 
 merge 1:1 mode season using "$input_data_cd\MRIP_dtrip_totals_open_season.dta"
 order mode season _ dtrip

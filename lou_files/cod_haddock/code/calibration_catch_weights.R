@@ -878,6 +878,6 @@ season1<-unique(length_weight$season)
 mode1<-unique(length_weight$mode1)
 draw1<-unique(length_weight$run)
 
-saveRDS(length_weight, file = paste0(input_data_cd, "calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds"))
+saveRDS(length_weight, file = paste0(iterative_input_data_cd, "calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds"))
 
 rm(length_data, length_data2, length_data3, length_expanded, length_weight)

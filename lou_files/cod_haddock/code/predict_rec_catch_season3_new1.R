@@ -32,7 +32,7 @@ options(scipen = 100, digits = 6)
     dplyr::mutate(draw_id = cur_group_id()) %>% 
     dplyr::filter(draw_id<=100)
   
-
+  system.time({
   for(i in unique(baseline_comparison1$mrip_index)){
     
     # Import regulations
@@ -1058,7 +1058,7 @@ options(scipen = 100, digits = 6)
       dplyr::left_join(Disc_mort, by = c("Month", "spp2")) %>%
       dplyr::mutate(Discmortality_Total_weight = ifelse(keep_release=="release", Discard_mortality * Total_weight,0),
                     Discmortality_Total_Number = ifelse(keep_release=="release", Discard_mortality * Number_at_Length, 0)) %>%
-      dplyr::group_by(Species, Mode, keep_release) %>%
+      dplyr::group_by(Species, Mode, keep_release, Month) %>%
       dplyr::summarise(Total_Number = sum(Number_at_Length),
                        Total_Weight = sum(Total_weight),
                        Discmortality_Total_Weight = sum(Discmortality_Total_weight),
@@ -1068,7 +1068,7 @@ options(scipen = 100, digits = 6)
     
     
     l_w_sum <- length_weight %>%
-      dplyr::mutate(Var1 = paste0(Species, "_", mode1, "_", keep_release )) %>%
+      dplyr::mutate(Var1 = paste0(Species, "_", mode1, "_", Month, "_", keep_release )) %>%
       dplyr::select(Var1, Total_Number, Total_Weight, Discmortality_Total_Weight, Discmortality_Total_Number) %>%
       tidyr::pivot_longer(!Var1, names_to = "Var", values_to = "Value") %>%
       dplyr::mutate(Var = paste0(Var1,"_",Var)) %>%
@@ -1114,7 +1114,7 @@ options(scipen = 100, digits = 6)
     #prediction_output_by_period1 contains CV and ntrips estimates by mode
     prediction_output_by_period1 <- prediction_output_by_period2 %>%
       dplyr::mutate_if(is.numeric, tidyr::replace_na, replace = 0) %>%
-      dplyr::group_by(mode) %>%
+      dplyr::group_by(mode, month) %>%
       dplyr::summarise(CV = sum(cv_sum),
                        ntrips = sum(ntrips_alt),
                        nchoiceoccasions=sum(expand), 
@@ -1123,14 +1123,14 @@ options(scipen = 100, digits = 6)
     
     #prediction_sum contains CV and ntrips estimates
     prediction_sum<- prediction_output_by_period1 %>%
-      tidyr::pivot_longer(!c(mode), names_to = "Var", values_to = "Value") %>%
-      dplyr::mutate(Var = paste0(Var, "_", mode)) %>%
-      dplyr::select(!c(mode))
+      tidyr::pivot_longer(!c(mode, month), names_to = "Var", values_to = "Value") %>%
+      dplyr::mutate(Var = paste0(Var, "_", mode, "_", month)) %>%
+      dplyr::select(!c(mode, month))
     
     
     #Now we combine all the data into one file
     predictions <- rbind(prediction_sum, l_w_sum) %>%
-      tidyr::separate(Var, into = c("Category", "mode", "catch_disposition", "param", "number_weight")) %>%
+      tidyr::separate(Var, into = c("Category", "mode", "month", "catch_disposition", "param", "number_weight")) %>%
       dplyr::filter(!Value == "NA") %>%
       dplyr::mutate(number_weight=dplyr::case_when(is.na(number_weight) & Category=="CV"~"Dollars",TRUE ~ number_weight)) %>%
       dplyr::mutate(number_weight=dplyr::case_when(is.na(number_weight) & Category=="ntrips"~"Ntrips",TRUE ~ number_weight)) %>% 
@@ -1141,7 +1141,7 @@ options(scipen = 100, digits = 6)
     
     output2<-rbind(output2, output1)
   }
-
-  #write_xlsx(output2, paste0(output_data_cd, "model_predictions.xlsx"))
+  })
+  write_xlsx(output2, paste0(output_data_cd, "SQ_month_run1.xlsx"))
   
 

@@ -2,7 +2,8 @@
 
 
 MRIP_data <-   read.csv(file.path(paste0(MRIP_comparison))) %>%
-  dplyr::filter(dtrip>0)
+  dplyr::filter(dtrip>0) %>% 
+  dplyr::filter(mode!="sh")
 
 MRIP_data<-MRIP_data %>% 
   dplyr::mutate(mrip_index=1:nrow(MRIP_data))
@@ -56,6 +57,11 @@ output7<-readRDS(paste0(input_data_cd,"harvest_differences.rds")) %>%
                 h_star_hadd_keep_to_release_variable=ifelse(tot_keep_hadd_model>0 & tot_keep_hadd_mrip==0, 1, h_star_hadd_keep_to_release_variable))
 output7[is.na(output7)] <- 0
 
+##Remove shore trips. MRIP estimate of directed shore trips wave 5 2024 = 1,724 (SD 1,724)
+
+output7<- output7 %>%  
+  dplyr::filter(mode!="sh")
+
 output7_check<-output7 %>% 
   dplyr::filter(h_star_hadd_release_to_keep_variable<0 | h_star_cod_release_to_keep_variable<0)
 
@@ -67,12 +73,19 @@ drops<-output7 %>%
   dplyr::group_by(draw) %>% 
   dplyr::summarise(sum_drop=sum(drop), .groups="drop")
 
-output7<-output7 %>% 
-  dplyr::left_join(drops, by="draw") %>% 
-  dplyr::filter(sum_drop==0) %>% 
-  dplyr::select(-sum_drop)  #%>% 
+output7<-output7 %>%
+  dplyr::left_join(drops, by="draw") %>%
+  dplyr::filter(sum_drop==0) %>%
+  dplyr::select(-sum_drop)
+
 
 n_distinct(output7$draw)
+
+output7<-output7 %>% 
+  dplyr::mutate(tot_cod_catch_model=tot_keep_cod_model+tot_rel_cod_model, 
+                tot_hadd_catch_model=tot_keep_hadd_model+tot_rel_hadd_model, 
+                tot_cod_catch_mrip=tot_keep_cod_mrip+tot_rel_cod_mrip, 
+                tot_hadd_catch_mrip=tot_keep_hadd_mrip+tot_rel_hadd_mrip)
 
 saveRDS(output7, file = paste0(input_data_cd,"harvest_differences_check.rds"))
 

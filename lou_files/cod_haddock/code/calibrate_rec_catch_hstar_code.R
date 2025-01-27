@@ -26,7 +26,7 @@ MRIP_data2<-MRIP_data %>%
   n_drawz = 50
   n_catch_draws = 30
   set.seed(k)
-  directed_trips<-read.csv(directed_trips_file_path) %>%
+  directed_trips<-read_feather(paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
     tibble::tibble() %>%
     dplyr::filter(draw == k,
                   mode == select_mode) %>%
@@ -61,7 +61,7 @@ MRIP_data2<-MRIP_data %>%
     dplyr::select(period2, n_draws, open) %>%
     tidyr::uncount(n_draws) 
 
-  cod_catch_data <- feather::read_feather(paste0(catch_draws_file_path, k, "_full.feather")) %>% 
+  cod_catch_data <- feather::read_feather(paste0(iterative_input_data_cd, "catch_draws", k, "_full.feather")) %>% 
     dplyr::mutate(period2=paste0(month, "_", day1, "_", mode)) %>%  
     dplyr::left_join(open, by = "period2") %>%
     dplyr::filter(open == select_season) %>%
@@ -69,8 +69,33 @@ MRIP_data2<-MRIP_data %>%
     dplyr::rename(tot_cod_catch = cod_catch,
                   tot_had_catch = hadd_catch)  %>%
     dplyr::select(mode,month,tot_cod_catch,tot_had_catch,
-                  tripid,catch_draw,day, draw, age, days_fished, cost, period2)
+                  tripid,catch_draw,day, draw, age, cost, period2)
   
+  ##pull in choice experiment demographics
+  ids<-cod_catch_data %>% 
+    dplyr::select(tripid, period2) %>% 
+    dplyr::distinct(tripid, period2, .keep_all = FALSE) %>% 
+    dplyr::mutate(id2=row_number())
+  
+  n_ids<-nrow(ids)
+  
+  angler_dems <- read.csv(paste0(input_data_cd,"angler CE demographics.csv")) %>% 
+    dplyr::slice(rep(row_number(), each = round(n_ids/448+5))) %>% 
+    dplyr::mutate(uniform=runif(n(), min=0, max=1)) %>% 
+    dplyr::arrange(uniform)
+    
+  angler_dems<- angler_dems %>% 
+    dplyr::mutate(id2=1:nrow(angler_dems)) %>% 
+    dplyr::filter(id2<=n_ids) %>% 
+    dplyr::left_join(ids, by=c("id2")) %>% 
+    dplyr::select(-id2, -id, -uniform)
+  
+  cod_catch_data<-cod_catch_data %>% 
+    dplyr::left_join(angler_dems, by=c("tripid", "period2"))
+  
+  angler_dems<-cod_catch_data %>% 
+    dplyr::filter(mode == select_mode) %>%
+    dplyr::select(fish_pref_more, likely_to_fish)
   
   trip_costs<-cod_catch_data  %>%
     dplyr::filter(mode == select_mode) %>%
@@ -79,11 +104,8 @@ MRIP_data2<-MRIP_data %>%
   age<-cod_catch_data  %>%
     dplyr::filter(mode == select_mode) %>%
     dplyr::select(age)
-  
-  avidity<-cod_catch_data  %>%
-    dplyr::filter(mode == select_mode) %>%
-    dplyr::select(days_fished)
-  
+
+  #####
   cod_catch_data <- cod_catch_data %>%
     dplyr::mutate(day = as.numeric(stringr::str_extract(day, "\\d+"))) %>%
     dplyr::group_by(period2) %>%
@@ -91,7 +113,7 @@ MRIP_data2<-MRIP_data %>%
     dplyr::mutate(catch_draw = rep(1:n_catch_draws, length.out = n_drawz*n_catch_draws),
       tripid = rep(1:n_drawz, each=n_catch_draws)) %>%
     dplyr::ungroup()%>%
-    dplyr::select(!c(age, days_fished, cost))%>%
+    dplyr::select(!c(age, cost, fish_pref_more, likely_to_fish))%>%
     dplyr::select(!c(month))
   print("postmutate")
   
@@ -369,14 +391,15 @@ MRIP_data2<-MRIP_data %>%
     dplyr::arrange(period2, tripid, catch_draw) %>% 
     cbind(trip_costs) %>% 
     cbind(age) %>% 
-    cbind(avidity)
-  
+    cbind(angler_dems)
+    
   
   # Costs_new_state data sets will retain raw trip outcomes from the baseline scenario.
   # We will merge these data to the prediction year outcomes to calculate changes in CS.
   costs_new_all[[i]] <- trip_data %>%
     dplyr::select(c(tripid, cost, catch_draw, tot_keep_cod_new, tot_rel_cod_new,
-                    age, days_fished, beta_opt_out_age,  beta_opt_out_likely,  beta_opt_out_prefer,
+                    age, likely_to_fish, fish_pref_more, beta_opt_out_age,  
+                    beta_opt_out_likely,  beta_opt_out_prefer,
                     tot_keep_hadd_new,tot_rel_hadd_new,
                     beta_cost, beta_opt_out, beta_sqrt_hadd_keep,
                     beta_sqrt_hadd_release, #beta_sqrt_cod_hadd_keep,
@@ -407,7 +430,8 @@ MRIP_data2<-MRIP_data %>%
   period_names <- period_names[!duplicated(period_names), ]
   
   
-  mean_trip_data <- trip_data %>% data.table::data.table() #%>% dplyr::arrange(period, tripid, catch_draw)
+  mean_trip_data <- trip_data %>% data.table::data.table() %>% 
+    .[, group_index := .GRP, by = .(period2, catch_draw, tripid)]
   
   # Now expand the data to create two alternatives, representing the alternatives available in choice survey
   mean_trip_data <- mean_trip_data %>%
@@ -418,25 +442,28 @@ MRIP_data2<-MRIP_data %>%
   
   #Calculate the expected utility of alts 2 parameters of the utility function,
   #put the two values in the same column, exponentiate, and calculate their sum (vA_col_sum)
-  mean_trip_data <- mean_trip_data %>%
-    data.table::as.data.table() %>%
-    .[, vA_optout := beta_opt_out*opt_out+
-        beta_opt_out_age*age + beta_opt_out_likely*days_fished] %>%
-    .[alt==1, expon_vA := exp(vA)] %>%
-    .[alt==2, expon_vA := exp(vA_optout)]
+
+  setDT(mean_trip_data)
   
+  # Filter only alt == 2 once, and calculate vA 
+  mean_trip_data[alt == 2, "vA" := .(
+    beta_opt_out * opt_out +
+      beta_opt_out_age * (age * opt_out) +
+      beta_opt_out_likely * (likely_to_fish * opt_out) +
+      beta_opt_out_prefer * (fish_pref_more * opt_out)
+  )]
   
-  mean_trip_data <- mean_trip_data %>%
-    data.table::as.data.table() %>%
-    .[, vA_col_sum := sum(expon_vA), by=list(period, catch_draw, tripid)]
+  # Pre-compute exponential terms
+  mean_trip_data[, `:=`(exp_vA = exp(vA))]
   
-  #Calculate probability of each choice occasion
-  mean_trip_data <- mean_trip_data %>%
-    data.table::as.data.table() %>%
-    .[, probA :=expon_vA/vA_col_sum]
+  # Group by group_index and calculate probabilities and log-sums
+  mean_trip_data[, `:=`(
+    probA = exp_vA / sum(exp_vA)
+  ), by = group_index]
+  
   
   mean_trip_data<- subset(mean_trip_data, alt==1) %>% 
-    dplyr::select(-domain2) %>% 
+    dplyr::select(-domain2, -group_index, -exp_vA) %>% 
     dplyr::mutate(tot_cat_cod_new=tot_keep_cod_new+tot_rel_cod_new, 
                   tot_cat_hadd_new=tot_keep_hadd_new+tot_rel_hadd_new)
 
@@ -447,8 +474,8 @@ MRIP_data2<-MRIP_data %>%
   mean_trip_data <- subset(mean_trip_data, alt==1,select=-c(alt, beta_cost,beta_opt_out, beta_opt_out_age, 
                                                             beta_opt_out_likely, beta_opt_out_prefer, #beta_sqrt_cod_hadd_keep, 
                                                             beta_sqrt_cod_keep, beta_sqrt_cod_release, beta_sqrt_hadd_keep, 
-                                                            beta_sqrt_hadd_release, days_fished, open, period, expon_vA,
-                                                            opt_out, vA, vA_optout, vA_col_sum, cost, age))
+                                                            beta_sqrt_hadd_release, likely_to_fish, fish_pref_more, open, period, 
+                                                            opt_out, vA, cost, age))
   
   # Multiply the trip probability by each of the catch variables (not the variables below) to get probability-weighted catch
   list_names <- colnames(mean_trip_data)[colnames(mean_trip_data) !="tripid"

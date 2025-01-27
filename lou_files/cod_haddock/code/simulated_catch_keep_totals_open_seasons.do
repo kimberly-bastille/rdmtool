@@ -2,8 +2,7 @@
 
 global domainz
 qui forv i=1/$ndraws{
-
-import delimited using "$input_data_cd\catch_draws`i'_full.csv", clear 
+import delimited using "$iterative_input_data_cd\catch_draws`i'_full.csv", clear 
 
 gen year2=substr(day, 6, 4)
 destring year2, replace
@@ -11,8 +10,13 @@ destring year2, replace
 gen date=mdy( month, day1, year2)
 format date %td
 
-gen open=1 if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 ))
+merge m:1 date using "$input_data_cd\cod_open_season_dates.dta"
+drop if _merge==2
+drop _merge
+gen open=1 if  cod_season_open==1
 replace open=0 if open==.
+drop cod_season_open
+
 
 preserve
 keep day day_i mode open

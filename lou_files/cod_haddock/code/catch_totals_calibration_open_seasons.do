@@ -23,6 +23,11 @@ save `cl1'
 use `tl1'
 merge 1:m year strat_id psu_id id_code using `cl1', keep(1 3) nogenerate
 
+
+replace var_id=strat_id if strmatch(var_id,"")
+replace wp_catch=wp_int if wp_catch==.
+
+
  /* THIS IS THE END OF THE DATA MERGING CODE */
 *replace mode_fx=MODE_FX if mode_fx=="" & MODE_FX!=""
 *replace area_x=AREA_X if area_x=="" & AREA_X!=""
@@ -109,7 +114,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="AAA"
 
 replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="GOM" if st2=="25" & intsite==224
 
@@ -122,10 +127,14 @@ gen day=substr(id_code, 12, 2)
 destring day, gen(day1)
 gen date=mdy( month1, day1, year)
 format date %td
+drop _merge 
 
-
-gen season="op" if ((date>=$cod_start_date1 & date<=$cod_end_date1 ) | (date>=$cod_start_date2 & date<=$cod_end_date2 )) 
+merge m:1 date using "$input_data_cd\cod_open_season_dates.dta"
+drop if _merge==2
+drop _merge
+gen season="op" if cod_season_open==1
 replace season="cl" if season==""
+drop cod_season_open
 
 
 gen my_dom_id_string=common_dom+"_"+season+"_"+area_s+"_"+mode1
@@ -170,14 +179,14 @@ rename sum_hadd_harvest hadd_keep
 rename sum_hadd_releases hadd_rel
 rename sum_hadd_claim hadd_claim
 
-
+/*
 **Round these estimates to align with catch-per-trip computations
 local vars cod_catch cod_keep cod_rel hadd_catch hadd_keep hadd_rel cod_claim hadd_claim
 foreach v of local vars{
 	replace `v'=round(`v')
 	
 }
-
+*/
 /* Set a variable "no_dup"=0 if the record is "$my_common" catch and no_dup=1 otherwise.*/
   
 gen no_dup=0
@@ -200,14 +209,11 @@ keep if area_s=="GOM"
 *replace my_dom_id_string=mode1+"_"+season
 
 
-encode strat_id, gen(strat_id2)
-encode psu_id, gen(psu_id2)
-
 *replace wp_int=round(wp_int)
-svyset psu_id2 [pweight= wp_int], strata(strat_id2) singleunit(certainty)
+svyset psu_id [pweight= wp_int], strata(strat_id) singleunit(certainty)
+
 
 *encode my_dom_id_string, gen(my_dom_id)
-
 *svy: total hadd_catch, over(my_dom_id2)
 
 preserve
