@@ -78,7 +78,7 @@ param_draws <- directed_trips_p %>%
   tidyr::uncount(n_draws) 
 
 
-cod_catch_data <- feather::read_feather(paste0(catch_draws_file_path, k, "_full.feather")) %>%  
+cod_catch_data <- feather::read_feather(paste0(iterative_input_data_cd, "catch_draws", k, "_full.feather")) %>%  
   dplyr::mutate(period2=paste0(month, "_", day1, "_", mode)) %>%  
   dplyr::left_join(open, by = "period2") %>%
   dplyr::filter(open == select_season) %>%
@@ -346,9 +346,6 @@ if (had_catch_check!=0){
     dplyr::left_join(regs, by = c("period2")) %>%
     dplyr::mutate(posskeep = ifelse(fitted_length>=hadd_min ,1,0)) %>%
     dplyr::group_by(tripid, period2, catch_draw) %>%
-    # keep = case_when(
-    # fitted_length>=minsize & fitted_length<=maxsize ~ 1,
-    # TRUE ~ 0),
     dplyr::mutate(csum_keep = cumsum(posskeep)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(
@@ -715,7 +712,7 @@ mode1<-unique(costs_new_all$mode)
 draw1<-unique(costs_new_all$n_cal_draw)
 
 #saveRDS(costs_new_all, file = paste0(input_data_cd, "costs_", i, ".rds"))
-write_feather(costs_new_all, paste0(input_data_cd, "costs_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(costs_new_all, paste0(iterative_input_data_cd, "costs_", mode1,"_", season1, "_", draw1, ".feather"))
 
 
 
@@ -876,7 +873,7 @@ mode1<-unique(pds_new$mode)
 draw1<-unique(pds_new$draw)
 
 #saveRDS(pds_new, file = paste0(input_data_cd, "pds_new_", i, ".rds"))
-write_feather(pds_new, paste0(input_data_cd, "pds_new_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(pds_new, paste0(iterative_input_data_cd, "pds_new_", mode1,"_", season1, "_", draw1, ".feather"))
 
 
 
@@ -916,7 +913,7 @@ mode1<-unique(comparison2$mode)
 draw1<-unique(comparison2$draw)
 
 #saveRDS(comparison2, file = paste0(input_data_cd, "comparison_", i, ".rds"))
-write_feather(comparison2, paste0(input_data_cd, "comparison_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(comparison2, paste0(iterative_input_data_cd, "comparison_", mode1,"_", season1, "_", draw1, ".feather"))
 
 
 
