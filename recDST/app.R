@@ -20,7 +20,7 @@ ui <- fluidPage(
               
               #Run Button
               actionButton("runmeplease", "Run Me"), 
-              
+              textInput("Run_Name", "Please name this using your initials and the number of the run (ex. AB1)."),
               # Add UI code for each state
               uiOutput("addMA"),
               uiOutput("addRI"),
@@ -3809,7 +3809,7 @@ server <- function(input, output, session) {
                     `% difference from status-quo outcome (median)` = prettyNum(`% difference from status-quo outcome (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE),
                     `Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", scientific = FALSE), 
                     `Status-quo value (median)` = prettyNum(`Status-quo value (median)`, big.mark = ",", scientific = FALSE))
-    
+  
     predictions_1 <- predictions_1 %>% rbind(predictions_coastwide)
     
     return(predictions_1)
@@ -3831,7 +3831,7 @@ server <- function(input, output, session) {
   #### release ####
   release<- reactive({
     release_output<- predictions_1() %>% 
-      dplyr::filter(draw %in% c("Summary", "All_selected"),
+      dplyr::filter(draw %in% c("Summary", "All selected"),
                     Statistic %in% c("release pounds", "dead release pounds", 
                                      "release numbers", "dead release numbers")) %>% 
       dplyr::select(! "% under harvest target (out of 100 simulations)") %>% 
@@ -3845,12 +3845,13 @@ server <- function(input, output, session) {
   #### angler welfare ####
   welfare<- reactive({
     welfare_output<- predictions_1() %>% 
-      dplyr::filter(draw %in% c("Summary", "All_selected"),
+      dplyr::filter(draw %in% c("Summary", "All selected"),
                     Statistic %in% c("CV")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "CV" = "Change in angler satisfaction ($)")) %>% 
       dplyr::rename( "Difference relative to status-quo 2024 (median)" = "% difference from status-quo outcome (median)" ) %>% 
       dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","Alternative option value" )) %>% 
-      dplyr::mutate(`Difference relative to status-quo 2024 (median)` = prettyNum(`Difference relative to status-quo 2024 (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE)) 
+      #dplyr::mutate(`Difference relative to status-quo 2024 (median)` = dplyr::case_when(draw != "All selected" ~ as.numeric(`Difference relative to status-quo 2024 (median)`), TRUE ~ `Difference relative to status-quo 2024 (median)`)) %>% 
+      dplyr::mutate( `Difference relative to status-quo 2024 (median)` = prettyNum(`Difference relative to status-quo 2024 (median)`, big.mark = ",", format = "f", digits = 2, scientific = FALSE)) 
       
     return(welfare_output)
   })
@@ -3862,7 +3863,8 @@ server <- function(input, output, session) {
                     Statistic %in% c( "ntrips")) %>% 
       dplyr::mutate(Statistic = dplyr::recode(Statistic, "ntrips" = "Total estimate trips")) %>% 
       dplyr::select(!c("% under harvest target (out of 100 simulations)","Status-quo value (median)","% difference from status-quo outcome (median)")) %>% 
-      dplyr::mutate(`Alternative option value` = prettyNum(`Alternative option value`, big.mark = ",", format = "f", digits = 2,  scientific = FALSE)) 
+      #dplyr::mutate(`Alternative option value` = dplyr::case_when(draw != "All selected" ~ as.numeric(`Alternative option value`), TRUE ~`Alternative option value`)) %>% 
+      dplyr::mutate(`Alternative option value` = prettyNum(as.numeric(`Alternative option value`), big.mark = ",", format = "f", digits = 2,  scientific = FALSE)) 
       
     return(ntrips_output)
   })
@@ -5488,10 +5490,21 @@ server <- function(input, output, session) {
       ggplot2::geom_violin(ggplot2::aes(x = `State`, y = as.numeric(`Alternative option value`, color = `State`)))+
       ggplot2::facet_wrap(Mode~Species, scales = "free_y")+
       ggplot2::geom_hline(yintercept = summary$`Alternative option value`)
+
+  })
+  
+  #### Save Raw Data
+  observeEvent(input$runmeplease, {
+    dat<- predictions_1()
     
-      
+    dat_out<- dat
+    Run_Name = Run_Name()
+    readr::write_csv(dat_out, file = here::here(paste0("output/output_", Run_Name, "_", format(Sys.time(), "%Y%m%d_%H%M%S"),  ".csv")))
     
   })
+  
+  
+  
   
   #### Download Button ####
   output$downloadData <- downloadHandler(
