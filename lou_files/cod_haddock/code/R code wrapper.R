@@ -7,6 +7,7 @@ pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape
 install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
 lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
 conflicts_prefer(dplyr::mutate)
+conflicts_prefer(here::here)
 
 
 #There are four folders needed::
@@ -19,11 +20,11 @@ conflicts_prefer(dplyr::mutate)
 
 
 #Set up R globals for input/output data and code scripts
-input_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/"
-code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/code/"  
-output_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/output_data/" 
-iterative_input_data_cd= "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/iterative_data/" 
 
+input_data_cd=here("lou_files","cod_haddock","input_data")
+code_cd=here("lou_files","cod_haddock","code")
+output_data_cd=here("lou_files","cod_haddock","output_data")
+iterative_input_data_cd=here(input_data_cd, "iterative_data")
 
 ###################################################
 ###############Pre-sim Stata code##################
@@ -70,22 +71,22 @@ stata('do "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock
 
 #Prior to running the model, transfer the catch_draw files from .csv to .feather to reduce computing time
 for(i in 1:n_simulations){
-  catch<-read.csv(paste0(iterative_input_data_cd, "catch_draws", i,"_full.csv"))
-  write_feather(catch, paste0(iterative_input_data_cd, "catch_draws", i,"_full.feather"))
+  catch<-read.csv(file.path(iterative_input_data_cd, paste0("catch_draws", i,"_full.csv")))
+  write_feather(catch, file.path(iterative_input_data_cd, paste0("catch_draws", i,"_full.feather")))
 }
 
-dtrip<-read.csv(paste0(input_data_cd, "directed_trips_calib_150draws_cm.csv"))
-write_feather(dtrip, paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather"))
+dtrip<-read.csv(file.path(input_data_cd, "directed_trips_calib_150draws_cm.csv"))
+write_feather(dtrip, file.path(input_data_cd, "directed_trips_calib_150draws_cm.feather"))
 
 ##################### STEP 1 #####################
 #Run the calibration algorithm to determine the difference between model-based harvest and MRIP-based harvest. 
 #I do this for each stratum and each stratum's 150 draws of MRIP trips/catch/harvest (4*150=600 iterations).
 #This code retains for each stratum the percent/absolute difference between model-based harvest and MRIP-based harvest by species. 
 
-directed_trips_file_path = paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")
+directed_trips_file_path = file.path(input_data_cd, "directed_trips_calib_150draws_cm.feather")
 catch_draws_file_path = iterative_input_data_cd
-MRIP_comparison = paste0(input_data_cd,"simulated_catch_totals_open_season.csv")
-size_data_read = read.csv(paste0(input_data_cd,"rec_selectivity_CaL_open_seasons_cm.csv"))
+MRIP_comparison = file.path(input_data_cd,"simulated_catch_totals_open_season.csv")
+size_data_read = read.csv(file.path(input_data_cd,"rec_selectivity_CaL_open_seasons_cm.csv"))
 
 #Files needed:
   #directed_trips_calib_150draws_cm.csv
@@ -96,7 +97,7 @@ size_data_read = read.csv(paste0(input_data_cd,"rec_selectivity_CaL_open_seasons
 #Scripts needed:
   #calibrate_rec_catch_hstar_code.R
 
-source(paste0(code_cd,"find_harvest_differences1.R"))
+source(file.path(code_cd,"find_harvest_differences1.R"))
 
 #Output files: 
   #MRIP_simulated_data.rds
@@ -134,7 +135,7 @@ source(paste0(code_cd,"find_harvest_differences1.R"))
 #Scripts needed:
   #calibration_catch_weights.R - can be commented out to save time if calibration catch weight are not needed.
 
-source(paste0(code_cd,"calibration_wrapper.R"))
+source(file.path(code_cd,"calibration_wrapper.R"))
 
 #Output files: 
   #calibration_comparison.rds
@@ -156,10 +157,10 @@ source(paste0(code_cd,"calibration_wrapper.R"))
   #calibration_comparison.rds - gives the proportions of trips to allocate harvest as release or vice versa
   #costs_MODE_SEASON.feather - gives baseline variables and baseline catch levels. These are held constant in the projections. 
 
-source(paste0(code_cd, "predict_rec_catch_season3_new1.R"))
+source(file.path(code_cd, "predict_rec_catch_season3_new1.R"))
 
 #Save the output
-write_xlsx(output2, paste0(output_data_cd, "model_results.xlsx"))
+write_xlsx(output2, file.path(output_data_cd, "model_results.xlsx"))
 
 #Output files: 
 # RDM_predictions.xlsx - output by mode, season, and draw

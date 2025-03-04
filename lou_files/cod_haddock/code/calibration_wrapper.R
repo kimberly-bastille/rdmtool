@@ -1,6 +1,6 @@
 
 
-baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) 
+baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) 
 
 n_distinct(baseline_output0$draw)
 
@@ -11,7 +11,7 @@ cod_lw_b = 3.1625
 had_lw_a = 0.000009298
 had_lw_b = 3.0205
 
-Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
+Disc_mort<- readr::read_csv(file.path(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
 
 
 for(i in unique(baseline_output0$mrip_index)){
@@ -21,7 +21,7 @@ for(i in unique(baseline_output0$mrip_index)){
   p_hadd_kp_2_rl<-0
   p_hadd_rl_2_kp<-0
   
-  baseline_output<-readRDS(paste0(input_data_cd,"harvest_differences_check.rds")) %>% 
+  baseline_output<-readRDS(file.path(input_data_cd,"harvest_differences_check.rds")) %>% 
     dplyr::filter(mrip_index==i)
   
   #Do we need to reallocate some cod/haddock keep as releases, and vice versa? Makes indicator objects
@@ -87,7 +87,7 @@ for(i in unique(baseline_output0$mrip_index)){
   }
   
 
-  source(paste0(code_cd, "calibrate_rec_catch_hstar_code2_new.R"))
+  source(file.path(code_cd, "calibrate_rec_catch_hstar_code2_new.R"))
   
   
   print("new run")
@@ -260,7 +260,7 @@ for(i in unique(baseline_output0$mrip_index)){
     h_star_hadd_keep_to_release_variable
     h_star_cod_keep_to_release_variable
     
-    source(paste0(code_cd, "calibrate_rec_catch_hstar_code2_new.R"))
+    source(file.path(code_cd, "calibrate_rec_catch_hstar_code2_new.R"))
   
     print("new run")
     
@@ -304,12 +304,12 @@ for(i in unique(baseline_output0$mrip_index)){
   }
   
   
-  #source(paste0(code_cd, "calibration_catch_weights.R"))
+  #source(file.path(code_cd, "calibration_catch_weights.R"))
 
 }
 
 
-baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) 
+baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) 
   
 n_distinct(baseline_output0$draw)
 
@@ -324,13 +324,13 @@ for(i in unique(baseline_output0$mrip_index)){
   mode1<-unique(check0$mode)
   draw1<-unique(check0$draw)
   
-  check1 <- feather::read_feather(paste0(iterative_input_data_cd, "comparison_", mode1,"_", season1, "_", draw1, ".feather"))  
+  check1 <- feather::read_feather(file.path(iterative_input_data_cd, paste0("comparison_", mode1,"_", season1, "_", draw1, ".feather")))  
   check2<-rbind(check1, check2)
   
 }
 
 
-baseline<- readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) %>% 
+baseline<- readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) %>% 
   dplyr::select(cod_keep_2_release, cod_release_2_keep, hadd_keep_2_release, hadd_release_2_keep, draw, 
                 mode, mrip_index, diff_cod_harv, diff_hadd_harv, tot_cod_catch_model, tot_hadd_catch_model, 
                 tot_keep_cod_model, tot_keep_hadd_model, tot_rel_cod_model, tot_rel_hadd_model) 
@@ -349,7 +349,7 @@ n_distinct(check2$draw)
 check3<-check2 %>% 
   dplyr::filter((abs_perc_diff_cod_harv>5 & abs(diff_cod_harv)>500) | (abs_perc_diff_hadd_harv>5 & abs(diff_hadd_harv)>500))
 
-saveRDS(check2, file = paste0(input_data_cd, "calibration_comparison.rds"))
+saveRDS(check2, file = file.path(input_data_cd, "calibration_comparison.rds"))
 n_distinct(check2$draw)
 
 #Compile the calibration catch weights
@@ -363,12 +363,12 @@ n_distinct(check2$draw)
 #   mode1<-unique(check0a$mode)
 #   draw1<-unique(check0a$draw)
 # 
-#   check1a<- readRDS(paste0(iterative_input_data_cd, "calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds"))
+#   check1a<- readRDS(file.path(iterative_input_data_cd, paste0("calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds")))
 #   check2a<-rbind(check1a, check2a)
 #   
 # }
 # n_distinct(check2a$run)
-# write_xlsx(check2a, paste0(output_data_cd, "calibration_catch_weights_cm.xlsx"))
+# write_xlsx(check2a, file.path(output_data_cd, "calibration_catch_weights_cm.xlsx"))
 
 
 ##Now we have the data for the projections stored in input_data_cd:
@@ -382,7 +382,7 @@ n_distinct(check2$draw)
 #Combine all the calibraiton data
 
 
-# baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) %>% 
+# baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) %>% 
 #   dplyr::filter(draw<=108)
 # 
 # n_distinct(baseline_output0$draw)
@@ -397,9 +397,9 @@ n_distinct(check2$draw)
 #   mode1<-unique(check0$mode)
 #   draw1<-unique(check0$draw)
 #   
-#   check1 <- feather::read_feather(paste0(iterative_input_data_cd, "pds_new_", mode1,"_", season1, "_", draw1, ".feather"))  
+#   check1 <- feather::read_feather(file.path(iterative_input_data_cd, paste0("pds_new_", mode1,"_", season1, "_", draw1, ".feather"))) 
 #   check2<-rbind(check1, check2)
 #   
 # }
 # 
-# write_xlsx(check2, paste0(output_data_cd, "calibration_stats.xlsx"))
+# write_xlsx(check2, file.path(output_data_cd, "calibration_stats.xlsx"))

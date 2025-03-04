@@ -1,21 +1,21 @@
 
 
 
-MRIP_data <-   read.csv(file.path(paste0(MRIP_comparison))) %>%
+MRIP_data <-   read.csv(file.path(MRIP_comparison)) %>%
   dplyr::filter(dtrip>0) %>% 
   dplyr::filter(mode!="sh")
 
 MRIP_data<-MRIP_data %>% 
   dplyr::mutate(mrip_index=1:nrow(MRIP_data))
 
-saveRDS(MRIP_data, file = paste0(input_data_cd, "MRIP_simulated_data.rds"))
+saveRDS(MRIP_data, file = file.path(input_data_cd, "MRIP_simulated_data.rds"))
 
 
 output4<-data.frame() 
 output5<-data.frame() 
 for(i in 1:nrow(MRIP_data)){
   
-  source(paste0(code_cd, "calibrate_rec_catch_hstar_code.R"))
+  source(file.path(code_cd, "calibrate_rec_catch_hstar_code.R"))
   
   output4<-cbind(i, diff_cod_harv, diff_hadd_harv,tot_keep_cod_model,tot_rel_cod_model,tot_keep_cod_mrip,tot_rel_cod_mrip,  
                  tot_keep_hadd_model, tot_rel_hadd_model, tot_keep_hadd_mrip, tot_rel_hadd_mrip)
@@ -25,8 +25,8 @@ for(i in 1:nrow(MRIP_data)){
 
 
 
-saveRDS(output5, file = paste0(input_data_cd, "harvest_differences.rds"))
-output5 <- readRDS(paste0(input_data_cd,"harvest_differences.rds"))
+saveRDS(output5, file = file.path(input_data_cd, "harvest_differences.rds"))
+output5 <- readRDS(file.path(input_data_cd,"harvest_differences.rds"))
 
 
 MRIP_data3<-MRIP_data %>% 
@@ -43,10 +43,10 @@ output6<-output5 %>%
 output6<-output6 %>% 
   dplyr::relocate(mrip_index, draw, mode, open )
 
-saveRDS(output6, file = paste0(input_data_cd,"harvest_differences.rds"))
+saveRDS(output6, file = file.path(input_data_cd,"harvest_differences.rds"))
 
 
-output7<-readRDS(paste0(input_data_cd,"harvest_differences.rds")) %>% 
+output7<-readRDS(file.path(input_data_cd,"harvest_differences.rds")) %>% 
   dplyr::mutate(diff_cod_rel=tot_rel_cod_model-tot_rel_cod_mrip, 
                 diff_hadd_rel=tot_rel_hadd_model-tot_rel_hadd_mrip, 
                 h_star_cod_keep_to_release_variable=case_when(cod_keep_2_release==1 ~ abs(diff_cod_harv/tot_keep_cod_model), TRUE ~ 0), 
@@ -87,5 +87,5 @@ output7<-output7 %>%
                 tot_cod_catch_mrip=tot_keep_cod_mrip+tot_rel_cod_mrip, 
                 tot_hadd_catch_mrip=tot_keep_hadd_mrip+tot_rel_hadd_mrip)
 
-saveRDS(output7, file = paste0(input_data_cd,"harvest_differences_check.rds"))
+saveRDS(output7, file = file.path(input_data_cd,"harvest_differences_check.rds"))
 
