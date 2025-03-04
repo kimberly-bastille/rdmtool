@@ -118,6 +118,9 @@ gen protest=1 if sumoptout==nsets
 drop check sumoptout nset /*nsets*/
 
 
+
+
+
 /*
 *Demographics
 keep avidity age income_low income_medium income_high education_college education_graduate male a1_none protest qtid nsets trip education_basic 
@@ -209,15 +212,47 @@ esttab  w1  using "wtp_results.csv", replace nobase noomitted  ///
 
 *gen sqrt_SF_BSB_keep = sqrt(SFkept+BSBkept)
 
+*gen NJ_resident=1 if state=="NJ"
+*mvencode NJ_resident, mv(0) over
+*distinct qtid if NJ
+*distinct qtid if !NJ
+gen sqrt_SF_BSB_keep = sqrt_SFkept*sqrt_BSBkept
+gen SF_BSB_keep = SFkept*BSBkept
 
 
+local sts "MA RI CT NY NJ DE MD VA"
+foreach s of local sts{
+gen `s'_license = 1 if (lic_st1=="`s'" | lic_st2=="`s'" |  lic_st3=="`s'" |  lic_st4=="`s'" ) 
+mvencode `s'_license, mv(0) over
+
+gen `s'_lic_sqrt_SFkept=sqrt_SFkept*`s'_license
+gen `s'_lic_sqrt_SFrelease=sqrt_SFrelease*`s'_license
+gen `s'_lic_sqrt_BSBkept=sqrt_BSBkept*`s'_license
+gen `s'_lic_sqrt_BSBrelease=sqrt_BSBrelease*`s'_license
+gen `s'_lic_sqrt_SF_BSB_keep=sqrt_SF_BSB_keep*`s'_license
+gen `s'_lic_sqrt_scup_catch=sqrt_scup_catch*`s'_license
+
+	
+}
+
+/*
+local vars sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch
+foreach v of local vars{
+	gen NJ_lic_`v'=`v'*NJ_license
+	mvencode NJ_lic_`v', mv(0) override
+	
+	*gen NJ_res_`v'=`v'*NJ_resident
+	*mvencode NJ_res_`v', mv(0) override
+}
+
+distinct qtid if NJ_license
+distinct qtid if !NJ_license
+*/
 global interactions avidity age income_medium income_high education_college education_graduate male likely ownboat
 global interactions2 avidity 
 
 ***Final model (6/27/23)
 *model with interactions between keep of sf and bsb
-gen sqrt_SF_BSB_keep = sqrt_SFkept*sqrt_BSBkept
-gen SF_BSB_keep = SFkept*BSBkept
 
 gen one=1
 egen group_q = group(qtid question)
@@ -265,20 +300,113 @@ local n_choices1 = `r(ndistinct)'
 estadd local n_anglers 
 estadd local n_choices
 
-*only signinfnact interactions 2
+
+
+*only significant interactions 2 **PREFERRED
 egen rowmiss3=rowmiss(age avidity)
+eststo clear	
 clogit chosen one if rowmiss3==0 & a1_none==0 & protest!=1 ,  group(identifier) 
 local l0 = e(ll) 
 di `l0'
 
-eststo m3: mixlogit chosen cost age avidity if a1_none==0 & protest!=1, group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
+eststo m1: mixlogit chosen cost age avidity if a1_none==0 & protest!=1, group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
 local ll = e(ll) 
-di `ll'
+*di `ll'
 
-di 1-`ll'/`l0'
+*di 1-`ll'/`l0'
 
+estadd scalar r2_p = 1-`ll'/`l0'
 
+distinct qtid if e(sample)
+local n_anglers  =`r(ndistinct)'
+distinct group_q if e(sample)
+local n_choices = `r(ndistinct)'
 
+estadd local n_anglers 
+estadd local n_choices
+
+*Test interaction term with state license
+local sts "MA RI CT NY NJ DE MD VA"
+foreach s of local sts{
+	
+clogit chosen one if rowmiss3==0 & a1_none==0 & protest!=1 ,  group(identifier) 
+local l0 = e(ll) 
+
+eststo m`s': mixlogit chosen cost age avidity `s'_lic_sqrt_SFkept  if a1_none==0 & protest!=1, ///
+			group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
+
+local ll = e(ll) 
+
+estadd scalar r2_p = 1-`ll'/`l0'
+
+distinct qtid if e(sample)
+local n_anglers  =`r(ndistinct)'
+distinct group_q if e(sample)
+local n_choices = `r(ndistinct)'
+
+estadd local n_anglers 
+estadd local n_choices
+}
+
+clogit chosen one if rowmiss3==0 & a1_none==0 & protest!=1 ,  group(identifier) 
+local l0 = e(ll) 
+/*
+eststo m_all: mixlogit chosen cost age avidity ///
+					MA_lic_sqrt_SFkept MA_lic_sqrt_SFrelease ///
+					RI_lic_sqrt_SFkept RI_lic_sqrt_SFrelease ///
+					CT_lic_sqrt_SFkept CT_lic_sqrt_SFrelease ///
+					NY_lic_sqrt_SFkept NY_lic_sqrt_SFrelease ///
+					NJ_lic_sqrt_SFkept NJ_lic_sqrt_SFrelease ///
+					DE_lic_sqrt_SFkept DE_lic_sqrt_SFrelease ///
+					MD_lic_sqrt_SFkept MD_lic_sqrt_SFrelease ///
+					VA_lic_sqrt_SFkept VA_lic_sqrt_SFrelease ///
+					if a1_none==0 & protest!=1,	group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
+*/				
+eststo m_all: mixlogit chosen cost age avidity ///
+					MA_lic_sqrt_SFkept  ///
+					RI_lic_sqrt_SFkept  ///
+					CT_lic_sqrt_SFkept  ///
+					NY_lic_sqrt_SFkept  ///
+					NJ_lic_sqrt_SFkept  ///
+					DE_lic_sqrt_SFkept  ///
+					MD_lic_sqrt_SFkept  ///
+					VA_lic_sqrt_SFkept  ///
+					if a1_none==0 & protest!=1,	group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
+					
+local ll = e(ll) 
+estadd scalar r2_p = 1-`ll'/`l0'
+
+distinct qtid if e(sample)
+local n_anglers  =`r(ndistinct)'
+distinct group_q if e(sample)
+local n_choices = `r(ndistinct)'
+
+estadd local n_anglers 
+estadd local n_choices			
+			
+esttab m1 mMA mRI mCT mNY mNJ mDE mMD mVA m_all using "fluke_parameters.csv", replace nobase noomitted  /// 
+				stats(n_anglers  n_choices ll r2_p aic , fmt(0 0 3 3 3))  se b(%9.3f) label nogaps    starlevels( * 0.10 ** 0.05 *** 0.010)  ///
+				order(sqrt_SFkept *sqrt_SFkept sqrt_BSBkept *sqrt_BSBkept sqrt_SF_BSB_keep *sqrt_SF_BSB_keep sqrt_SFrelease *sqrt_SFrelease sqrt_BSBrelease  *sqrt_BSBrelease sqrt_scup_catch *sqrt_scup_catch cost constant)			
+		
+local sts "MA RI CT NY NJ DE MD VA"
+foreach s of local sts{
+	di "`s'"
+	distinct qtid if `s'_license==1 & rowmiss3==0 & a1_none==0 & protest!=1
+	local st = `r(ndistinct)'
+	distinct qtid if rowmiss3==0 & a1_none==0 & protest!=1
+	local all = `r(ndistinct)'
+	di `st'
+	di `st'/`all'
+	
+	distinct group_q if `s'_license==1 & rowmiss3==0 & a1_none==0 & protest!=1
+	local st_q = `r(ndistinct)'
+	distinct group_q if rowmiss3==0 & a1_none==0 & protest!=1
+	local all_q = `r(ndistinct)'
+	di `st_q'
+	di `st_q'/`all_q'
+	
+}		
+		
 *Test difference when enetering scup keep and release 
 egen rowmiss3=rowmiss(age avidity)
 clogit chosen one if rowmiss3==0 & a1_none==0 & protest!=1 ,  group(identifier) 
@@ -291,7 +419,7 @@ di `ll'
 
 di 1-`ll'/`l0'
 
-
+/*
 *** using cmxtmixlogit
 encode trip, gen(trip2)
 cmset qtid question trip2
@@ -299,10 +427,8 @@ cmset qtid question trip2
 bysort qtid: egen sum_q=sum(chosen)
 bysort  qtid question: egen sum_a=sum(chosen)
 
-
 drop if sum_a==0 /*drop if no trip chosen*/
 drop if sum_q==1 /*drop if only one question answered */
-
 
 drop if a1_none==1 | protest==1 /*drop did not fish for target species or chose the opt-out every time*/
 drop if age==. | avidity==. /*drop if did not provde age or avidity (which were signifcant interactions) */
@@ -368,52 +494,7 @@ mat b= e(b)
 
 cmxtmixlogit chosen cost age avidity if a1_none==0 & protest!=1, random(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant)  intmethod(halton, antithetics) intpoints(500)  technique(bfgs 10 nr 5) noconstant from(b)
 
-
-mat b= e(b)
-
-
-mixlogit chosen cost age avidity , group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
-mat b= e(b)
-
-sort qtid identifier question trip2
-cmxtmixlogit chosen cost age avidity , random(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant)  intmethod(halton) intpoints(1000)  noconstant  technique(bhhh)  
-
-cmxtmixlogit chosen cost age avidity , random(SFkept SFrelease BSBkept BSBrelease SF_BSB_keep catch_scup constant)  intmethod(halton) intpoints(100)  noconstant  technique(bhhh)  
-
-
-
-cmxtmixlogit chosen cost  age avidity , random(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep  sqrt_scup_catch constant)  intmethod(halton) intpoints(100)  noconstant  technique(bhhh)  
-
-
-mixlogit chosen cost1000 age100 avidity100 , group(identifier) id(qtid) rand(sqrt_SFkept100 sqrt_SFrelease100 sqrt_BSBkept100 sqrt_BSBrelease100 sqrt_SF_BSB_keep100 sqrt_catch_scup100 constant) 
-
-mat b= e(b)
-
-cmxtmixlogit chosen cost1000 age100 avidity100, random(sqrt_SFkept100 sqrt_SFrelease100 sqrt_BSBkept100 sqrt_BSBrelease100 sqrt_SF_BSB_keep100 sqrt_catch_scup100 constant)  intmethod(halton, antithetics) intpoints(100)  technique(bhhh) noconstant  from(b, copy)
-
-mat input c -11.6278 1.046345 -1.043399 8.274556 .6496854 3.525158 .7378899 -5.615605 .1795179 -2.055716 12.67089 ///
- 3.2506 1.288044 .5463283 19.62749 .2447442 1.977476 
-
-matrix input A = (-11.6278 ,1.046345, -1.043399 ,8.274556 ,.6496854, 3.525158, .7378899 ,-5.615605 ,.1795179, -2.055716 ,12.67089 , 3.2506 ,1.288044 ,.5463283 ,19.62749 ,.2447442 ,1.977476 )
-
-
-cmxtmixlogit chosen cost1000 age100 avidity100, random(sqrt_SFkept100 sqrt_SFrelease100 sqrt_BSBkept100 sqrt_BSBrelease100 sqrt_SF_BSB_keep100 sqrt_catch_scup100 constant)  intmethod(halton, antithetics) intpoints(100)  technique(nr) noconstant  from(A, copy) gradient  ltol(0) tol(1e-7) difficult
-
-matrix input A0 = (0,0, 0 ,0 ,0, 0, 0 ,0 ,0, 0 ,0 , 0 ,0 ,0 ,0,0 ,0 )
-
-
-cmxtmixlogit chosen cost1000 age100 avidity100, random(sqrt_SFkept100 sqrt_SFrelease100 sqrt_BSBkept100 sqrt_BSBrelease100 sqrt_SF_BSB_keep100 sqrt_catch_scup100 constant)  intmethod(halton, antithetics) intpoints(50)  technique(nr) noconstant  from(A0, copy) gradient 
-
-
-mixlogit chosen cost age avidity , group(identifier) id(qtid) rand(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant) 
-
-
-drop if sum_q==1
-cmxtmixlogit chosen cost age avidity , random(sqrt_SFkept sqrt_SFrelease sqrt_BSBkept sqrt_BSBrelease sqrt_SF_BSB_keep sqrt_scup_catch constant)  intpoints(50)  technique(nr) noconstant  
-
-
-from(b)
-
+*/
 *linear in catch 
 eststo m4: mixlogit chosen cost age avidity if a1_none==0 & protest!=1, group(identifier) id(qtid) rand(SFkept SFrelease BSBkept BSBrelease SF_BSB_keep catch_scup constant) 
 eststo m4: mixlogit chosen cost age avidity if a1_none==0 & protest!=1, group(identifier) id(qtid) rand(SFkept SFrelease BSBkept BSBrelease SF_BSB_keep  SCUPkept SCUPrelease constant) 
