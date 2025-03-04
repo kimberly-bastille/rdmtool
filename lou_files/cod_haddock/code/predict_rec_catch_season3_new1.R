@@ -11,8 +11,8 @@ options(scipen = 100, digits = 6)
 
 
   #Pull in effort, size, and disc mortality data
-  size_data_read = read.csv(paste0(input_data_cd, "projected_CaL_cod_hadd_cm.csv"))
-  Disc_mort<- readr::read_csv(paste0(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
+  size_data_read = read.csv(file.path(input_data_cd, "projected_CaL_cod_hadd_cm.csv"))
+  Disc_mort<- readr::read_csv(file.path(input_data_cd, "Discard_Mortality.csv"), show_col_types = FALSE)
   
   #l_w_conversion parameters =
   cod_lw_a = 0.000005132
@@ -23,7 +23,7 @@ options(scipen = 100, digits = 6)
   output1<-data.frame() 
   output2<-data.frame() ##This dataset will store all the results
   
-  baseline_comparison1<-readRDS(paste0(input_data_cd, "calibration_comparison.rds")) %>% 
+  baseline_comparison1<-readRDS(file.path(input_data_cd, "calibration_comparison.rds")) %>% 
     dplyr::relocate(draw, mrip_index, open, mode, tot_keep_cod_model, tot_cod_keep_mrip, diff_cod_harv, perc_diff_cod_harv, h_star_cod_keep_to_release_variable, h_star_cod_release_to_keep_variable, 
                     tot_rel_cod_model, tot_cod_rel_mrip, tot_keep_hadd_model, tot_hadd_keep_mrip, diff_hadd_harv, perc_diff_hadd_harv,  h_star_hadd_keep_to_release_variable, h_star_hadd_release_to_keep_variable,
                     tot_rel_hadd_model, tot_hadd_rel_mrip ) %>% 
@@ -45,7 +45,7 @@ options(scipen = 100, digits = 6)
     #for kim: We need to retain the _SQ variables and allow the _y2 variables to reflect alternative regulations. This needs to
     #to be done after we copy the variables _y2=_SQ below
     
-    directed_trips_table =  read_feather(paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
+    directed_trips_table =  read_feather(file.path(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
       dplyr::mutate(cod_min_SQ=cod_min_y2, cod_bag_SQ=cod_bag_y2, hadd_min_SQ=hadd_min_y2, hadd_bag_SQ=hadd_bag_y2)
     
     
@@ -61,7 +61,7 @@ options(scipen = 100, digits = 6)
       dplyr::mutate(all_cod_keep_2_release=ifelse(tot_keep_cod_model>0 & tot_cod_keep_mrip==0, 1, 0),
                     all_hadd_keep_2_release=ifelse(tot_keep_hadd_model>0 & tot_hadd_keep_mrip==0, 1, 0))
     
-    baseline_output0<-readRDS(paste0(input_data_cd, "harvest_differences_check.rds")) %>% 
+    baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) %>% 
       dplyr::filter(mrip_index==i)
     
     select_mode = unique(baseline_comparison$mode)
@@ -93,10 +93,10 @@ options(scipen = 100, digits = 6)
     n_sub_had_kept_base<-mean(baseline_comparison$n_sub_had_kept)
     
     #Pull in data that is draw-specific
-    calendar_2024_adjust <- readr::read_csv(paste0(input_data_cd, "next year calendar adjustments.csv"), show_col_types = FALSE) %>%
+    calendar_2024_adjust <- readr::read_csv(file.path(input_data_cd, "next year calendar adjustments.csv"), show_col_types = FALSE) %>%
       dplyr::filter(draw == k)
-    calibration_data_table = feather::read_feather(paste0(iterative_input_data_cd, "pds_new_", select_mode,"_", select_season, "_", k,".feather"))
-    costs_new_all = feather::read_feather(paste0(iterative_input_data_cd, "costs_", select_mode,"_", select_season, "_", k,".feather"))
+    calibration_data_table = feather::read_feather(file.path(iterative_input_data_cd, paste0("pds_new_", select_mode,"_", select_season, "_", k,".feather")))
+    costs_new_all = feather::read_feather(file.path(iterative_input_data_cd, paste0("costs_", select_mode,"_", select_season, "_", k,".feather")))
     
     n_drawz = 50
     n_catch_draws = 30

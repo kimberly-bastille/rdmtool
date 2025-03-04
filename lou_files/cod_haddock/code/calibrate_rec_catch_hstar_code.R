@@ -26,7 +26,7 @@ MRIP_data2<-MRIP_data %>%
   n_drawz = 50
   n_catch_draws = 30
   set.seed(k)
-  directed_trips<-read_feather(paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
+  directed_trips<-read_feather(file.path(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
     tibble::tibble() %>%
     dplyr::filter(draw == k,
                   mode == select_mode) %>%
@@ -61,7 +61,7 @@ MRIP_data2<-MRIP_data %>%
     dplyr::select(period2, n_draws, open) %>%
     tidyr::uncount(n_draws) 
 
-  cod_catch_data <- feather::read_feather(paste0(iterative_input_data_cd, "catch_draws", k, "_full.feather")) %>% 
+  cod_catch_data <- feather::read_feather(file.path(iterative_input_data_cd, paste0("catch_draws", k, "_full.feather"))) %>% 
     dplyr::mutate(period2=paste0(month, "_", day1, "_", mode)) %>%  
     dplyr::left_join(open, by = "period2") %>%
     dplyr::filter(open == select_season) %>%
@@ -79,7 +79,7 @@ MRIP_data2<-MRIP_data %>%
   
   n_ids<-nrow(ids)
   
-  angler_dems <- read.csv(paste0(input_data_cd,"angler CE demographics.csv")) %>% 
+  angler_dems <- read.csv(file.path(input_data_cd,"angler CE demographics.csv")) %>% 
     dplyr::slice(rep(row_number(), each = round(n_ids/448+5))) %>% 
     dplyr::mutate(uniform=runif(n(), min=0, max=1)) %>% 
     dplyr::arrange(uniform)
