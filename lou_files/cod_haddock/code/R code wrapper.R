@@ -10,7 +10,7 @@ conflicts_prefer(dplyr::mutate)
 
 
 #There are four folders needed: 
- #input data - contains all the MRIP, biological data, angler characteristics data
+ #input data - contains all the MRIP, biological data, angler characteristics data, as well as some data generated in the simulation
  #code - contains all the model code
  #output_data - this folder is empty to begin with. It stores final simulation output
  #iterative_data -this folder is empty to begin with. It compiles data generated in the simulation
