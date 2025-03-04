@@ -22,8 +22,9 @@
 	*"smb://net/mrfss/products/mrip_estim/Public_data_cal2018"
 	*Windows, just mount \\net.nefsc.noaa.gov\mrfss to A:\
 
-ssc install xsvmat 
-ssc install gammafit 
+* Dependencies
+*ssc install xsvmat 
+*ssc install gammafit 
 
 *************************
 *****Set globals******** 	
@@ -126,11 +127,13 @@ global projected_hadd_NAA  "GOM_Haddock_projected_NAA_2024Assessment.dta"
 
 *Adjustment to 2017 survey trip costs to account for inflation
 global inflation_expansion=1.27
+global project_path "C:\Users\andrew.carr-harris\Desktop\Git\rdmtool\lou_files\cod_haddock" /* Lou's project path */
+global project_path "C:\Users\min-yang.lee\Documents\rdmtool\lou_files\cod_haddock"  /* Min-Yang's project path */
 
-global input_data_cd "C:\Users\andrew.carr-harris\Desktop\Git\rdmtool\lou_files\cod_haddock\input_data"
-global input_code_cd "C:\Users\andrew.carr-harris\Desktop\Git\rdmtool\lou_files\cod_haddock\code"
-global iterative_input_data_cd "C:\Users\andrew.carr-harris\Desktop\Git\rdmtool\lou_files\cod_haddock\input_data\iterative_data"
-global figure_cd "C:\Users\andrew.carr-harris\Desktop\Git\rdmtool\lou_files\cod_haddock\figures"
+global input_data_cd "${project_path}\input_data"
+global input_code_cd "${project_path}\\code"
+global iterative_input_data_cd "${input_data_cd}\iterative_data"
+global figure_cd  "${project_path}\figures"
 
 
 ***Calibration files*** 
