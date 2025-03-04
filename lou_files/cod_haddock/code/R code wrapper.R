@@ -20,11 +20,11 @@ conflicts_prefer(here::here)
 
 
 #Set up R globals for input/output data and code scripts
-input_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/"
-code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/code/"  
-output_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/output_data/" 
-iterative_input_data_cd= "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/iterative_data/" 
 
+input_data_cd=here("cod_haddock","input_data")
+code_cd=here("cod_haddock","code")
+output_data_cd=here("cod_haddock","output_data")
+iterative_input_data_cd=here(input_data_cd, "iterative_data")
 
 ###################################################
 ###############Pre-sim Stata code##################
