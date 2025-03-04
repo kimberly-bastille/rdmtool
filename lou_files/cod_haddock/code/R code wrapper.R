@@ -7,6 +7,7 @@ pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape
 install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
 lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
 conflicts_prefer(dplyr::mutate)
+conflicts_prefer(here::here)
 
 
 #There are four folders needed::
