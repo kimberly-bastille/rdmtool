@@ -9,7 +9,7 @@ lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
 conflicts_prefer(dplyr::mutate)
 
 
-#There are four folders needed: 
+#There are four folders needed::
  #input data - contains all the MRIP, biological data, angler characteristics data, as well as some data generated in the simulation
  #code - contains all the model code
  #output_data - this folder is empty to begin with. It stores final simulation output
