@@ -39,7 +39,7 @@ options(scipen = 100, digits = 6)
     
     #Lou's code: 
     #regulation variables with no subscript, i.e., cod_min, are the regulations in the calibration year 
-    #regulation variables _y2 subscript, i.e., cod_min_y2, are currently the SQ regulations for the projection year
+    #regulation variables _y2 subscript, i.e., cod_min_y2, are  regulations for the projection year (currently SQ)
     #regulation variables _SQ subscript, i.e., cod_min_SQ, are the SQ regulations for the projection year
     
     #for kim: We need to retain the _SQ variables and allow the _y2 variables to reflect alternative regulations. This needs to
@@ -47,6 +47,11 @@ options(scipen = 100, digits = 6)
     
     directed_trips_table =  read_feather(paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>% 
       dplyr::mutate(cod_min_SQ=cod_min_y2, cod_bag_SQ=cod_bag_y2, hadd_min_SQ=hadd_min_y2, hadd_bag_SQ=hadd_bag_y2)
+    
+    
+    #If you want to change the projection year regulations here locally, do it below by mutating the _y2 variables in directed_trips_table. 
+    #Kim does this differently based on how the Rshiny app works
+    
     
     # End import regulations
     
@@ -1142,6 +1147,5 @@ options(scipen = 100, digits = 6)
     output2<-rbind(output2, output1)
   }
   })
-  write_xlsx(output2, paste0(output_data_cd, "SQ_month_run1.xlsx"))
   
 

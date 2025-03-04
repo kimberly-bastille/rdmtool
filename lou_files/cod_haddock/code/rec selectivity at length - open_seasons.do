@@ -832,6 +832,9 @@ rename fitted_l length
 gen nfish_catch_from_fitted=fitted_prob*sum_nfish_catch
 gen nfish_catch_from_raw=observed_prob*sum_nfish_catch
 
+
+*graphs of the fitted observed/fitted probabilities
+/*
 levelsof domain, local(domz)
 foreach d of local domz{
 twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(gray) lwidth(med)  lpat(solid) msymbol(o) mcol(gray) $graphoptions) ///
@@ -843,7 +846,7 @@ twoway (scatter observed_prob length if domain=="`d'" ,   connect(direct) lcol(g
 
 grc1leg `graphnames'
 graph export "$figure_cd/catch_at_length_calib.png", as(png) replace
-
+*/
 
 drop observed_prob2
 
@@ -1257,6 +1260,7 @@ egen sumprob_sm=sum(proj_CaL_prob_smooth), by(season species id2)
 
 
 mvencode fitted observed, mv(0) override
+/*
 collapse (mean) proj_CaL_prob_raw proj_CaL_prob_smooth  fitted observed, by(length species season)
 sort species season length
 

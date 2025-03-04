@@ -9,26 +9,39 @@ lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
 conflicts_prefer(dplyr::mutate)
 
 
+#There are four folders needed: 
+ #input data - contains all the MRIP, biological data, angler characteristics data
+ #code - contains all the model code
+ #output_data - this folder is empty to begin with. It stores final simulation output
+ #iterative_data -this folder is empty to begin with. It compiles data generated in the simulation
+
+#Need to ensure that the globals below are set up in both this file and the stata model_wrapper.do file. 
+
+
+#Set up R globals for input/output data and code scripts
+input_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/"
+code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/code/"  
+output_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/output_data/" 
+iterative_input_data_cd= "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/iterative_data/" 
+
+
 ###################################################
 ###############Pre-sim Stata code##################
 ###################################################
 
 #Stata code extracts and prepares the data needed for the simulation
 
-#Set up globals for input/output data and code scripts
-input_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/"
-code_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/code/" 
-output_data_cd="C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/output_data/"
-iterative_input_data_cd= "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/iterative_data/"
-
 #Connect Rstudio to Stata
 options("RStata.StataPath" = "\"C:\\Program Files\\Stata17\\StataMP-64\"")
 options("RStata.StataVersion" = 17)
 
-#Set number of original draws
-n_simulations<-150
+#Set number of original draws. We use 150 for the final run. Choose a lot fewer for test runs
+n_simulations<-2
 
-#First, open "$code_cd\model wrapper.do" and set globals (i.e., choose data years for different datasets)
+#First, open "$code_cd\model wrapper.do" and set globals:
+  #a) data years for different datasets
+  #b) number of draws (ndraws), which should be the same as the object n_simulations above
+  #c) cd's
 
 #Second, open "$code_cd\set regulations.do" and set regulations for the calibration and projection period.
 
@@ -53,7 +66,7 @@ stata('do "C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock
 #Projection results are based on 100 iterations of the model. In each iteration we pull 
 #in new distributions of catch-per-trip, directed fishing effort, projected catch-at-length, 
 #and angler preferences. I calibrate the model with 150 iterations, some of which are 
-# excluded after Step 2. From the pool of remaining iterations, I use the first 100 in the projection.
+#excluded after Step 2. From the pool of remaining iterations, I use the first 100 in the projection.
 
 #Prior to running the model, transfer the catch_draw files from .csv to .feather to reduce computing time
 for(i in 1:n_simulations){
@@ -145,6 +158,8 @@ source(paste0(code_cd,"calibration_wrapper.R"))
 
 source(paste0(code_cd, "predict_rec_catch_season3_new1.R"))
 
+#Save the output
+write_xlsx(output2, paste0(output_data_cd, "model_results.xlsx"))
 
 #Output files: 
 # RDM_predictions.xlsx - output by mode, season, and draw

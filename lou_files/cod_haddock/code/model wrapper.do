@@ -22,6 +22,9 @@
 	*"smb://net/mrfss/products/mrip_estim/Public_data_cal2018"
 	*Windows, just mount \\net.nefsc.noaa.gov\mrfss to A:\
 
+ssc install xsvmat 
+ssc install gammafit 
+
 *************************
 *****Set globals******** 	
 *************************
@@ -87,7 +90,7 @@ global fed_holidays_y2 "inlist(day_y2,td(01jan2025), td(20jan2025), td(17feb2025
 global leap_yr_days "td(29feb2024)" 
 
 *Choose how many draws you want to create. Will create 150 for final version, from which 100 will be selected
-global ndraws 150
+global ndraws 2
 
 *Set the global length to pull either ionches or centimeters from MRIP (l_in_bin or l_cm_bin)
 global length_bin l_cm_bin
@@ -188,10 +191,10 @@ do "$input_code_cd\rec selectivity at length - open_seasons.do"
 // Steps 7-10 are not necessary to run. They compare the disaggregated simulated catch and effort data to aggreagte MRIP estimates, and compute catch weight totals in the calibration year 
 
 // 7) Pull total harvest and catch estimates based MRIP to compare to simulated harvest and catch totals
-do "$input_code_cd\catch_totals_calibration_open_seasons.do"
+*do "$input_code_cd\catch_totals_calibration_open_seasons.do"
 
 // 8) Pull total dtrip estimates based on MRIP to compare to simulated dtrips
-do "$input_code_cd\directed_trips_calibration_open_seasons.do"
+*do "$input_code_cd\directed_trips_calibration_open_seasons.do"
 
 // 9) A few checks to ensure simulated data looks good
 	*a) compare simulated catch totals--based on multiplying draws of trips-per-day by mean catch-per trip-- to MRIP point estimates
