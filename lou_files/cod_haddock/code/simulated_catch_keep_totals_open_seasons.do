@@ -1,4 +1,11 @@
 
+*In this file, I generate simulated total harvest based on the random draws of catch and trips.
+*I do this because we need an estimate of total harvest on each draw in order to calibrate the model.
+*We dataset generated in this code is called in the .R calibration routine.  
+*Later in the model wrapper.do code, there is a script which compares my simuated total harvest
+*with MRIP point estimates. Differences between the simulated estimate and the MRIP point estimate
+*could indicate there's something funny going on with how you're formatting the input data.  
+
 
 global domainz
 qui forv i=1/$ndraws{

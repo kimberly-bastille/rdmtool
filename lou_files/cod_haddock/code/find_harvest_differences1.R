@@ -1,5 +1,10 @@
 
 
+#This file runs the calibration model and computes the difference between the model's simulated harvest
+#and the estimate of harvest from MRIP. These differences are retained and in the next step, 
+#where we run the calibration model again but this time adjust per-trip harvest, i.e., some trip 
+#discard fish that could be kept or harvest fish that should be released, until our simulated model
+#output in terms of harvest in numbers of fish is within 5% or 500 fish of the MRIP estimate. 
 
 MRIP_data <-   read.csv(file.path(paste0(MRIP_comparison))) %>%
   dplyr::filter(dtrip>0) %>% 

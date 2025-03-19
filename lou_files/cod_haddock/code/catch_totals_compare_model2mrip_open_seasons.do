@@ -1,4 +1,11 @@
 
+*This file pulls in our simulated estimates of catch, harvest, discards, and directed trips created in step 5 of the model wrapper, 
+*$input_code_cd\simulated_catch_keep_totals_open_seasons.do and computes the means over the 150 iterations. These means
+*can be generated at any level (season and mode, mode only, both modes and both seasons conbined, etc.), but we are primary interested 
+*in the means by mode and season, as this is the level at which the simulation model is run. The file also pulls in MRIP point estimates 
+*of total catch, harvest, discards, and directed trips for each simulation strata. It then compares differences between MRIP point estimates 
+*and our simulated means. These comparisons are useful for identifying any large discrepencies that may result from the way we format the input data. 
+
 
 **differences by season and mode 
 import delimited using "$input_data_cd\MRIP_catch_totals_open_season.csv", clear 

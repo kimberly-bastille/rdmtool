@@ -1,5 +1,35 @@
 
 
+*Game plan of this file:
+	*1) Pull b2 catch frequencies at-length from MRIP
+			*for cod, use UNweighted b2 data
+			*for haddock, use weighted b2 data
+			
+	*2) Pull ab1 catch frequencies at-length from MRIP
+			*for both species use weighted a+b1 data
+			
+	*3) Combine the above data, compute proportions at-length
+	
+	*4) Multiply each series by total harvest or total releases, and sum across length bins
+		*Note that the data up to here was pulled based on two strata for FY2025: species, and cod open season. 
+		*So we assumed that catch-at-length of each species depended on whether anglers could target both species, rather than the time of year. 
+	
+	*5) Once we create the catch-at-length distn's, estimate gamma parameters and simulate distributions based on those parameters
+	
+	*6) Pull in NEFSC trawl survey data and make age-length keys. I smooth these data using a LOWESS, Min-Yang had previously not smoothed these data. 
+	
+	*7) Pull in historical population numbers-at-age data, merge to age-length keys, and create historical numbers-at-length for the most recent historical year
+	
+	*8) Merge the historical numbers-at-length to the catch-at-length distributions and create recreational selectivity distributions, i.e., q_l= catch_l/N_l
+	
+	*9) Pull in projected population numbers-at-age data and convert these to numbers-at-length using the age-length keys. Do this once for each model iteration, 
+		 *each time drawing a new projected population numbers-at-age
+		 
+	*10) Merge each projected numbers-at-length distribution to the recreational selectivity distributions, and multiply projected numbers-at-length 
+		  *by rec. selectivity (proj_N_l * q_l) to get projected catch-at-length
+		  
+	*11) Sum projected catch-at-length across length classes and generate a probability distribution for projected catch-at-length. 
+		   *The end result is a file containing 150 projected catch-at-length probability distributions for each strata combination, each corresponding to one model iteration.
 
 *MRIP release data 
 cd $input_data_cd
@@ -853,10 +883,10 @@ drop observed_prob2
 save "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.dta", replace  //This file has the fitted catch-at-length probabilities in the baseline year
 export delimited using "$input_data_cd/rec_selectivity_CaL_open_seasons_cm.csv", replace
 
-*****Now obtain draws of population numbers at length from AGEPRO and translate these to numbers at length 
+*****Now obtain draws of population numbers at length from AGEPRO/WHAM and translate these to numbers at length 
 *1) pull raw trawl survey data and create age-length key. M-Y has not been smoothing these data 
 		* use the last three years of data available. 
-		* by the time we update the data (Nov. 15), there will only be spring trawl survey data from the most recent year 
+		* by the time we update the data (~Nov. 15), there will only be spring trawl survey data from the most recent year 
 		* for now I will use the datas M-Y has pulled, but will have to pull new data for final model estimation
 
 		
@@ -1129,8 +1159,8 @@ tempfile cod_hadd_ql
 save `cod_hadd_ql', replace
 
 
-****Having computed slectivities by month, now draw projected NaA, translate to lengths, and
-****merge these data to the ql data and create catch-at-length in the projection year *  and compute projected catch-at-lengths
+****Having computed selectivity-at-length, now draw projected numbers-at-age, translate them to lengths,
+****merge these data to the selectivity-at-length data, and create projected catch-at-length for each draw of projected numbers-at-age
 
 *projected assessment data 
 use "$input_data_cd/$projected_cod_NAA", clear 

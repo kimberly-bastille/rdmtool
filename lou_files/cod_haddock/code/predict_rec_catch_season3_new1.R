@@ -1,10 +1,10 @@
-# pkgs_to_use <- c("tidyr",  "magrittr", "tidyverse", "reshape2", "splitstackshape","doBy","WriteXLS","Rcpp",
-#                  "ggplot2","dplyr","rlist","fitdistrplus","MASS","psych","rgl","copula","VineCopula","scales",
-#                  "univariateML","logspline","readr","data.table","conflicted", "readxl", "writexl", "fs",
-#                  "purrr", "readr", "here","plyr" , "furrr", "profvis", "future", "magrittr", "feather")
-# install.packages(setdiff(pkgs_to_use, rownames(installed.packages())))
-# lapply(pkgs_to_use, library, character.only = TRUE, quietly = TRUE)
-# conflicts_prefer(dplyr::mutate)
+
+
+#This file runs the projection. It pulls in new catch-at-length probability distributions and 
+#adjusts trip level harvest outcomes by the observed non-compliance or voluntary release observed
+#in the calibration year. Non-compliance or voluntary release behavior changes in the projection year
+#relative to the calibration year depending on the relative restrictiveness of the projection year
+#regulations compared to the calibration year regulations
 
 
 options(scipen = 100, digits = 6)
