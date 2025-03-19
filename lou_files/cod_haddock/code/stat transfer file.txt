@@ -1,1 +1,0 @@
-copy   C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/*.sas7bdat   C:/Users/andrew.carr-harris/Desktop/Git/rdmtool/lou_files/cod_haddock/input_data/*.dta
