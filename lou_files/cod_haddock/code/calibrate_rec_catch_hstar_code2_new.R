@@ -2,7 +2,7 @@
 #This is the simulation model for the calibration year WITH adjustments for illegal harvest or voluntary release
 
 
-MRIP_data2<- readRDS(paste0(input_data_cd, "MRIP_simulated_data.rds")) %>% 
+MRIP_data2<- readRDS(file.path(input_data_cd, "MRIP_simulated_data.rds")) %>% 
   dplyr::filter(mrip_index==i)
 
 
@@ -26,7 +26,7 @@ n_catch_draws = 30
 set.seed(k)
 
 
-directed_trips<-directed_trips<-read_feather(paste0(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>%
+directed_trips<-directed_trips<-read_feather(file.path(input_data_cd, "directed_trips_calib_150draws_cm.feather")) %>%
   tibble::tibble() %>%
   dplyr::filter(draw == k,
                 mode == select_mode) %>%
@@ -78,7 +78,7 @@ param_draws <- directed_trips_p %>%
   tidyr::uncount(n_draws) 
 
 
-cod_catch_data <- feather::read_feather(paste0(iterative_input_data_cd, "catch_draws", k, "_full.feather")) %>%  
+cod_catch_data <- feather::read_feather(file.path(iterative_input_data_cd, paste0("catch_draws", k, "_full.feather"))) %>%  
   dplyr::mutate(period2=paste0(month, "_", day1, "_", mode)) %>%  
   dplyr::left_join(open, by = "period2") %>%
   dplyr::filter(open == select_season) %>%
@@ -96,7 +96,7 @@ ids<-cod_catch_data %>%
 
 n_ids<-nrow(ids)
 
-angler_dems <- read.csv(paste0(input_data_cd,"angler CE demographics.csv")) %>% 
+angler_dems <- read.csv(file.path(input_data_cd,"angler CE demographics.csv")) %>% 
   dplyr::slice(rep(row_number(), each = round(n_ids/448+5))) %>% 
   dplyr::mutate(uniform=runif(n(), min=0, max=1)) %>% 
   dplyr::arrange(uniform)
@@ -751,7 +751,7 @@ season1<-unique(costs_new_all$open)
 mode1<-unique(costs_new_all$mode)
 draw1<-unique(costs_new_all$n_cal_draw)
 
-write_feather(costs_new_all, paste0(iterative_input_data_cd, "costs_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(costs_new_all, file.path(iterative_input_data_cd, paste0("costs_", mode1,"_", season1, "_", draw1, ".feather")))
 
 
 
@@ -911,7 +911,7 @@ season1<-unique(pds_new$open)
 mode1<-unique(pds_new$mode)
 draw1<-unique(pds_new$draw)
 
-write_feather(pds_new, paste0(iterative_input_data_cd, "pds_new_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(pds_new, file.path(iterative_input_data_cd, paste0("pds_new_", mode1,"_", season1, "_", draw1, ".feather")))
 
 
 
@@ -950,7 +950,7 @@ season1<-unique(comparison2$open)
 mode1<-unique(comparison2$mode)
 draw1<-unique(comparison2$draw)
 
-write_feather(comparison2, paste0(iterative_input_data_cd, "comparison_", mode1,"_", season1, "_", draw1, ".feather"))
+write_feather(comparison2, file.path(iterative_input_data_cd, paste0("comparison_", mode1,"_", season1, "_", draw1, ".feather")))
 
 
 
