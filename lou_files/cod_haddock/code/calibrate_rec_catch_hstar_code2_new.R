@@ -1,4 +1,6 @@
 
+#This is the simulation model for the calibration year WITH adjustments for illegal harvest or voluntary release
+
 
 MRIP_data2<- readRDS(paste0(input_data_cd, "MRIP_simulated_data.rds")) %>% 
   dplyr::filter(mrip_index==i)
@@ -41,8 +43,6 @@ directed_trips<-directed_trips<-read_feather(paste0(input_data_cd, "directed_tri
 floor_subl_cod_harv<-min(directed_trips$cod_min)-2*2.54
 floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2*2.54
 
-#floor_subl_cod_harv<-min(directed_trips$cod_min)-2
-#floor_subl_hadd_harv<-min(directed_trips$hadd_min)-2
 
 open<- directed_trips %>%
   dplyr::mutate(day = as.numeric(stringr::str_extract(day, '\\d{2}')),
@@ -259,63 +259,6 @@ if(cod_catch_check !=0){
   ##Now reallocate a portion of all releases as kept if needed 
   if (cod_release_2_keep==1 & sum_cod_rel>0){
     
-    # catch_size_data_cod_re_allocate<- catch_size_data %>%
-    #   dplyr::filter(floor_subl_cod_harv_indicator==1) %>% 
-    #   dplyr::mutate(domain3 = paste0(period2, "_", tripid))
-    # 
-    # catch_size_data_cod_re_allocate_base<- catch_size_data %>%
-    #   dplyr::filter(floor_subl_cod_harv_indicator==0) 
-    # 
-    # catch_size_data_cod_re_allocate_trips <- catch_size_data_cod_re_allocate %>% 
-    #   dplyr::distinct(domain3, .keep_all=FALSE) %>% 
-    #   dplyr::mutate(uniform=runif(n(), min=0, max=1)) %>% 
-    #   dplyr::arrange(uniform) %>% 
-    #   dplyr::ungroup()
-    # 
-    # 
-    # catch_size_data_cod_re_allocate_trips <- catch_size_data_cod_re_allocate_trips %>% 
-    #   dplyr::mutate(id2=1:nrow(catch_size_data_cod_re_allocate_trips)) 
-    # 
-    # n_row_cod_re_allocate<-nrow(catch_size_data_cod_re_allocate_trips)
-    # 
-    # n_sub_cod_kept=round(h_star_cod_release_to_keep_variable*n_row_cod_re_allocate)
-    # 
-    # catch_size_data_cod_re_allocate_trips <-catch_size_data_cod_re_allocate_trips %>% 
-    #   dplyr::mutate(re_allocate=case_when(id2<=n_sub_cod_kept~1, TRUE~ 0))
-    # 
-    # catch_size_data_cod_re_allocate<- catch_size_data_cod_re_allocate %>%
-    #   dplyr::left_join(catch_size_data_cod_re_allocate_trips, by= "domain3") 
-    # 
-    # catch_size_data_cod_re_allocate_base2<- catch_size_data_cod_re_allocate %>%
-    #   dplyr::filter(re_allocate==0) 
-    # 
-    # catch_size_data_cod_re_allocate<- catch_size_data_cod_re_allocate %>%
-    #   dplyr::filter(re_allocate==1) 
-    # 
-    # catch_size_data_cod_re_allocate<-catch_size_data_cod_re_allocate %>% 
-    #   dplyr::mutate(rel_new=0, keep_new=1) %>% 
-    #   dplyr::select(-keep, -release, -uniform, -id2, -re_allocate) %>% 
-    #   dplyr::rename(keep=keep_new, release=rel_new)
-    # 
-    # setDT(catch_size_data_cod_re_allocate)
-    # catch_size_data_cod_re_allocate <- catch_size_data_cod_re_allocate[order(tripid, period2, catch_draw, fishid)][
-    #   , `:=`(
-    #     csum_keep = cumsum(keep),               # Calculate cumulative sum of keep
-    #     bag_cutoff =  1              # Define bag cutoff
-    #   ), by = .(tripid, period2, catch_draw)][
-    #     , `:=`(
-    #       release_new = as.integer(csum_keep > bag_cutoff | release == 1), # Update release flag
-    #       keep_new = as.integer(!(csum_keep > bag_cutoff | release == 1))  # Update keep flag
-    #     )][, .(tripid, period2, fitted_length, floor_subl_cod_harv_indicator, catch_draw, fishid, keep = keep_new, release = release_new)] # Select and rename]
-    # 
-    # catch_size_data<-rbind.fill(catch_size_data_cod_re_allocate,catch_size_data_cod_re_allocate_base, 
-    #                                 catch_size_data_cod_re_allocate_base2)
-    # 
-    # 
-    # 
-    # rm(catch_size_data_cod_re_allocate,catch_size_data_cod_re_allocate_base, 
-    #    catch_size_data_cod_re_allocate_base2)
-    # 
     catch_size_data_cod_re_allocate<- catch_size_data %>%
       dplyr::filter(floor_subl_cod_harv_indicator==1) %>% 
       dplyr::select(-mode1, -cod_bag, -cod_min)
@@ -571,61 +514,6 @@ if (had_catch_check!=0){
   ##Now reallocate a portion of all releases as kept if needed 
   if (hadd_release_2_keep==1 & sum_hadd_rel>0){
     
-    # catch_size_data_had_re_allocate<- catch_size_data_had %>%
-    #   dplyr::filter(floor_subl_hadd_harv_indicator==1) %>% 
-    #   dplyr::mutate(domain3 = paste0(period2, "_", tripid))
-    # 
-    # catch_size_data_had_re_allocate_base<- catch_size_data_had %>%
-    #   dplyr::filter(floor_subl_hadd_harv_indicator==0) 
-    # 
-    # catch_size_data_had_re_allocate_trips <- catch_size_data_had_re_allocate %>% 
-    #   dplyr::distinct(domain3, .keep_all=FALSE) %>% 
-    #   dplyr::mutate(uniform=runif(n(), min=0, max=1)) %>% 
-    #   dplyr::arrange(uniform) %>%
-    #   dplyr::ungroup()
-    # 
-    # catch_size_data_had_re_allocate_trips<-catch_size_data_had_re_allocate_trips %>%
-    #   dplyr::mutate(id2=1:nrow(catch_size_data_had_re_allocate_trips))
-    # 
-    # n_row_had_re_allocate<-nrow(catch_size_data_had_re_allocate_trips)
-    # 
-    # n_sub_had_kept=round(h_star_hadd_release_to_keep_variable*n_row_had_re_allocate)
-    # 
-    # catch_size_data_had_re_allocate_trips <-catch_size_data_had_re_allocate_trips %>% 
-    #   dplyr::mutate(re_allocate=case_when(id2<=n_sub_had_kept~1, TRUE~ 0))
-    # 
-    # catch_size_data_had_re_allocate<- catch_size_data_had_re_allocate %>%
-    #   dplyr::left_join(catch_size_data_had_re_allocate_trips, by= "domain3") 
-    # 
-    # catch_size_data_had_re_allocate_base2<- catch_size_data_had_re_allocate %>%
-    #   dplyr::filter(re_allocate==0) 
-    # 
-    # catch_size_data_had_re_allocate<- catch_size_data_had_re_allocate %>%
-    #   dplyr::filter(re_allocate==1) 
-    # 
-    # catch_size_data_had_re_allocate<-catch_size_data_had_re_allocate %>% 
-    #   dplyr::mutate(rel_new=0, keep_new=1) %>% 
-    #   dplyr::select(-keep, -release, -uniform, -id2, -re_allocate) %>% 
-    #   dplyr::rename(keep=keep_new, release=rel_new)
-    # 
-    # setDT(catch_size_data_had_re_allocate)
-    # catch_size_data_had_re_allocate <- catch_size_data_had_re_allocate[order(tripid, period2, catch_draw, fishid)][
-    #   , `:=`(
-    #     csum_keep = cumsum(keep),               # Calculate cumulative sum of keep
-    #     bag_cutoff =  5              # Define bag cutoff
-    #   ), by = .(tripid, period2, catch_draw)][
-    #     , `:=`(
-    #       release_new = as.integer(csum_keep > bag_cutoff | release == 1), # Update release flag
-    #       keep_new = as.integer(!(csum_keep > bag_cutoff | release == 1))  # Update keep flag
-    #     )][, .(tripid, period2, fitted_length, floor_subl_hadd_harv_indicator, catch_draw, fishid, keep = keep_new, release = release_new)] # Select and rename]
-    # 
-    # catch_size_data_had<-rbind.fill(catch_size_data_had_re_allocate,catch_size_data_had_re_allocate_base, 
-    #                                 catch_size_data_had_re_allocate_base2)
-    # 
-    # 
-    # 
-    # rm(catch_size_data_had_re_allocate, catch_size_data_had_re_allocate_base, catch_size_data_had_re_allocate_base2)
-    # 
     
     catch_size_data_had_re_allocate<- catch_size_data_had %>%
       dplyr::filter(floor_subl_hadd_harv_indicator==1) %>% 
@@ -791,7 +679,7 @@ if (had_catch_check!=0){
   trip_data_hadd<-data.table::as.data.table(trip_data_hadd)
   data.table::setkey(trip_data_hadd, "domain2")
   
-  # merge the bsb trip data with the rest of the trip data
+  # merge the hadd trip data with the rest of the trip data
   #trip_data <-  merge(trip_data,trip_data_bsb,by=c("period2", "catch_draw", "tripid", "state", "mode", "month" ))
   trip_data<-trip_data[trip_data_hadd, on = "domain2"]
   
@@ -813,21 +701,6 @@ if (had_catch_check==0 & cod_catch_check!=0){
   
   
 }
-
-
-
-# period_vec1 <- param_draws %>%
-#   dplyr::mutate(beta_sqrt_cod_keep = rnorm(nrow(param_draws), mean = 1.594, sd = .615),
-#                 beta_sqrt_cod_release = rnorm(nrow(param_draws), mean = 0.162 , sd = 0.445),
-#                 beta_sqrt_hadd_keep = rnorm(nrow(param_draws), mean = 1.156, sd = 0.603 ),
-#                 beta_sqrt_hadd_release = rnorm(nrow(param_draws), mean = 0.094 , sd = 0 ),
-#                 beta_sqrt_cod_hadd_keep = rnorm(nrow(param_draws), mean =-0.314  , sd = 0.778 ),
-#                 beta_cost = rnorm(nrow(param_draws), mean =-0.015 , sd =0 ),
-#                 beta_opt_out = rnorm(nrow(param_draws), mean =-1.871 , sd = 3.208 ),
-#                 beta_opt_out_age = rnorm(nrow(param_draws), mean =0.047 , sd = 0 ),
-#                 beta_opt_out_likely = rnorm(nrow(param_draws), mean =-1.272 , sd = 0 ),
-#                 beta_opt_out_prefer = rnorm(nrow(param_draws), mean =-1.079 , sd = 0 ))%>%
-#   dplyr::group_by(period2) %>% dplyr::mutate(tripid = dplyr::row_number(period2))
 
 
 
@@ -973,7 +846,7 @@ mean_trip_data <- mean_trip_data %>%
   dplyr::left_join(period_names, by = c("period2"))
 
 
-
+#source(compute calibration weights)
 
 #Now multiply the trip outcomes (catch, trip probabilities) for each choice occasion in
 #mean_trip_pool by the expansion factor (expand), so that  each choice occasion represents a certain number of choice occasions
@@ -982,10 +855,8 @@ mean_trip_data <- mean_trip_data %>%
 sims <- directed_trips_p %>%
   dplyr::select(c(dtrip, period2)) 
 
-
-mean_trip_data<-mean_trip_data %>% 
-  dplyr::select(-period, -tripid)
-
+mean_trip_data<-mean_trip_data %>%
+   dplyr::select(-period)
 
 mean_trip_data <- mean_trip_data %>%
   dplyr::left_join(sims, by="period2")

@@ -1,5 +1,12 @@
 
 
+
+* This file creates:
+	*1) Raw proportions harvest- and discards-at-length for each species for January-June and July-December to align with the 
+		 *length-weight equations that vary by season (for haddock)
+	*2) Raw proportions harvest- and discards-at-length for each species for the entire year
+	
+	
 *MRIP release data 
 cd $input_data_cd
 
@@ -270,7 +277,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="O"
 
 replace area_s="M" if st2=="23" | st2=="33"
-replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="M" if st2=="25" & intsite==224
 
@@ -466,7 +473,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="O"
 
 replace area_s="M" if st2=="23" | st2=="33"
-replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="M" if st2=="25" & intsite==224
 
@@ -654,7 +661,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="O"
 
 replace area_s="M" if st2=="23" | st2=="33"
-replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="M" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="B" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="M" if st2=="25" & intsite==224
 
