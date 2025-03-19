@@ -1,6 +1,22 @@
 
 
 
+/*This code uses the MRIP data to 
+	1) estimate harvest, discards, and catch frequencies (i.e., # of trips that harvested/discarded/caught X fish) and their standard error at the month and mode (pr/fh) level using the most recent full year of data
+	****Note that we compute catch-per-trip distributions based on harvest- and discard-per-trip distribrutions because we calibrate the model to total harvest and we need,  
+	 for each draw of MRIP data, a draw of total harvest that is reflective of the random draw from the directed trips and harvest-per-trip distribution.Essesntially, to compute 
+	 catch-per-trip, I take the sum of a random draw of discard frequencies and harvest frequencies. That way I also retain harvest-per-trip distributions, which I can multiply 
+	 by the total number of trips drawn from the directed trip distributions to arrive at total simulated harvest. I also assess whether my simulated total harvest/discards/catch estimates
+	 are similar to the MRIP point esimates in catch_totals_compare_model2mrip_open_seasons.
+	 random draw of discar
+	2) use those estimates to create 150 random draws of harvest, discards, and catch frequencies for each stratum
+	2b) correct for the fact that a draw of number of trips cannot be <0 
+	3) combine these data with the angler characterstics data
+	4) create 150 draws of catch-per-trip and angler characteristics. 
+*/
+		
+
+
 cd $input_data_cd
 
 clear

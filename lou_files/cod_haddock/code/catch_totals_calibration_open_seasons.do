@@ -1,4 +1,7 @@
 
+
+*This file generates MRIP point estimates of catch, harvest, and discards in the calibration year across the simulation strata (for FY2025, these were species and cod open season)
+
 cd $input_data_cd
 
 clear

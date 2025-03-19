@@ -1,5 +1,10 @@
 
+
+
 ****Set regulations for the calibration period and the projection period****
+*These need to be changed every year 
+
+
 
 /*FY 2024 model
 *************************
@@ -114,6 +119,7 @@ replace cod_min_y2=22 if  day_y2>=td(01apr2025) & day_y2<=td(14apr2025)
 *************************
 */
 
+
 *FY 2025 model
 *************************
 *Create the baseline regulations for the calibration period, 
@@ -127,7 +133,6 @@ gen hadd_min=100
 
 *Hadd regs 
 *FY 2023: The Council proposed an 18-inch minimum size and 15 fish limit for both the for-hire and private angler sector. NMFS implemented split measures out of concerns that an 18-inch minimum would unnecessarily constrain catch and increase dead discards in the private angler sector. This rule became effective August 14, 2023. Split measures- For hire: 18", 15 bag; private 17", 10 bag
-
 *split measures effective August 14, 2023
 replace hadd_bag=15 if  day>=td(14aug2023) & day<=td(28feb2024) & inlist(mode, "fh")
 replace hadd_min=18 if  day>=td(14aug2023) & day<=td(28feb2024)  & inlist(mode, "fh")

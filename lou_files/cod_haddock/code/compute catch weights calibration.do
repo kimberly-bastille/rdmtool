@@ -1,5 +1,10 @@
 
 
+*This file computes total catch in numbers and weight, total discard mortality in numbers and weights, 
+*and total mortality in numbers and weights from the MRIP data. It then pulls in the simulation model output (run in R prior to running this), 
+*and compares these values to the MRIP values. 
+
+
 u  "$input_data_cd/raw_props_at_length_ab1b2_season.dta", clear   //This file has raw proportions at length in the calibration period
 drop if prop_ab1==. & prop_b2==.
 sort species season l_cm_  
@@ -172,7 +177,7 @@ append using `mrip_catch'
 
 
 
-*now compute catrch weights for keep, release, total catch at the annual level 
+*now compute catch weights for keep, release, total catch at the annual level 
 u  "$input_data_cd/raw_props_at_length_ab1b2_annual.dta", clear   //This file has raw proportions at length in the calibration period
 drop if prop_ab1==. & prop_b2==.
 sort species  l_cm_  

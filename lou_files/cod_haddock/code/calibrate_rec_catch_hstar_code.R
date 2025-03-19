@@ -1,5 +1,7 @@
 
 
+#This is the simulation model for the calibration year WITHOUT any adjustments for illegal harvest or voluntary release
+
 pds_new=list()
 costs_new_all <- list()
   

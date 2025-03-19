@@ -1,5 +1,8 @@
 
 
+*This file generates MRIP point estimates of directed trips in the calibration year across the simulation strata (for FY2025, these were species and cod open season)
+
+
 cd $input_data_cd
 
 clear

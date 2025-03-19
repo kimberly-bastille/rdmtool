@@ -1,4 +1,13 @@
 
+
+
+
+* This file creates:
+	*1) total harvest and discards for each species for January-June and July-December to align with the 
+		 *length-weight equations that vary by season (for haddock)
+	*2) total harvest and discards for each species for the entire year
+	
+	
 cd $input_data_cd
 
 clear
@@ -107,7 +116,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="AAA"
 
 replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="GOM" if st2=="25" & intsite==224
 
@@ -377,7 +386,7 @@ merge m:1 intsite using `mrip_sites',  keep(1 3)
 gen str3 area_s="AAA"
 
 replace area_s="GOM" if st2=="23" | st2=="33"
-replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,11, 512, 513,  514)
+replace area_s="GOM" if st2=="25" & inlist(nmfs_stat_area,511, 512, 513,  514)
 replace area_s="GBS" if st2=="25" & inlist(nmfs_stat_area,521, 526, 537,  538)
 replace area_s="GOM" if st2=="25" & intsite==224
 

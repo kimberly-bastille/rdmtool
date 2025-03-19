@@ -1,4 +1,7 @@
 
+#This file pulls in the data from step 1, i.e., the differences between model simulated harvest 
+#and MRIP estimates of harvest, and re-runs the calibration model but this time adjusts per-trip
+#outcomes until simulated harvest in numbers of fish is within 5% or 500 fish of the MRIP estimate. 
 
 baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) 
 
@@ -303,8 +306,9 @@ for(i in unique(baseline_output0$mrip_index)){
     
   }
   
-  
-  #source(file.path(code_cd, "calibration_catch_weights.R"))
+
+  ##Uncomment this if you want calibration catch weights
+  #source(file.path(code_cd, "calibration_catch_weights2.R"))
 
 }
 
@@ -352,24 +356,6 @@ check3<-check2 %>%
 saveRDS(check2, file = file.path(input_data_cd, "calibration_comparison.rds"))
 n_distinct(check2$draw)
 
-#Compile the calibration catch weights
-# check1a<-data.frame() 
-# check2a<-data.frame() 
-# 
-# for(i in unique(check2$mrip_index)){
-#   check0a<- check2 %>% dplyr::filter(mrip_index==i)
-#   
-#   season1<-unique(check0a$open)
-#   mode1<-unique(check0a$mode)
-#   draw1<-unique(check0a$draw)
-# 
-#   check1a<- readRDS(file.path(iterative_input_data_cd, paste0("calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds")))
-#   check2a<-rbind(check1a, check2a)
-#   
-# }
-# n_distinct(check2a$run)
-# write_xlsx(check2a, file.path(output_data_cd, "calibration_catch_weights_cm.xlsx"))
-
 
 ##Now we have the data for the projections stored in input_data_cd:
 #pds_new_x = number of choice occasion
@@ -379,27 +365,23 @@ n_distinct(check2$draw)
 
 
 
-#Combine all the calibraiton data
-
-
-# baseline_output0<-readRDS(file.path(input_data_cd, "harvest_differences_check.rds")) %>% 
-#   dplyr::filter(draw<=108)
+##Uncomment this if you want calibration catch weights
+#Compile the calibration catch weights
+# check1a<-data.frame()
+# check2a<-data.frame()
 # 
-# n_distinct(baseline_output0$draw)
+# for(i in unique(check2$mrip_index)){
+#   check0a<- check2 %>% dplyr::filter(mrip_index==i)
 # 
-# check1<-data.frame() 
-# check2<-data.frame() 
+#   season1<-unique(check0a$open)
+#   mode1<-unique(check0a$mode)
+#   draw1<-unique(check0a$draw)
 # 
-# for(i in unique(baseline_output0$mrip_index)){
-#   check0<-baseline_output0 %>% dplyr::filter(mrip_index==i)
-#   
-#   season1<-unique(check0$open)
-#   mode1<-unique(check0$mode)
-#   draw1<-unique(check0$draw)
-#   
-#   check1 <- feather::read_feather(file.path(iterative_input_data_cd, paste0("pds_new_", mode1,"_", season1, "_", draw1, ".feather"))) 
-#   check2<-rbind(check1, check2)
-#   
+#   check1a<- readRDS(file.path(iterative_input_data_cd, paste0("calibrate_catch_wts_", mode1,"_", season1, "_", draw1, ".rds")))
+#   check2a<-rbind(check1a, check2a)
+# 
 # }
-# 
-# write_xlsx(check2, file.path(output_data_cd, "calibration_stats.xlsx"))
+# n_distinct(check2a$run)
+
+# write_xlsx(check2a, file.path(input_data_cd, "calibration_catch_weights_cm.xlsx"))
+
